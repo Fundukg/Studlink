@@ -9,6 +9,7 @@
     "prettify": "prettier --log-level warn --cache --write '{src/**/*,*}.{ts,tsx,js,json,yml,scss}' '!**/{node_modules,dist}/**/*'"
   },
   "dependencies": {
+    "@trpc/server": "^11.3.0",
     "express": "^5.1.0"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 export const App = () => {
-  const informatoin = [
+  const work_desk = [
     { nick: 'cool-set-nick-1', name: 'Profile', description: 'Description...' },
     {
       nick: 'cool-set-nick-2',
@@ -16,11 +16,11 @@ export const App = () => {
   return (
     <div>
       <h1>StudLink</h1>
-      {informatoin.map((informatoin) => {
+      {work_desk.map((work_desk) => {
         return (
-          <div key={informatoin.nick}>
-            <h2>{informatoin.name}</h2>
-            <p>{informatoin.description}</p>
+          <div key={work_desk.nick}>
+            <h2>{work_desk.name}</h2>
+            <p>{work_desk.description}</p>
           </div>
         )
       })}
