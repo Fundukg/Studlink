@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "@Parkstick/backend",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@trpc/server": "^11.3.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
     "@types/node": "^22.15.29",
     "prettier": "^3.5.3",

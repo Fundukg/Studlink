@@ -1,6 +1,8 @@
 import { initTRPC } from '@trpc/server'
 
-const work_desk = [
+
+
+const WorkDesk= [
   { nick: 'cool-set-nick-1', name: 'Profile', description: 'Description...' },
   {
     nick: 'cool-set-nick-2',
@@ -17,10 +19,10 @@ const work_desk = [
 
 const trpc = initTRPC.create()
 
-export const trpcRouter = trpc.router({
-  getWork_desk: trpc.procedure.query(() => {
-    return { work_desk }
+export const TrpcRouter = trpc.router({
+  getWorkDesk: trpc.procedure.query(()=> {
+    return { WorkDesk }
   }),
 })
 
-export type trpcRouter = typeof trpcRouter 
+export type TrpcRouter = typeof TrpcRouter

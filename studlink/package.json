@@ -1,5 +1,5 @@
 {
-  "name": "studlink",
+  "name": "@Parkstick/studlink",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,6 +11,10 @@
     "prettify": "prettier --log-level warn --cache --write '{src/**/*,*}.{ts,tsx,js,json,yml,scss}' '!**/{node_modules,dist}/**/*'"
   },
   "dependencies": {
+    "@Parkstick/backend": "workspace:*",
+    "@tanstack/react-query": "^5.80.6",
+    "@trpc/client": "^11.3.0",
+    "@trpc/react-query": "^11.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
