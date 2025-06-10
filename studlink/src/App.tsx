@@ -1,11 +1,10 @@
-import { TrpcProvider } from "./lib/trpc"
-import { WorkDesk } from "./pages/WorkDeskPage"
+import { TrpcProvider } from './lib/trpc'
+import { WorkDesk } from './pages/WorkDeskPage'
 
-
- export const App = () => {
+export const App = () => {
   return (
     <TrpcProvider>
-      <WorkDesk/>
+      <WorkDesk />
     </TrpcProvider>
   )
- }
+}

@@ -1,9 +1,9 @@
 import { trpc } from '../../lib/trpc'
 
 interface WorkDeskItem {
-  nick: string;
-  name: string;
-  description: string;
+  nick: string
+  name: string
+  description: string
 }
 
 export const WorkDesk = () => {
