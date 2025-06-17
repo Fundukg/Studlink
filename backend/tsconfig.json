@@ -23,5 +23,5 @@
     "moduleResolution": "Node",
     "target": "ES2021"
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts"]
 }

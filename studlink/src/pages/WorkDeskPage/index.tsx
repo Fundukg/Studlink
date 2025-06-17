@@ -1,6 +1,6 @@
 import { trpc } from '../../lib/trpc'
 
-interface WorkDeskItem {
+type WorkDeskItem = {
   nick: string
   name: string
   description: string

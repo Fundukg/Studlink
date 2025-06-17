@@ -1,0 +1,7 @@
+{
+  "eslint.workingDirectories": ["./studlink", "./backend"],
+  "eslint.options": {
+    "overrideConfigFile": "eslint.config.js"
+  
+}
+}

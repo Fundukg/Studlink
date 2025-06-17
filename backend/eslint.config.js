@@ -8,7 +8,7 @@ export default tseslint.config(
       'dist/**', // Игнорировать всю папку сборки
       'node_modules/**',
       'eslint.config.js', // Игнорировать сам конфиг ESLint
-    ],
+    ]
   },
   ...baseConfig,
   {
@@ -18,11 +18,11 @@ export default tseslint.config(
         version: 'detect',
       },
     },
-    rules: {
-      'react/react-in-jsx-scope': 'off',
-    },
+    
+      rules: {
+        'react/react-in-jsx-scope': "off"
+      }
   },
-
   {
     languageOptions: {
       parserOptions: {
@@ -31,19 +31,8 @@ export default tseslint.config(
     },
   },
   {
-    files: ['vite.config.ts'],
-    languageOptions: {
-      parserOptions: {
-        project: './tsconfig.node.json',
-      },
-    },
-  },
-  {
-    files: ['src/**/*'],
-    languageOptions: {
-      parserOptions: {
-        project: './tsconfig.app.json',
-      },
+    rules: {
+      'react/react-in-jsx-scope': 'off',
     },
   }
 )
