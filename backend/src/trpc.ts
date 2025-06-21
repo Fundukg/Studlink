@@ -1,4 +1,4 @@
-import { initTRPC } from '@trpc/server'
+import { initTRPC } from "@trpc/server"
 
 // interface WorkDeskItem {
 //   nick: string
@@ -12,6 +12,11 @@ const WorkDesk = [
   { nick: 'cool-set-nick-3', name: 'Calendar', description: 'Description...' },
   { nick: 'cool-set-nick-4', name: 'Schedule', description: 'Description...' },
 ]
+
+const x: string = 'helsld161'
+if (Math.random()) console.log(x)
+
+
 
 const trpc = initTRPC.create()
 
