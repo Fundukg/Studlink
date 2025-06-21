@@ -14,7 +14,7 @@ const WorkDesk = [
 ]
 
 const x: string = 'helsld161'
-if (Math.random()) console.log(x)
+if (Math.random()) console.info(x)
 
 
 
