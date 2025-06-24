@@ -1,0 +1,16 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+commit_msg=$(cat "$1")
+
+actual_msg=$(echo "$commit_msg" | awk 'NF && $1 !~ /^#/')
+
+first_line=$(echo "$actual_msg" | head -n1)
+other_lines=$(echo "$actual_msg" | tail -n +2)
+
+formatted_first_line=$(echo "$first_line" |  sed -e $'s/^[ \t]*//' -e $'s/[ \t]*\.*[ \t]*$//' -E -e $'s/[ \t]+/ /g' | awk '{ $0=toupper(substr($0,1,1)) substr($0,2); } 1')
+
+formatted_msg="${formatted_first_line}
+${other_lines}"
+
+echo "$formatted_msg" > "$1"
