@@ -1,10 +1,11 @@
 import { useParams } from 'react-router-dom'
+import type { DialoguesRouteParams } from '../../lib/routes'
 
 export const DialoguesPage = () => {
-  const { WorkDesk } = useParams() as { WorkDesk: string }
+  const { workdesk } = useParams() as DialoguesRouteParams
   return (
     <div>
-      <h1>{WorkDesk}</h1>
+      <h1>{workdesk}</h1>
       <div>
         <p>Dialogue 1 ...</p>
         <p>Dialogue 2 ...</p>
