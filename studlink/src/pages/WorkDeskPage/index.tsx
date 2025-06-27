@@ -1,13 +1,10 @@
+import { Link } from 'react-router-dom'
+import { getDialoguesRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 
-// type WorkDeskItem = {
-//   nick: string
-//   name: string
-//   description: string
-// }
 
-export const WorkDesk = () => {
-  const { data, error, isLoading, isFetching, isError } = trpc.getWorkDesk.useQuery()
+export const WorkDeskPage = () => {
+  const { data, error, isLoading, isFetching, isError } = trpc.getWorkDeskRoute.useQuery()
 
   if (isLoading || isFetching) {
     return <span>Loading...</span>
@@ -23,7 +20,9 @@ export const WorkDesk = () => {
       {data!.WorkDesk.map((WorkDeskList) => {
         return (
           <div key={WorkDeskList.nick}>
-            <h2>{WorkDeskList.name}</h2>
+            <h2>
+              <Link to={getDialoguesRoute({ workdesk: WorkDeskList.nick }) }>{WorkDeskList.name}</Link>
+            </h2>
             <p>{WorkDeskList.description}</p>
           </div>
         )
