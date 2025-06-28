@@ -10,7 +10,7 @@ export const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path={getWorkDeskRoute()} element={<WorkDeskPage />} />
-          <Route path={getDialoguesRoute(dialoguesRouteParams)}  element={<DialoguesPage />} />
+          <Route path={getDialoguesRoute(dialoguesRouteParams)} element={<DialoguesPage />} />
         </Routes>
       </BrowserRouter>
     </TrpcProvider>

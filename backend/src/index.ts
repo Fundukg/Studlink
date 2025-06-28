@@ -3,7 +3,6 @@ import cors from 'cors'
 import express from 'express'
 import { TrpcRouter } from './trpc'
 
-
 const expressApp = express()
 expressApp.use(cors())
 expressApp.get('/ping', (req, res) => {

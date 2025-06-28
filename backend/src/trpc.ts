@@ -1,4 +1,4 @@
-import { initTRPC } from "@trpc/server"
+import { initTRPC } from '@trpc/server'
 
 const WorkDesk = [
   { nick: 'cool-set-nick-1', name: 'Profile', description: 'Description...' },
@@ -9,9 +9,9 @@ const WorkDesk = [
 ]
 
 const x: string = 'helsld161'
-if (Math.random()) {console.info(x)}
-
-
+if (Math.random()) {
+  console.info(x)
+}
 
 const trpc = initTRPC.create()
 

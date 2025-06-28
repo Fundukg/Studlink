@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
 import { getDialoguesRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
+           
+
+
 
 
 export const WorkDeskPage = () => {
@@ -21,7 +24,7 @@ export const WorkDeskPage = () => {
         return (
           <div key={WorkDeskList.nick}>
             <h2>
-              <Link to={getDialoguesRoute({ workdesk: WorkDeskList.nick }) }>{WorkDeskList.name}</Link>
+              <Link to={getDialoguesRoute({ workdesk: WorkDeskList.nick })}>{WorkDeskList.name}</Link>
             </h2>
             <p>{WorkDeskList.description}</p>
           </div>
