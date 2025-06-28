@@ -1,10 +1,6 @@
 import { Link } from 'react-router-dom'
 import { getDialoguesRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
-           
-
-
-
 
 export const WorkDeskPage = () => {
   const { data, error, isLoading, isFetching, isError } = trpc.getWorkDeskRoute.useQuery()
