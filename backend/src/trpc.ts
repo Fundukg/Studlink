@@ -1,5 +1,6 @@
 import { initTRPC } from '@trpc/server'
 import _ from 'lodash'
+import { z } from 'zod'
 
 const WorkDesk = _.times(100, (i) => ({
   nick: `cool-set-nick-${i}`,
@@ -22,6 +23,16 @@ export const TrpcRouter = trpc.router({
   getWorkDeskRoute: trpc.procedure.query(() => {
     return { WorkDesk: WorkDesk.map((WorkDesk) => _.pick(WorkDesk, ['nick', 'name', 'description'])) }
   }),
+  getDialogues: trpc.procedure
+    .input(
+      z.object({
+        workdesk: z.string(),
+      })
+    )
+    .query(({ input }) => {
+      const workdesk = WorkDesk.find((WorkDesk) => WorkDesk.nick === input.workdesk)
+      return { WorkDesk: workdesk || null }
+    }),
 })
 
 export type TrpcRouter = typeof TrpcRouter
