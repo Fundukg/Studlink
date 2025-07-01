@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
-import { getWorkDeskRoute } from '../../lib/routes'
+import { getNewDistributionRoute, getWorkDeskRoute } from '../../lib/routes'
 import css from './index.module.scss'
 
 export const Layout = () => {
@@ -11,6 +11,11 @@ export const Layout = () => {
           <li className={css.item}>
             <Link className={css.link} to={getWorkDeskRoute()}>
               Work Desk
+            </Link>
+          </li>
+          <li className={css.item}>
+            <Link className={css.link} to={getNewDistributionRoute()}>
+              New Distribution
             </Link>
           </li>
         </ul>
