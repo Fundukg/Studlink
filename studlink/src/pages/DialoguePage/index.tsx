@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import type { DialoguesRouteParams } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
+import css from './index.module.scss'
 
 export const DialoguesPage = () => {
   const { workdesk } = useParams() as DialoguesRouteParams
@@ -21,9 +22,9 @@ export const DialoguesPage = () => {
 
   return (
     <div>
-      <h1>{data.WorkDesk.name}</h1>
-      <p>{data.WorkDesk.description}</p>
-      <div dangerouslySetInnerHTML={{ __html: data.WorkDesk.text }}></div>
+      <h1 className={css.title}>{data.WorkDesk.name}</h1>
+      <p className={css.description}>{data.WorkDesk.description}</p>
+      <div className={css.text} dangerouslySetInnerHTML={{ __html: data.WorkDesk.text }} />
     </div>
   )
 }

@@ -16,9 +16,12 @@
     "@tanstack/react-query": "^5.80.6",
     "@trpc/client": "^11.3.0",
     "@trpc/react-query": "^11.3.0",
+    "include-media": "^2.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.2"
+    "react-router-dom": "^7.6.2",
+    "reset-css": "^5.0.2",
+    "sass": "^1.89.2"
   },
   "devDependencies": {
     "@types/react": "^19.1.2",
