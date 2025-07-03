@@ -1,0 +1,22 @@
+@use '../../styles/_vars.scss' as *;
+@use '../../styles/_mixins.scss' as *;
+
+
+.segment {
+    h1.title {  
+        @include h1;
+    }
+
+    h2.title {  
+        @include h2;
+    }
+
+    .description {
+        font-size: 18px;
+        margin-top: 5px;
+    }
+
+    .content {
+        margin-top: 12px;
+    }
+}

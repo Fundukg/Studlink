@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Segment } from '../../components/Segment/index'
 import { getDialoguesRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
@@ -15,20 +16,22 @@ export const WorkDeskPage = () => {
   }
 
   return (
-    <div>
-      <h1 className={css.title}>All Ideas</h1>
+    <Segment title="WorkDesk">
       <div className={css.ideas}>
         {data!.WorkDesk.map((workdesk) => (
           <div className={css.idea} key={workdesk.nick}>
-            <h2 className={css.ideaName}>
-              <Link className={css.ideaLink} to={getDialoguesRoute({ workdesk: workdesk.nick })}>
-                {workdesk.name}
-              </Link>
-            </h2>
-            <p className={css.ideaDescription}>{workdesk.description}</p>
+            <Segment
+              title={
+                <Link className={css.ideaLink} to={getDialoguesRoute({ workdesk: workdesk.nick })}>
+                  {workdesk.name}
+                </Link>
+              }
+              size={2}
+              description={workdesk.description}
+            />
           </div>
         ))}
       </div>
-    </div>
+    </Segment>
   )
 }

@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom'
+import { Segment } from '../../components/Segment'
 import type { DialoguesRouteParams } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
@@ -21,10 +22,8 @@ export const DialoguesPage = () => {
   }
 
   return (
-    <div>
-      <h1 className={css.title}>{data.WorkDesk.name}</h1>
-      <p className={css.description}>{data.WorkDesk.description}</p>
+    <Segment title={data.WorkDesk.name} description={data.WorkDesk.description}>
       <div className={css.text} dangerouslySetInnerHTML={{ __html: data.WorkDesk.text }} />
-    </div>
+    </Segment>
   )
 }
