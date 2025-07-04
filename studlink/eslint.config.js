@@ -7,7 +7,8 @@ export default tseslint.config(
     ignores: [
       'dist/**', // Игнорировать всю папку сборки
       'node_modules/**',
-      'eslint.config.js', // Игнорировать сам конфиг ESLint
+      'eslint.config.js',
+      'stylelint.config.js',
     ],
   },
   ...baseConfig,

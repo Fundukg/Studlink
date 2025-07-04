@@ -2,6 +2,16 @@
   "eslint.workingDirectories": ["./studlink", "./backend"],
   "eslint.options": {
     "overrideConfigFile": "eslint.config.js"
-  
-}
+  },
+  "stylelint.enable": true,
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  // Добавьте автоисправление:
+  "stylelint.validate": ["scss"],
+  // Удалите configBasedir или укажите правильный путь:
+  "stylelint.configBasedir": "${workspaceFolder}/studlink",
+  "stylelint.packageManager": "pnpm",
+  // Добавьте для надежности:
+  "stylelint.configFile": "${workspaceFolder}/studlink/.stylelintrc.yml"
 }

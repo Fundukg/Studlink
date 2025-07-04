@@ -1,4 +1,7 @@
 '*.{ts.tsx,js,jsx}':
   - 'eslint --cache --cache-location ./node_modules/.cache/.eslintcache --fix'
   - 'prettier --log-level warn --cache --write'
+'*.scss':
+  - 'stylelint --cache --cache-location ./node_modules/.cache/.stylelintcache --fix'
+  - 'prettier --log-level warn --cache --write'
 '*.{json,yml, scss}': 'prettier --log-level warn --cache --write'

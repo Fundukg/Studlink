@@ -1,23 +1,23 @@
-@use '_vars.scss' as *;
-@use '../../node_modules/include-media/dist/_include-media.scss' as *;
+@use 'vars' as *;
+@use '../../node_modules/include-media/dist/_include-media' as *;
 
 @mixin link($color: $blue, $hoverColor: $red) {
-    color: $color;
-    transition: color 200ms ease;
-    &:hover,
-    &:active{
-        color: $hoverColor;
-        transition: none
-    }
+  color: $color;
+  transition: color 200ms ease;
 
+  &:hover,
+  &:active {
+    color: $hoverColor;
+    transition: none;
+  }
 }
 
 @mixin h1 {
-    font-size: 30px;
-    font-weight: bold;
+  font-size: 30px;
+  font-weight: bold;
 }
 
 @mixin h2 {
-    font-size: 24px;
-    font-weight: bold;
+  font-size: 24px;
+  font-weight: bold;
 }
