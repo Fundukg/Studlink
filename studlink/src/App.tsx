@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { DialoguesBar } from './components/Dialoguesbar'
 import { Layout } from './components/Layout'
 import * as routes from './lib/routes'
 import { TrpcProvider } from './lib/trpc'
@@ -13,9 +14,11 @@ export const App = () => {
     <TrpcProvider>
       <BrowserRouter>
         <Routes>
+          <Route path={routes.getDialoguesRoute(routes.dialoguesRouteParams)} element={<DialoguesBar />}>
+            <Route path={routes.getDialoguesRoute(routes.dialoguesRouteParams)} element={<DialoguesPage />} />
+          </Route>
           <Route element={<Layout />}>
             <Route path={routes.getWorkDeskRoute()} element={<WorkDeskPage />} />
-            <Route path={routes.getDialoguesRoute(routes.dialoguesRouteParams)} element={<DialoguesPage />} />
             <Route path={routes.getNewDistributionRoute()} element={<NewDistributionPage />} />
           </Route>
         </Routes>
