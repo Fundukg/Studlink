@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { DialoguesBar } from './components/Dialoguesbar'
+import { DialoguesBar } from './components/DialoguesBar'
 import { Layout } from './components/Layout'
 import * as routes from './lib/routes'
 import { TrpcProvider } from './lib/trpc'

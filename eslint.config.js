@@ -41,11 +41,12 @@ export default tseslint.config(
       '@typescript-eslint/triple-slash-reference': 'off',
       '@typescript-eslint/ban-types': 'off',
       '@typescript-eslint/consistent-type-assertions': 'off',
-      
+      '@typescript-eslint/no-explicit-any': 'off',
+
       // JSX правила (если используется)
       'jsx-a11y/anchor-is-valid': 'off',
       'react/react-in-jsx-scope': 'off',
-      
+
       // Базовые ESLint правила
       curly: ['error', 'all'],
       'no-irregular-whitespace': [

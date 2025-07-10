@@ -9,3 +9,7 @@
     margin-top: 10px;
   }
 }
+
+.title {
+  @include h1;
+}

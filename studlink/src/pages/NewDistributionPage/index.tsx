@@ -1,12 +1,16 @@
 import { useState } from 'react'
+import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
+import { Textarea } from '../../components/Textarea'
 
 export const NewDistributionPage = () => {
-  const [state, setState] = useState({
-    coures: '',
+  const [state, setState] = useState<Record<string, any>>({
+    course: '',
     departament: '',
     directions: '',
     group: '',
+    message: '',
+    bottom: '',
   })
 
   return (
@@ -17,119 +21,11 @@ export const NewDistributionPage = () => {
           console.info('Submitted', state)
         }}
       >
-        <div style={{ marginBottom: 10 }}>
-          <label htmlFor="coures">Курс</label>
-          <br />
-          {['1', '2', '3', '4'].map((num) => (
-            <button
-              key={num}
-              type="button"
-              style={{ marginRight: 5 }}
-              onClick={() => setState({ ...state, coures: num })}
-            >
-              {num}
-            </button>
-          ))}
-          <input
-            type="text"
-            onChange={(e) => {
-              setState({ ...state, coures: e.target.value })
-            }}
-            value={state.coures}
-            name="coures"
-            id="coures"
-          />
-          <select id="coures">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 10 }}>
-          <label htmlFor="departament">Кафедра</label>
-          <br />
-          {['TTФ', 'ФЛиСХ'].map((num) => (
-            <button
-              key={num}
-              type="button"
-              style={{ marginRight: 5 }}
-              onClick={() => setState({ ...state, departament: num })}
-            >
-              {num}
-            </button>
-          ))}
-          <input
-            type="text"
-            onChange={(e) => {
-              setState({ ...state, departament: e.target.value })
-            }}
-            value={state.departament}
-            name="departament"
-            id="departament"
-          />
-          <select id="departament" onChange={(e) => setState({ ...state, departament: e.target.value })}>
-            <option value="TTФ">TTФ</option>
-            <option value="ФЛиСХ">ФЛиСХ</option>
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 10 }}>
-          <label htmlFor="directions">Направление</label>
-          <br />
-          {['...'].map((num) => (
-            <button
-              key={num}
-              type="button"
-              style={{ marginRight: 5 }}
-              onClick={() => setState({ ...state, directions: num })}
-            >
-              {num}
-            </button>
-          ))}
-          <input
-            type="text"
-            onChange={(e) => {
-              setState({ ...state, directions: e.target.value })
-            }}
-            value={state.directions}
-            name="directions"
-            id="directions"
-          />
-          <select id="directions" onChange={(e) => setState({...state, directions: e.target.value})}>
-            <option value="...">...</option>
-            <option value="...">...</option>
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 10 }}>
-          <label htmlFor="group">Группа</label>
-          <br />
-           {['...'].map((num) => (
-            <button
-              key={num}
-              type="button"
-              style={{ marginRight: 5 }}
-              onClick={() => setState({ ...state, directions: num })}
-            >
-              {num}
-            </button>
-          ))}
-          <input
-            type="text"
-            onChange={(e) => {
-              setState({ ...state, group: e.target.value })
-            }}
-            value={state.group}
-            name="group"
-            id="group"
-          />
-          <select id="group" onChange={(e) => setState({...state, group: e.target.value})}>
-            <option value="...">...</option>
-            <option value="...">...</option>
-          </select>
-        </div>
+        <Input name="course" bottom={['1', '2', '3', '4']} label="Курс" state={state} setState={setState} />
+        <Input name="departament" bottom={['TTФ', 'ФЛиСХ']} label="Кафедра" state={state} setState={setState} />
+        <Input name="directions" bottom={['...']} label="Направление" state={state} setState={setState} />
+        <Input name="group" bottom={['...']} label="Группа" state={state} setState={setState} />
+        <Textarea name="message" label="Сообщение" state={state} setState={setState} />
 
         <button type="submit">Отправить</button>
       </form>
