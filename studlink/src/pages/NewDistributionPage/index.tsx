@@ -1,16 +1,21 @@
-import { useState } from 'react'
+import { useFormik } from 'formik'
 import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
 
 export const NewDistributionPage = () => {
-  const [state, setState] = useState<Record<string, any>>({
-    course: '',
-    departament: '',
-    directions: '',
-    group: '',
-    message: '',
-    bottom: '',
+  const formik = useFormik({
+    initialValues: {
+      course: '',
+      departament: '',
+      directions: '',
+      group: '',
+      message: '',
+      bottom: '',
+    },
+    onSubmit: (values) => {
+      console.info('Submitted', values)
+    },
   })
 
   return (
@@ -18,15 +23,14 @@ export const NewDistributionPage = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          console.info('Submitted', state)
+          formik.handleSubmit()
         }}
       >
-        <Input name="course" bottom={['1', '2', '3', '4']} label="Курс" state={state} setState={setState} />
-        <Input name="departament" bottom={['TTФ', 'ФЛиСХ']} label="Кафедра" state={state} setState={setState} />
-        <Input name="directions" bottom={['...']} label="Направление" state={state} setState={setState} />
-        <Input name="group" bottom={['...']} label="Группа" state={state} setState={setState} />
-        <Textarea name="message" label="Сообщение" state={state} setState={setState} />
-
+        <Input name="course" bottoms={['1', '2', '3', '4']} label="Курс" formik={formik} />
+        <Input name="departament" bottoms={['TTФ', 'ФЛиСХ']} label="Кафедра" formik={formik} />
+        <Input name="directions" bottoms={['...']} label="Направление" formik={formik} />
+        <Input name="group" bottoms={['...']} label="Группа" formik={formik} />
+        <Textarea name="message" label="Сообщение" formik={formik} />
         <button type="submit">Отправить</button>
       </form>
     </Segment>

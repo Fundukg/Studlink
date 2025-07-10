@@ -1,35 +1,35 @@
+import type { FormikProps } from 'formik'
+
 export const Input = ({
   name,
   label,
-  bottom,
-  state,
-  setState,
+  bottoms,
+  formik,
 }: {
   name: string
   label: string
-  bottom: string[]
-  state: Record<string, any>
-  setState: React.Dispatch<React.SetStateAction<Record<string, any>>>
+  bottoms: string[]
+  formik: FormikProps<any>
 }) => {
+  const value = formik.values[name]
   return (
     <div style={{ marginBottom: 10 }}>
       <label htmlFor={name}>{label}</label>
       <br />
-      {bottom.map((num) => (
-        <button key={num} type="button" style={{ marginRight: 5 }} onClick={() => setState({ ...state, [name]: num })}>
+      {bottoms.map((num) => (
+        <button key={num} type="button" style={{ marginRight: 5 }} onClick={() => formik.setFieldValue(name, num)}>
           {num}
         </button>
       ))}
       <input
         type="text"
         onChange={(e) => {
-          setState({ ...state, [name]: e.target.value })
+          void formik.setFieldValue(name, e.target.value)
         }}
-        value={state[name]}
+        value={value}
         name={name}
         id={name}
       />
     </div>
   )
 }
-
