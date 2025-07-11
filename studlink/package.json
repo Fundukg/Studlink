@@ -19,12 +19,14 @@
     "@trpc/client": "^11.3.0",
     "@trpc/react-query": "^11.3.0",
     "formik": "^2.4.6",
+    "formik-validator-zod": "^2.2.0",
     "include-media": "^2.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",
     "reset-css": "^5.0.2",
-    "sass": "^1.89.2"
+    "sass": "^1.89.2",
+    "zod": "^3.25.73"
   },
   "devDependencies": {
     "@types/react": "^19.1.2",
