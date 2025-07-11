@@ -60,6 +60,7 @@ export const NewDistributionPage = () => {
         <Input name="directions" bottoms={['ИСиТ']} label="Направление" formik={formik} />
         <Input name="group" bottoms={['315', '325', '335', '345']} label="Группа" formik={formik} />
         <Textarea name="message" label="Сообщение" formik={formik} />
+        {!formik.isValid && !!formik.submitCount&&<div style={{ color: 'red' }}>Заполните все поля</div>}
         <button type="submit">Отправить</button>
       </form>
     </Segment>
