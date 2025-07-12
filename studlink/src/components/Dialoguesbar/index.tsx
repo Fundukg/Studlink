@@ -1,11 +1,11 @@
 import { Link, Outlet } from 'react-router-dom'
-import { getDialoguesRoute, getWorkDeskRoute } from '../../lib/routes'
+import { getDialoguesRoute, getWorkDesk } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 import { Segment } from '../Segment'
 import css from './index.module.scss'
 
 export const DialoguesBar = () => {
-  const { data, isLoading, error } = trpc.getWorkDeskRoute.useQuery()
+  const { data, isLoading, error } = trpc.getWorkDesk.useQuery()
   if (isLoading) {
     return <div>Loading navigation...</div>
   }
@@ -22,7 +22,7 @@ export const DialoguesBar = () => {
         <ul className={css.menu}>
           <li className={css.item}>
             <div className={css.ideas}>
-              <Link className={css.link} to={getWorkDeskRoute()}>
+              <Link className={css.link} to={getWorkDesk()}>
                 Work Desk
               </Link>
               {data!.WorkDesk.map((workdesk) => (

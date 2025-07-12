@@ -18,7 +18,7 @@ export const App = () => {
             <Route path={routes.getDialoguesRoute(routes.dialoguesRouteParams)} element={<DialoguesPage />} />
           </Route>
           <Route element={<Layout />}>
-            <Route path={routes.getWorkDeskRoute()} element={<WorkDeskPage />} />
+            <Route path={routes.getWorkDesk()} element={<WorkDeskPage />} />
             <Route path={routes.getNewDistributionRoute()} element={<NewDistributionPage />} />
           </Route>
         </Routes>

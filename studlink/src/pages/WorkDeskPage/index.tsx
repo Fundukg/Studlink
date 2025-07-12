@@ -5,7 +5,7 @@ import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
 export const WorkDeskPage = () => {
-  const { data, error, isLoading, isFetching, isError } = trpc.getWorkDeskRoute.useQuery()
+  const { data, error, isLoading, isFetching, isError } = trpc.getWorkDesk.useQuery()
 
   if (isLoading || isFetching) {
     return <span>Loading...</span>
