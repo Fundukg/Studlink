@@ -1,8 +1,8 @@
 import _ from "lodash"
-import { WorkDesk } from "../../lib/dialogue"
+import { Dialogue } from "../../lib/dialogue"
 import { trpc } from "../../lib/trpc"
 
 
 export const getWorkDeskTrpcRoute = trpc.procedure.query(() => {
-    return { WorkDesk: WorkDesk.map((WorkDesk) => _.pick(WorkDesk, ['nick', 'name', 'description'])) }
+    return { dialogue: Dialogue.map((dialogue) => _.pick(dialogue, ['course', 'departament', 'directions', 'group', 'message'])) }
   })

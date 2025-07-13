@@ -4,7 +4,10 @@ import { z } from 'zod'
 import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
+import { trpc } from '../../lib/trpc'
+
 export const NewDistributionPage = () => {
+  const createDistribution = trpc.createDistribution.useMutation() 
   const formik = useFormik({
     initialValues: {
       course: '',
@@ -34,12 +37,11 @@ export const NewDistributionPage = () => {
           .regex(/^[a-zА-Яа-я0-9-]+$/, 'Directions contain only lowercase letters number and dashes')
           .max(10),
         message: z.string().min(1, 'Message should be at least 10 characters long'),
-        bottom: z.string().min(1),
       })
     ),
 
-    onSubmit: (values) => {
-      console.info('Submitted', values)
+   onSubmit: async(values) => {
+      await createDistribution.mutateAsync(values)
     },
   })
 

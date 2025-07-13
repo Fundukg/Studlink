@@ -12,7 +12,7 @@ export const DialoguesBar = () => {
   if (error) {
     return <div>Error: {error.message}</div>
   }
-  if (!data?.WorkDesk) {
+  if (!data?.dialogue) {
     return <div>Dialogue not found</div>
   }
 
@@ -25,16 +25,16 @@ export const DialoguesBar = () => {
               <Link className={css.link} to={getWorkDesk()}>
                 Work Desk
               </Link>
-              {data!.WorkDesk.map((workdesk) => (
-                <div className={css.idea} key={workdesk.nick}>
+              {data!.dialogue.map((workdesk) => (
+                <div className={css.idea} key={workdesk.course}>
                   <Segment
                     title={
-                      <Link className={css.ideaLink} to={getDialoguesRoute({ workdesk: workdesk.nick })}>
-                        {workdesk.name}
+                      <Link className={css.ideaLink} to={getDialoguesRoute({ Dialogue: workdesk.course})}>
+                        {workdesk.departament}
                       </Link>
                     }
                     size={2}
-                    description={workdesk.description}
+                    description={workdesk.group}
                   />
                 </div>
               ))}

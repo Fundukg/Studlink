@@ -5,9 +5,9 @@ import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
 export const DialoguesPage = () => {
-  const { workdesk } = useParams() as DialoguesRouteParams
+  const { Dialogue: workdesk } = useParams() as DialoguesRouteParams
 
-  const { data, error, isLoading, isFetching, isError } = trpc.getDialogues.useQuery({ workdesk })
+  const { data, error, isLoading, isFetching, isError } = trpc.getDialogues.useQuery({ dialogue: workdesk })
 
   if (isLoading || isFetching) {
     return <span>Loading...</span>
@@ -17,13 +17,13 @@ export const DialoguesPage = () => {
     return <span>Error: {error.message}</span>
   }
 
-  if (!data?.WorkDesk) {
+  if (!data?.Dialogue) {
     return <span>Dialogue not found</span>
   }
 
   return (
-    <Segment title={data.WorkDesk.name} description={data.WorkDesk.description}>
-      <div className={css.text} dangerouslySetInnerHTML={{ __html: data.WorkDesk.text }} />
+    <Segment title={data.Dialogue.course} description={data.Dialogue.departament}>
+      <div className={css.text} dangerouslySetInnerHTML={{ __html: data.Dialogue.message }} />
     </Segment>
   )
 }
