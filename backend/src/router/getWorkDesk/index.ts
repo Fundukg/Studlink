@@ -4,5 +4,5 @@ import { trpc } from "../../lib/trpc"
 
 
 export const getWorkDeskTrpcRoute = trpc.procedure.query(() => {
-    return { dialogue: Dialogue.map((dialogue) => _.pick(dialogue, ['course', 'departament', 'directions', 'group', 'message'])) }
+    return { Dialogue: Dialogue.map((dialogue) => _.pick(dialogue, ['course', 'department', 'directions', 'group', 'message'])) }
   })

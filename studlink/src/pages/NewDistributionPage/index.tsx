@@ -1,6 +1,6 @@
+import { zCreateDistributionTrpcInput } from '@parkstick/backend/src/router/createDistribution/input'
 import { useFormik } from 'formik'
 import { withZodSchema } from 'formik-validator-zod'
-import { z } from 'zod'
 import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
@@ -11,7 +11,7 @@ export const NewDistributionPage = () => {
   const formik = useFormik({
     initialValues: {
       course: '',
-      departament: '',
+      department: '',
       directions: '',
       group: '',
       message: '',
@@ -19,25 +19,7 @@ export const NewDistributionPage = () => {
     },
 
     validate: withZodSchema(
-      z.object({
-        course: z.string().min(1).max(4),
-        departament: z
-          .string()
-          .min(1)
-          .regex(/^[a-zА-Яа-я0-9-]+$/, 'Directions contain only lowercase letters number and dashes')
-          .max(10),
-        directions: z
-          .string()
-          .min(1)
-          .regex(/^[a-zА-Яа-я0-9-]+$/, 'Directions contain only lowercase letters number and dashes')
-          .max(10),
-        group: z
-          .string()
-          .min(1)
-          .regex(/^[a-zА-Яа-я0-9-]+$/, 'Directions contain only lowercase letters number and dashes')
-          .max(10),
-        message: z.string().min(1, 'Message should be at least 10 characters long'),
-      })
+      zCreateDistributionTrpcInput
     ),
 
    onSubmit: async(values) => {
@@ -54,7 +36,7 @@ export const NewDistributionPage = () => {
         }}
       >
         <Input name="course" bottoms={['1', '2', '3', '4']} label="Курс" formik={formik} />
-        <Input name="departament" bottoms={['ТТФ', 'ФЛиСХ']} label="Кафедра" formik={formik} />
+        <Input name="department" bottoms={['ТТФ', 'ФЛиСХ']} label="Кафедра" formik={formik} />
         <Input name="directions" bottoms={['ИСиТ']} label="Направление" formik={formik} />
         <Input name="group" bottoms={['315', '325', '335', '345']} label="Группа" formik={formik} />
         <Textarea name="message" label="Сообщение" formik={formik} />

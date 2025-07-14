@@ -18,16 +18,16 @@ export const WorkDeskPage = () => {
   return (
     <Segment title="WorkDesk">
       <div className={css.ideas}>
-        {data!.dialogue.map((dialogue) => (
+        {data!.Dialogue.map((dialogue) => (
           <div className={css.idea} key={dialogue.course}>
             <Segment
               title={
                 <Link className={css.ideaLink} to={getDialoguesRoute({ Dialogue: dialogue.course})}>
-                  {dialogue.departament}
+                  {dialogue.group}
                 </Link>
               }
               size={2}
-              description={dialogue.group}
+              description={dialogue.department}
             />
           </div>
         ))}

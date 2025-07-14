@@ -7,7 +7,7 @@ import css from './index.module.scss'
 export const NewDistributionPage = () => {
   const [state, setState] = useState({
     coures: '',
-    departament: '',
+    department: '',
     directions: '',
     group: '',
   })
@@ -59,14 +59,14 @@ export const NewDistributionPage = () => {
               </li>
               <li className={css.item}>
                 <div style={{ marginBottom: 10 }}>
-                  <label htmlFor="departament">Кафедра</label>
+                  <label htmlFor="department">Кафедра</label>
                   <br />
                   {['TTФ', 'ФЛиСХ'].map((num) => (
                     <button
                       key={num}
                       type="button"
                       style={{ marginRight: 5 }}
-                      onClick={() => setState({ ...state, departament: num })}
+                      onClick={() => setState({ ...state, department: num })}
                     >
                       {num}
                     </button>
@@ -74,13 +74,13 @@ export const NewDistributionPage = () => {
                   <input
                     type="text"
                     onChange={(e) => {
-                      setState({ ...state, departament: e.target.value })
+                      setState({ ...state, department: e.target.value })
                     }}
-                    value={state.departament}
-                    name="departament"
-                    id="departament"
+                    value={state.department}
+                    name="department"
+                    id="department"
                   />
-                  <select id="departament" onChange={(e) => setState({ ...state, departament: e.target.value })}>
+                  <select id="department" onChange={(e) => setState({ ...state, department: e.target.value })}>
                     <option value="TTФ">TTФ</option>
                     <option value="ФЛиСХ">ФЛиСХ</option>
                   </select>

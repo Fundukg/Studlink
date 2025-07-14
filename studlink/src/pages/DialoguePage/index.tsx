@@ -22,7 +22,7 @@ export const DialoguesPage = () => {
   }
 
   return (
-    <Segment title={data.Dialogue.course} description={data.Dialogue.departament}>
+    <Segment title={data.Dialogue.course} description={data.Dialogue.department}>
       <div className={css.text} dangerouslySetInnerHTML={{ __html: data.Dialogue.message }} />
     </Segment>
   )
