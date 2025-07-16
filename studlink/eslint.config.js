@@ -46,5 +46,25 @@ export default tseslint.config(
         project: './tsconfig.app.json',
       },
     },
+  },
+  {
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@parkstick/backend/**',
+                '!@parkstick/backend/**/', // Запрет всего
+                '!@parkstick/backend/**/input', // Исключение для файлов с "input" в имени
+              ],
+              allowTypeImports: true,
+              message: 'Only types and input schemas are allowed to be imported from backend workspace',
+            },
+          ],
+        },
+      ],
+    },
   }
 )
