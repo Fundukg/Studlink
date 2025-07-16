@@ -5,7 +5,7 @@ export const zCreateDistributionTrpcInput = z.object({
   department: z
     .string()
     .min(1)
-    .regex(/^[a-zА-Яа-я0-9-]+$/, 'Directions contain only lowercase letters number and dashes')
+    .regex(/^[a-zА-Яа-я0-9-]+$/, 'Department contain only lowercase letters number and dashes')
     .max(10),
   directions: z
     .string()
@@ -15,7 +15,7 @@ export const zCreateDistributionTrpcInput = z.object({
   group: z
     .string()
     .min(1)
-    .regex(/^[a-zА-Яа-я0-9-]+$/, 'Directions contain only lowercase letters number and dashes')
+    .regex(/^[a-zА-Яа-я0-9-]+$/, 'Group contain only lowercase letters number and dashes')
     .max(10),
   message: z.string().min(1, 'Message should be at least 10 characters long'),
 })

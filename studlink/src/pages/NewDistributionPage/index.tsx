@@ -1,13 +1,16 @@
 import { zCreateDistributionTrpcInput } from '@parkstick/backend/src/router/createDistribution/input'
 import { useFormik } from 'formik'
 import { withZodSchema } from 'formik-validator-zod'
+import { useState } from 'react'
 import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
 import { trpc } from '../../lib/trpc'
 
 export const NewDistributionPage = () => {
-  const createDistribution = trpc.createDistribution.useMutation() 
+  const [successMessage, setSuccessMessage] = useState(false)
+  const [sabmittingError, setSubmittingError] = useState<string | null>(null)
+  const createDistribution = trpc.createDistribution.useMutation()
   const formik = useFormik({
     initialValues: {
       course: '',
@@ -18,12 +21,22 @@ export const NewDistributionPage = () => {
       bottom: '',
     },
 
-    validate: withZodSchema(
-      zCreateDistributionTrpcInput
-    ),
+    validate: withZodSchema(zCreateDistributionTrpcInput),
 
-   onSubmit: async(values) => {
-      await createDistribution.mutateAsync(values)
+    onSubmit: async (values) => {
+      try {
+        await createDistribution.mutateAsync(values)
+        formik.resetForm()
+        setSuccessMessage(true)
+        setTimeout(() => {
+          setSuccessMessage(false)
+        }, 3000)
+      } catch (error: any) {
+        setSubmittingError(error.message)
+        setTimeout(() => {
+          setSubmittingError(null)
+        }, 3000)
+      }
     },
   })
 
@@ -41,7 +54,11 @@ export const NewDistributionPage = () => {
         <Input name="group" bottoms={['315', '325', '335', '345']} label="Группа" formik={formik} />
         <Textarea name="message" label="Сообщение" formik={formik} />
         {!formik.isValid && !!formik.submitCount && <div style={{ color: 'red' }}>Заполните все поля</div>}
-        <button type="submit">Отправить</button>
+        {!!sabmittingError && <div style={{ color: 'red' }}>{sabmittingError}</div>}
+        {successMessage && <div style={{ color: 'green' }}>Рассылка отправлена!</div>}
+        <button type="submit" disabled={formik.isSubmitting}>
+          {formik.isSubmitting ? 'Отправка...' : 'Отправить'}
+        </button>
       </form>
     </Segment>
   )
