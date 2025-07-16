@@ -1,0 +1,13 @@
+@use '../Input/index.module' as *;
+@use '../../styles/vars' as *;
+@use '../../styles/mixins' as *;
+@use '../../../node_modules/include-media/dist/_include-media.scss' as *;
+
+.field {
+  .textarea {
+    min-height: 150px;
+    width: 100%;
+    max-width: none;
+    resize: vertical;
+  }
+}

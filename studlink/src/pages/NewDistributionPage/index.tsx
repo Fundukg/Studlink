@@ -51,7 +51,7 @@ export const NewDistributionPage = () => {
         <Input name="course" bottoms={['1', '2', '3', '4']} label="Курс" formik={formik} />
         <Input name="department" bottoms={['ТТФ', 'ФЛиСХ']} label="Кафедра" formik={formik} />
         <Input name="directions" bottoms={['ИСиТ']} label="Направление" formik={formik} />
-        <Input name="group" bottoms={['315', '325', '335', '345']} label="Группа" formik={formik} />
+        <Input name="group" bottoms={['315', '325', '335', '345']} label="Группа" formik={formik} maxWidth={500} />
         <Textarea name="message" label="Сообщение" formik={formik} />
         {!formik.isValid && !!formik.submitCount && <div style={{ color: 'red' }}>Заполните все поля</div>}
         {!!sabmittingError && <div style={{ color: 'red' }}>{sabmittingError}</div>}
