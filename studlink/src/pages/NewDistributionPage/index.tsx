@@ -2,6 +2,9 @@ import { zCreateDistributionTrpcInput } from '@parkstick/backend/src/router/crea
 import { useFormik } from 'formik'
 import { withZodSchema } from 'formik-validator-zod'
 import { useState } from 'react'
+import { Alert } from '../../components/Alert'
+import { ButtonSend } from '../../components/ButtonSend'
+import { FormItems } from '../../components/FormItems'
 import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
@@ -48,17 +51,23 @@ export const NewDistributionPage = () => {
           formik.handleSubmit()
         }}
       >
+        <FormItems>
         <Input name="course" bottoms={['1', '2', '3', '4']} label="Курс" formik={formik} />
         <Input name="department" bottoms={['ТТФ', 'ФЛиСХ']} label="Кафедра" formik={formik} />
         <Input name="directions" bottoms={['ИСиТ']} label="Направление" formik={formik} />
         <Input name="group" bottoms={['315', '325', '335', '345']} label="Группа" formik={formik} maxWidth={500} />
         <Textarea name="message" label="Сообщение" formik={formik} />
-        {!formik.isValid && !!formik.submitCount && <div style={{ color: 'red' }}>Заполните все поля</div>}
-        {!!sabmittingError && <div style={{ color: 'red' }}>{sabmittingError}</div>}
-        {successMessage && <div style={{ color: 'green' }}>Рассылка отправлена!</div>}
-        <button type="submit" disabled={formik.isSubmitting}>
+        {/* {!formik.isValid && !!formik.submitCount && <div style={{ color: 'red' }}>Заполните все поля</div>} */}
+        {!formik.isValid && !!formik.submitCount && <Alert color='red'>Заполните все поля</Alert>}
+        {/* {!!sabmittingError && <div style={{ color: 'red' }}>{sabmittingError}</div>} */}
+        {!!sabmittingError && <Alert color='red'>{sabmittingError}</Alert>}
+        {/* {successMessage && <div style={{ color: 'green' }}>Рассылка отправлена!</div>} */}
+        {successMessage && <Alert color='green'>Рассылка отправлена!</Alert>}
+        {/* <button type="submit" disabled={formik.isSubmitting}>
           {formik.isSubmitting ? 'Отправка...' : 'Отправить'}
-        </button>
+        </button> */}
+        <ButtonSend loading={formik.isSubmitting}>Отправить</ButtonSend>
+        </FormItems>
       </form>
     </Segment>
   )

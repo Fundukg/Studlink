@@ -1,5 +1,8 @@
 import cn from 'classnames'
 import type { FormikProps } from 'formik'
+// import { Button } from '../ButtonSend'
+import { Alert } from '../Alert'
+import { ButtonSelect } from '../ButtonSelect/Index'
 import css from './index.module.scss'
 
 export const Input = ({
@@ -22,17 +25,18 @@ export const Input = ({
   const disabled = formik.isSubmitting
 
   return (
-    <div className={cn({ [css.field]: true, [css.disabled]: disabled })} style={{ marginBottom: 10 }}>
+    <div className={cn({ [css.field]: true, [css.disabled]: disabled })}>
       <label className={css.label} htmlFor={name}>
         {label}
       </label>
-      <br />
       {bottoms.map((num) => (
-        <button key={num} type="button" style={{ marginRight: 5 }}  onClick={() => formik.setFieldValue(name, num)}>
+        // <button key={num} type="button"   onClick={() => formik.setFieldValue(name, num)}>
+        //   {num}
+        // </button>
+        <ButtonSelect key={num} onClick={() => formik.setFieldValue(name, num)}>
           {num}
-        </button>
+        </ButtonSelect>
       ))}
-      <br />
       <input
         className={cn({ [css.input]: true, [css.invalid]: invalid })}
         style={{ maxWidth }}
@@ -46,7 +50,8 @@ export const Input = ({
         id={name}
         disabled={disabled}
       />
-      {invalid && <div className={css.error}>{errors}</div>}
+      {invalid && <Alert color="red">{errors}</Alert>}
+      {/* {successMessage && Рассылка отправлена!</Alert>} */}
     </div>
   )
 }

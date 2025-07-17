@@ -1,5 +1,6 @@
 import cn from 'classnames'
 import type { FormikProps } from 'formik'
+import { Alert } from '../Alert'
 import css from './index.module.scss'
 
 export const Textarea = ({ name, label, formik }: { name: string; label: string; formik: FormikProps<any> }) => {
@@ -9,11 +10,10 @@ export const Textarea = ({ name, label, formik }: { name: string; label: string;
   const invalid = !!touched && !!errors
   const disabled = formik.isSubmitting
   return (
-    <div className={cn({ [css.field]: true, [css.disabled]: disabled })} style={{ marginBottom: 10 }}>
+    <div className={cn({ [css.field]: true, [css.disabled]: disabled })}>
       <label className={css.label} htmlFor={name}>
         {label}
       </label>
-      <br />
       <textarea
         className={cn({ [css.textarea]: true, [css.invalid]: invalid })}
         onChange={(e) => {
@@ -27,7 +27,7 @@ export const Textarea = ({ name, label, formik }: { name: string; label: string;
         id={name}
         disabled={disabled}
       />
-      {invalid && <div style={{ color: 'red' }}>{errors}</div>}
+      {invalid && <Alert color="red">{errors}</Alert>}
     </div>
   )
 }

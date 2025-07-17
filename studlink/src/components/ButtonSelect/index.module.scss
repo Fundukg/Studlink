@@ -1,0 +1,22 @@
+@use '../../styles/_vars.scss' as *;
+@use '../../styles/_mixins.scss' as *;
+
+.button {
+  padding: 8px 15px;
+  color: $white;
+  background-color: #0a980a;
+  border: none;
+  font-weight: bold;
+  border-radius: $borderRadiusSmall;
+  cursor: pointer;
+  margin: 5px;
+  margin-left: 0;
+
+  &:hover {
+    background-color: #21b821;
+  }
+
+  &:active {
+    background-color: #39d039;
+  }
+}
