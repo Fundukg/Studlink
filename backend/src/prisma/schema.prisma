@@ -12,6 +12,8 @@ model Dialogue {
     course      String 
     department  String
     directions  String
+    group       String
     message     String
+
 
 }
