@@ -12,7 +12,7 @@ model Dialogue {
     course      String 
     department  String
     directions  String
-    group       String
+    group       String @unique
     message     String
 
 
