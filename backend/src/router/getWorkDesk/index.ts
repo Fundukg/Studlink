@@ -10,6 +10,10 @@ export const getWorkDeskTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
       directions: true,
       group: true,
       message: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
     },
   })
   return { Dialogue }
