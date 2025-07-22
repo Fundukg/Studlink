@@ -26,10 +26,10 @@ export const DialoguesBar = () => {
                 Work Desk
               </Link>
               {data!.Dialogue.map((dialogue) => (
-                <div className={css.idea} key={dialogue.course}>
+                <div className={css.idea} key={dialogue.group}>
                   <Segment
                     title={
-                      <Link className={css.ideaLink} to={getDialoguesRoute({ Dialogue: dialogue.course})}>
+                      <Link className={css.ideaLink} to={getDialoguesRoute({ Dialogue: dialogue.group})}>
                         {dialogue.group}
                       </Link>
                     }
