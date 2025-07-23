@@ -1,3 +1,4 @@
+import { format } from 'date-fns/format'
 import { useParams } from 'react-router-dom'
 import { Segment } from '../../components/Segment'
 import type { DialoguesRouteParams } from '../../lib/routes'
@@ -22,8 +23,11 @@ export const DialoguesPage = () => {
   }
 
   return (
-    <Segment title={data.Dialogue.course} description={data.Dialogue.department}>
-      <div className={css.text} dangerouslySetInnerHTML={{ __html: data.Dialogue.message }} />
-    </Segment>
+    <div className={css.dialogue}>
+      <Segment title={data.Dialogue.course} description={data.Dialogue.department}>
+        <div className={css.createdAt}>Дата отправки: {format(data.Dialogue.createdAt, 'yyyy-MM-dd')} </div>
+        <div className={css.text} dangerouslySetInnerHTML={{ __html: data.Dialogue.message }} />
+      </Segment>
+    </div>
   )
 }

@@ -2,6 +2,12 @@
 @use '../../styles/mixins' as *;
 @use '../../../node_modules/include-media/dist/_include-media.scss' as *;
 
+.createdAt {
+  font-size: 12px;
+  margin-bottom: 10px;
+  color: #929292;
+}
+
 .text {
   font-size: 14px;
 
@@ -10,6 +16,6 @@
   }
 }
 
-.title {
-  @include h1;
+.dialogue {
+  padding: 20px;
 }
