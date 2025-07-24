@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
-import { getNewDistributionRoute, getWorkDesk } from '../../lib/routes'
+import { getNewDistributionRoute, getSignUpRoute, getWorkDesk } from '../../lib/routes'
 import css from './index.module.scss'
 
 export const Layout = () => {
@@ -16,6 +16,11 @@ export const Layout = () => {
           <li className={css.item}>
             <Link className={css.link} to={getNewDistributionRoute()}>
               New Distribution
+            </Link>
+          </li>
+          <li className={css.item}>
+            <Link className={css.link} to={getSignUpRoute()}>
+              Sign Up
             </Link>
           </li>
         </ul>

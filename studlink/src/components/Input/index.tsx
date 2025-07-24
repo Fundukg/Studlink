@@ -8,15 +8,18 @@ import css from './index.module.scss'
 export const Input = ({
   name,
   label,
-  bottoms,
+  bottoms = [],
   formik,
   maxWidth,
+  type = 'text',
+  
 }: {
   name: string
   label: string
-  bottoms: string[]
+  bottoms?: string[]
   formik: FormikProps<any>
   maxWidth?: number
+  type?: 'text' | 'password'
 }) => {
   const value = formik.values[name]
   const errors = formik.errors[name] as string | undefined
@@ -40,7 +43,7 @@ export const Input = ({
       <input
         className={cn({ [css.input]: true, [css.invalid]: invalid })}
         style={{ maxWidth }}
-        type="text"
+        type= {type}
         onChange={(e) => {
           void formik.setFieldValue(name, e.target.value)
         }}
