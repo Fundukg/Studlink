@@ -3,14 +3,14 @@ import { trpc } from '../lib/trpc'
 import { createDistributionTrpcRoute } from './createDistribution'
 import { getDialoguesTrpcRoute } from './getDialogues'
 import { getWorkDeskTrpcRoute } from './getWorkDesk'
-import { singUpTrpcRoute } from './singUp'
+import { signUpTrpcRoute } from './signUp'
 // @endindex
 export const trpcRouter = trpc.router({
 // @index('./**/index.ts', f => `${f.path.split('/').slice(0, -1).pop()}: ${f.path.split('/').slice(0, -1).pop()}TrpcRoute,`)
 createDistribution: createDistributionTrpcRoute,
 getDialogues: getDialoguesTrpcRoute,
 getWorkDesk: getWorkDeskTrpcRoute,
-singUp: singUpTrpcRoute,
+signUp: signUpTrpcRoute,
 // @endindex
 })
 
