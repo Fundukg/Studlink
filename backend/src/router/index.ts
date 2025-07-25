@@ -3,6 +3,7 @@ import { trpc } from '../lib/trpc'
 import { createDistributionTrpcRoute } from './createDistribution'
 import { getDialoguesTrpcRoute } from './getDialogues'
 import { getWorkDeskTrpcRoute } from './getWorkDesk'
+import { signInTrpcRoute } from './signIn'
 import { signUpTrpcRoute } from './signUp'
 // @endindex
 export const trpcRouter = trpc.router({
@@ -10,6 +11,7 @@ export const trpcRouter = trpc.router({
 createDistribution: createDistributionTrpcRoute,
 getDialogues: getDialoguesTrpcRoute,
 getWorkDesk: getWorkDeskTrpcRoute,
+signIn: signInTrpcRoute,
 signUp: signUpTrpcRoute,
 // @endindex
 })

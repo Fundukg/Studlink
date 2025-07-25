@@ -5,6 +5,7 @@ import * as routes from './lib/routes'
 import { TrpcProvider } from './lib/trpc'
 import { DialoguesPage } from './pages/DialoguePage'
 import { NewDistributionPage } from './pages/NewDistributionPage'
+import { SignInPage } from './pages/SignInPage'
 import { SignUpPage } from './pages/SignUpPage'
 import { WorkDeskPage } from './pages/WorkDeskPage'
 import './styles/global.scss'
@@ -22,6 +23,7 @@ export const App = () => {
             <Route path={routes.getWorkDesk()} element={<WorkDeskPage />} />
             <Route path={routes.getNewDistributionRoute()} element={<NewDistributionPage />} />
             <Route path={routes.getSignUpRoute()} element={<SignUpPage />} />
+            <Route path={routes.getSignInRoute()} element={<SignInPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

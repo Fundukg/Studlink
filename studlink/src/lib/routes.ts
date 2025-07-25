@@ -11,6 +11,8 @@ export const getDialoguesRoute = ({ Dialogue }: DialoguesRouteParams) => `/dialo
 export const getNewDistributionRoute = () => 'dialogue/new'
 
 export const getSignUpRoute = () => 'sign-up'
+
+export const getSignInRoute = () => 'sign-in'
 // export const DialoguesRouteParams = { workdesk: ':WorkDesk' }
 // export type DialoguesRouteParams =  { workdesk: string }
 // export const getDialoguesRoute = ({ workdesk }: { workdesk: string }) => `/dialogue/${workdesk}`
