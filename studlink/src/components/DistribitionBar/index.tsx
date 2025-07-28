@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Segment } from '../../components/Segment'
-import { getWorkDesk } from '../../lib/routes'
+import { getWorkDeskRoute } from '../../lib/routes'
 import css from './index.module.scss'
 
 export const NewDistributionPage = () => {
@@ -25,7 +25,7 @@ export const NewDistributionPage = () => {
             >
               <li className={css.item}>
                 <div style={{ marginBottom: 10 }} className={css.ideas}>
-                  <Link className={css.link} to={getWorkDesk()}>
+                  <Link className={css.link} to={getWorkDeskRoute()}>
                     Work Desk
                   </Link>
                   <label htmlFor="coures">Курс</label>
