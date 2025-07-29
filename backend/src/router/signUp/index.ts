@@ -1,5 +1,5 @@
 import { trpc } from '../../lib/trpc'
-import { getPasswordHashTrpcRoute } from '../../utils/getPasswordHash'
+import { getPasswordHash } from '../../utils/getPasswordHash'
 import { signJWT } from '../../utils/signJWT'
 import { zSignUpTrpcInput } from './input'
 
@@ -15,7 +15,7 @@ export const signUpTrpcRoute = trpc.procedure.input(zSignUpTrpcInput).mutation(a
   const user = await ctx.prisma.user.create({
     data: {
       nick: input.nick,
-      password: getPasswordHashTrpcRoute(input.password),
+      password: getPasswordHash(input.password),
     },
   })
   const token = signJWT(user.id)
