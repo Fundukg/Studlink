@@ -1,6 +1,7 @@
 import baseConfig from '../eslint.config.js'
 import reactRecommended from 'eslint-plugin-react/configs/recommended.js'
 import tseslint from 'typescript-eslint'
+import nodePlugin from 'eslint-plugin-node'
 
 export default tseslint.config(
   {
@@ -8,7 +9,12 @@ export default tseslint.config(
       'dist/**', // Игнорировать всю папку сборки
       'node_modules/**',
       'eslint.config.js', // Игнорировать сам конфиг ESLint
-    ]
+    ],
+  },
+  {
+    plugins: {
+      node: nodePlugin,
+    },
   },
   ...baseConfig,
   {
@@ -18,10 +24,10 @@ export default tseslint.config(
         version: 'detect',
       },
     },
-    
-      rules: {
-        'react/react-in-jsx-scope': "off"
-      }
+
+    rules: {
+      'react/react-in-jsx-scope': 'off',
+    },
   },
   {
     languageOptions: {
@@ -33,6 +39,7 @@ export default tseslint.config(
   {
     rules: {
       'react/react-in-jsx-scope': 'off',
+      'node/no-process-env': 'error',
     },
   }
 )

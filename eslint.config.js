@@ -46,6 +46,8 @@ export default tseslint.config(
       // JSX правила (если используется)
       'jsx-a11y/anchor-is-valid': 'off',
       'react/react-in-jsx-scope': 'off',
+      // Правила использования process.env
+      // 'node/no-process-env': 'error',
 
       // Базовые ESLint правила
       curly: ['error', 'all'],
