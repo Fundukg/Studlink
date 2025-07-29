@@ -28,7 +28,7 @@ export const SignInPage = () => {
       try {
         setSubmittingError(null)
         const { token } = await signIn.mutateAsync(values)
-        Cookies.set('token', token, { expires: 99999 })
+        Cookies.set('token-studlink', token, { expires: 99999 })
         void trpcUtils.invalidate()
         navigate(getWorkDeskRoute())
       } catch (err: any) {

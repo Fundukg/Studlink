@@ -44,7 +44,7 @@ export const SignUpPage = () => {
       try {
         setSubmittingError(null)
         const { token } = await signUp.mutateAsync(values)
-        Cookies.set('token', token, {expires: 99999}) 
+        Cookies.set('token-studlink', token, {expires: 99999}) 
         void trpcutils.invalidate()
         nabivigate(getWorkDeskRoute())
       } catch (err: any) {

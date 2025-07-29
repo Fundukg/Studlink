@@ -8,7 +8,7 @@ export const SignOutPage = () => {
   const navigate = useNavigate()
   const trpcUtils = trpc.useUtils()
   useEffect(() => {
-    Cookies.remove('token')
+    Cookies.remove('token-studlink')
     void trpcUtils.invalidate().then(() => {
       navigate(getSignInRoute(), { replace: true })
     })
