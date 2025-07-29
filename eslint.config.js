@@ -2,6 +2,7 @@
 import eslint from '@eslint/js'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import eslintPluginImport from 'eslint-plugin-import'
+import nodePlugin from 'eslint-plugin-node'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
@@ -14,6 +15,7 @@ export default tseslint.config(
   {
     plugins: {
       import: eslintPluginImport,
+      node: nodePlugin,
     },
   },
 
@@ -47,8 +49,14 @@ export default tseslint.config(
       'jsx-a11y/anchor-is-valid': 'off',
       'react/react-in-jsx-scope': 'off',
       // Правила использования process.env
-      // 'node/no-process-env': 'error',
-
+      'node/no-process-env': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          message: 'Use instead import { env } from "lib/env"',
+          selector: '[object.type=MetaProperty][property.name=env]',
+        },
+      ],
       // Базовые ESLint правила
       curly: ['error', 'all'],
       'no-irregular-whitespace': [
