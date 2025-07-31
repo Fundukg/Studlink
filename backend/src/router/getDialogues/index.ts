@@ -1,4 +1,4 @@
-import z from 'zod' 
+import z from 'zod'
 import { trpc } from '../../lib/trpc'
 
 export const getDialoguesTrpcRoute = trpc.procedure
@@ -11,6 +11,9 @@ export const getDialoguesTrpcRoute = trpc.procedure
     const Dialogue = await ctx.prisma.dialogue.findUnique({
       where: {
         group: input.dialogue,
+      },
+      include: {
+        author: { select: { id: true, nick: true } },
       },
     })
     return { Dialogue }

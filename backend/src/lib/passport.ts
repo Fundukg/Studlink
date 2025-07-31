@@ -14,16 +14,16 @@ export const applyPassportToExpressApp = (expressApp: Express, ctx: AppContext):
         jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('Bearer'),
       },
       (jwtPayload: string, done) => {
-        ctx.prisma.user
+        ctx.prisma.decaneryStaff
           .findUnique({
             where: { id: jwtPayload },
           })
-          .then((user) => {
-            if (!user) {
+          .then((decaneryStaff) => {
+            if (!decaneryStaff) {
               done(null, false)
               return
             }
-            done(null, user)
+            done(null, decaneryStaff)
           })
           .catch((error) => {
             done(error, false)

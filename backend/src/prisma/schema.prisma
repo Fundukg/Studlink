@@ -7,10 +7,22 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model User {
+model DecaneryStaff  {
     id          String @id @default(uuid())
     nick        String @unique
     password    String 
+    createdAt   DateTime @default(now())
+    dialogue    Dialogue[]
+}
+
+model Student {
+    id          String @id @default(uuid())
+    student_id  String @unique
+    name        String
+    course      String
+    department  String
+    directions  String
+    group       String
     createdAt   DateTime @default(now())
 }
 model Dialogue {
@@ -21,4 +33,7 @@ model Dialogue {
     group       String @unique
     message     String
     createdAt   DateTime @default(now())
+    authorId    String  
+    author      DecaneryStaff  @relation(fields: [authorId], references: [id])
+
 }

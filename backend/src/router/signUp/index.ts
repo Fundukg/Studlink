@@ -4,20 +4,20 @@ import { signJWT } from '../../utils/signJWT'
 import { zSignUpTrpcInput } from './input'
 
 export const signUpTrpcRoute = trpc.procedure.input(zSignUpTrpcInput).mutation(async ({ input, ctx }) => {
-  const exUser = await ctx.prisma.user.findUnique({
+  const exDecaneryStaff = await ctx.prisma.decaneryStaff.findUnique({
     where: {
       nick: input.nick,
     },
   })
-  if (exUser) {
+  if (exDecaneryStaff) {
     throw Error('Такой ник уже зарегистрирован')
   }
-  const user = await ctx.prisma.user.create({
+  const decaneryStaff = await ctx.prisma.decaneryStaff.create({
     data: {
       nick: input.nick,
       password: getPasswordHash(input.password),
     },
   })
-  const token = signJWT(user.id)
+  const token = signJWT(decaneryStaff.id)
   return { token }
 })
