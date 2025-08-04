@@ -4,6 +4,7 @@ import { Layout } from './components/Layout'
 import * as routes from './lib/routes'
 import { TrpcProvider } from './lib/trpc'
 import { DialoguesPage } from './pages/DialoguePage'
+import { EditMessagePage } from './pages/EditMessagePage'
 import { NewDistributionPage } from './pages/NewDistributionPage'
 import { SignInPage } from './pages/SignInPage'
 import { SignOutPage } from './pages/SignOutPage'
@@ -17,8 +18,8 @@ export const App = () => {
     <TrpcProvider>
       <BrowserRouter>
         <Routes>
-          <Route path={routes.getDialoguesRoute(routes.dialoguesRouteParams)} element={<DialoguesBar />}>
-            <Route path={routes.getDialoguesRoute(routes.dialoguesRouteParams)} element={<DialoguesPage />} />
+          <Route path={routes.getViewDialoguesRoute(routes.viewdialoguesRouteParams)} element={<DialoguesBar />}>
+            <Route path={routes.getViewDialoguesRoute(routes.viewdialoguesRouteParams)} element={<DialoguesPage />} />
           </Route>
           <Route path={routes.getSignOutRoute()} element={<SignOutPage />} />
           <Route element={<Layout />}>
@@ -26,6 +27,7 @@ export const App = () => {
             <Route path={routes.getNewDistributionRoute()} element={<NewDistributionPage />} />
             <Route path={routes.getSignUpRoute()} element={<SignUpPage />} />
             <Route path={routes.getSignInRoute()} element={<SignInPage />} />
+            <Route path={routes.getEditMessageRoute(routes.editMessageRouteParams)} element={<EditMessagePage />} />
           </Route>
         </Routes>
       </BrowserRouter>

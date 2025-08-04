@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
-import { getDialoguesRoute, getWorkDeskRoute } from '../../lib/routes'
+import { getViewDialoguesRoute, getWorkDeskRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 import { Segment } from '../Segment'
 import css from './index.module.scss'
@@ -29,7 +29,7 @@ export const DialoguesBar = () => {
                 <div className={css.idea} key={dialogue.group}>
                   <Segment
                     title={
-                      <Link className={css.ideaLink} to={getDialoguesRoute({ Dialogue: dialogue.group})}>
+                      <Link className={css.ideaLink} to={getViewDialoguesRoute({ Dialogue: dialogue.group})}>
                         {dialogue.group}
                       </Link>
                     }

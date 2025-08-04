@@ -2,7 +2,7 @@ import cn from 'classnames'
 import type { FormikProps } from 'formik'
 // import { Button } from '../ButtonSend'
 import { Alert } from '../Alert'
-import { ButtonSelect } from '../ButtonSelect/Index'
+import { ButtonSelect } from '../Button'
 import css from './index.module.scss'
 
 export const Input = ({
