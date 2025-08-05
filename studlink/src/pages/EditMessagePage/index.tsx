@@ -1,9 +1,6 @@
 import type { TrpcRouterOutput } from '@parkstick/backend/src/router'
 import { zUpdateMessageTrpcInput } from '@parkstick/backend/src/router/updateMessage/input'
-import { useFormik } from 'formik'
-import { withZodSchema } from 'formik-validator-zod'
 import pick from 'lodash/pick'
-import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Alert } from '../../components/Alert'
 import { ButtonSend } from '../../components/Button'
@@ -11,26 +8,24 @@ import { FormItems } from '../../components/FormItems'
 import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
+import { useForm } from '../../lib/form'
 import { type EditMessageRouteParams, getViewDialoguesRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 
 const EditMessageComponent = ({ Dialogue }: { Dialogue: NonNullable<TrpcRouterOutput['getDialogues']['Dialogue']> }) => {
   const navigate = useNavigate()
-  const [submittingError, setSubmittingError] = useState<string | null>(null)
   const updateMessage = trpc.updateMessage.useMutation()
-  const formik = useFormik({
+  const {formik, buttonProps, alertProps} = useForm({
     initialValues: pick(Dialogue, ['course','group', 'directions', 'department', 'message']),
-    validate: withZodSchema(zUpdateMessageTrpcInput.omit({ dialogueId: true })),
+    validationSchema: zUpdateMessageTrpcInput.omit({ dialogueId: true }),
     onSubmit: async (values) => {
-      try {
-        setSubmittingError(null)
         await updateMessage.mutateAsync({ dialogueId: Dialogue.id, ...values })
         navigate(getViewDialoguesRoute({ Dialogue: values.group }))
-      } catch (err: any) {
-        setSubmittingError(err.message)
-      }
-    },
-  })
+      },
+    resetOnSuccess: false,
+    showValidationAlert: true,
+  })  
+
 
   return (
     <Segment title={`Edit Idea: ${Dialogue.group}`}>
@@ -41,9 +36,8 @@ const EditMessageComponent = ({ Dialogue }: { Dialogue: NonNullable<TrpcRouterOu
           <Input label="Directions" name="directions" maxWidth={500} formik={formik} />
           <Input label="Department" name="department" maxWidth={500} formik={formik} />
           <Textarea label="Message" name="message" formik={formik} />
-          {!formik.isValid && !!formik.submitCount && <Alert color="red">Some fields are invalid</Alert>}
-          {submittingError && <Alert color="red">{submittingError}</Alert>}
-          <ButtonSend loading={formik.isSubmitting}>Update Idea</ButtonSend>
+          <Alert {...alertProps} />
+          <ButtonSend {...buttonProps}>Изменить</ButtonSend>
         </FormItems>
       </form>
     </Segment>

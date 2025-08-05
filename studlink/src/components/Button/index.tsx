@@ -2,6 +2,7 @@ import cn from 'classnames'
 import { Link } from 'react-router-dom';
 import css from './index.module.scss'
 
+export type ButtonProps = { children: React.ReactNode; loading?: boolean }
 export const ButtonSend = ({ children, loading = false }: { children: React.ReactNode; loading?: boolean }) => {
   return (
     <button className={cn({ [css.button]: true, [css.disabled]: loading })} type="submit" disabled={loading}>
