@@ -8,6 +8,7 @@ import { FormItems } from '../../components/FormItems'
 import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
+import { useMe } from '../../lib/ctx'
 import { useForm } from '../../lib/form'
 import { type EditMessageRouteParams, getViewDialoguesRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
@@ -50,9 +51,9 @@ export const EditMessagePage = () => {
   const getDialogueResult = trpc.getDialogues.useQuery({ 
     dialogue: dialogueId 
   })
-  const getMeResult = trpc.getMe.useQuery()
+  const me = useMe()
 
-  if (getDialogueResult.isLoading || getDialogueResult.isFetching || getMeResult.isLoading || getMeResult.isFetching) {
+  if (getDialogueResult.isLoading || getDialogueResult.isFetching){
     return <span>Loading...</span>
   }
 
@@ -60,16 +61,11 @@ export const EditMessagePage = () => {
     return <span>Error: {getDialogueResult.error.message}</span>
   }
 
-  if (getMeResult.isError) {
-    return <span>Error: {getMeResult.error.message}</span>
-  }
-
   if (!getDialogueResult.data!.Dialogue) {
     return <span>Idea not found</span>
   }
 
   const dialogue = getDialogueResult.data!.Dialogue
-  const me = getMeResult.data!.me
 
   if (!me) {
     return <span>Only for authorized</span>
