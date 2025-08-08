@@ -1,6 +1,5 @@
 import { zSignUpTrpcInput } from '@parkstick/backend/src/router/signUp/input'
 import Cookies from 'js-cookie'
-import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { Alert } from '../../components/Alert'
 import { ButtonSend } from '../../components/Button'
@@ -8,11 +7,12 @@ import { FormItems } from '../../components/FormItems'
 import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { useForm } from '../../lib/form'
-import { getWorkDeskRoute } from '../../lib/routes'
+import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 
-export const SignUpPage = () => {
-  const nabivigate = useNavigate()
+export const SignUpPage = withPageWrapper({
+  redirectAuthorized: true,
+})(() => {
   const trpcutils = trpc.useUtils()
   const signUp = trpc.signUp.useMutation()
   const { formik, buttonProps, alertProps } = useForm({
@@ -21,10 +21,11 @@ export const SignUpPage = () => {
       password: '',
       passwordAgain: '',
     },
-    validationSchema: zSignUpTrpcInput.extend(
-      {
+    validationSchema: zSignUpTrpcInput
+      .extend({
         passwordAgain: z.string().min(1, 'Пароль должен быть не менее 8 символов'),
-      }).superRefine((val, ctx) => {
+      })
+      .superRefine((val, ctx) => {
         if (val.password !== val.passwordAgain) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -37,7 +38,6 @@ export const SignUpPage = () => {
       const { token } = await signUp.mutateAsync(values)
       Cookies.set('token-studlink', token, { expires: 99999 })
       void trpcutils.invalidate()
-      nabivigate(getWorkDeskRoute())
     },
     resetOnSuccess: false,
   })
@@ -55,4 +55,4 @@ export const SignUpPage = () => {
       </form>
     </Segment>
   )
-}
+})

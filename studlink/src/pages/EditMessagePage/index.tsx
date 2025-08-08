@@ -1,4 +1,3 @@
-import type { TrpcRouterOutput } from '@parkstick/backend/src/router'
 import { zUpdateMessageTrpcInput } from '@parkstick/backend/src/router/updateMessage/input'
 import pick from 'lodash/pick'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -8,25 +7,39 @@ import { FormItems } from '../../components/FormItems'
 import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
-import { useMe } from '../../lib/ctx'
 import { useForm } from '../../lib/form'
+import { withPageWrapper } from '../../lib/pageWarpper'
 import { type EditMessageRouteParams, getViewDialoguesRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 
-const EditMessageComponent = ({ Dialogue }: { Dialogue: NonNullable<TrpcRouterOutput['getDialogues']['Dialogue']> }) => {
+export const EditMessagePage = withPageWrapper({
+  authorizedOnly: true,
+  useQuery: () => {
+    const { dialogueId } = useParams() as EditMessageRouteParams
+    return trpc.getDialogues.useQuery({
+      dialogue: dialogueId,
+    })
+  },
+  checkExists: ({ queryResult }) => !!queryResult.data.Dialogue,
+  checkExistsMessage: 'Dialogue not found',
+  checkAccess: ({ queryResult, ctx }) => !!ctx.me && ctx.me.id === queryResult.data.Dialogue?.authorId,
+  checkAccessMessage: 'An dialogue can only be edited by the author',
+  setProps: ({ queryResult }) => ({
+    Dialogue: queryResult.data.Dialogue!,
+  }),
+})(({ Dialogue }) => {
   const navigate = useNavigate()
   const updateMessage = trpc.updateMessage.useMutation()
-  const {formik, buttonProps, alertProps} = useForm({
-    initialValues: pick(Dialogue, ['course','group', 'directions', 'department', 'message']),
+  const { formik, buttonProps, alertProps } = useForm({
+    initialValues: pick(Dialogue, ['course', 'group', 'directions', 'department', 'message']),
     validationSchema: zUpdateMessageTrpcInput.omit({ dialogueId: true }),
     onSubmit: async (values) => {
-        await updateMessage.mutateAsync({ dialogueId: Dialogue.id, ...values })
-        navigate(getViewDialoguesRoute({ Dialogue: values.group }))
-      },
+      await updateMessage.mutateAsync({ dialogueId: Dialogue.id, ...values })
+      navigate(getViewDialoguesRoute({ Dialogue: values.group }))
+    },
     resetOnSuccess: false,
     showValidationAlert: true,
-  })  
-
+  })
 
   return (
     <Segment title={`Edit Idea: ${Dialogue.group}`}>
@@ -43,37 +56,4 @@ const EditMessageComponent = ({ Dialogue }: { Dialogue: NonNullable<TrpcRouterOu
       </form>
     </Segment>
   )
-}
-
-export const EditMessagePage = () => {
-  const { dialogueId } = useParams() as EditMessageRouteParams
-
-  const getDialogueResult = trpc.getDialogues.useQuery({ 
-    dialogue: dialogueId 
-  })
-  const me = useMe()
-
-  if (getDialogueResult.isLoading || getDialogueResult.isFetching){
-    return <span>Loading...</span>
-  }
-
-  if (getDialogueResult.isError) {
-    return <span>Error: {getDialogueResult.error.message}</span>
-  }
-
-  if (!getDialogueResult.data!.Dialogue) {
-    return <span>Idea not found</span>
-  }
-
-  const dialogue = getDialogueResult.data!.Dialogue
-
-  if (!me) {
-    return <span>Only for authorized</span>
-  }
-
-  if (me.id !== dialogue.authorId) {
-    return <span>An dialogue can only be edited by the author</span>
-  }
-
-  return <EditMessageComponent Dialogue={dialogue} />
-}
+})

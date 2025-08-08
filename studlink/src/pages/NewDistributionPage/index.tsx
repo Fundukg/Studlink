@@ -6,9 +6,12 @@ import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
 import { useForm } from '../../lib/form'
+import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 
-export const NewDistributionPage = () => {
+export const NewDistributionPage = withPageWrapper({ 
+  authorizedOnly: true 
+})(() => {
   const createDistribution = trpc.createDistribution.useMutation()
   const {formik, buttonProps, alertProps} = useForm({
     initialValues: {
@@ -49,4 +52,4 @@ export const NewDistributionPage = () => {
       </form>
     </Segment>
   )
-}
+})

@@ -1,20 +1,20 @@
 import { zSignInTrpcInput } from '@parkstick/backend/src/router/signIn/input'
 import Cookies from 'js-cookie'
-import { useNavigate } from 'react-router-dom'
 import { Alert } from '../../components/Alert'
 import { ButtonSend } from '../../components/Button'
 import { FormItems } from '../../components/FormItems'
 import { Input } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { useForm } from '../../lib/form'
-import { getWorkDeskRoute } from '../../lib/routes'
+import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 
-export const SignInPage = () => {
-  const navigate = useNavigate()
+export const SignInPage = withPageWrapper({
+  redirectAuthorized: true,
+})(() => {
   const trpcUtils = trpc.useUtils()
   const signIn = trpc.signIn.useMutation()
-  const {formik, buttonProps, alertProps} = useForm({
+  const { formik, buttonProps, alertProps } = useForm({
     initialValues: {
       nick: '',
       password: '',
@@ -22,10 +22,9 @@ export const SignInPage = () => {
 
     validationSchema: zSignInTrpcInput,
     onSubmit: async (values) => {
-        const { token } = await signIn.mutateAsync(values)
-        Cookies.set('token-studlink', token, { expires: 99999 })
-        void trpcUtils.invalidate()
-        navigate(getWorkDeskRoute())
+      const { token } = await signIn.mutateAsync(values)
+      Cookies.set('token-studlink', token, { expires: 99999 })
+      void trpcUtils.invalidate()
     },
     resetOnSuccess: false,
   })
@@ -42,4 +41,4 @@ export const SignInPage = () => {
       </form>
     </Segment>
   )
-}
+})
