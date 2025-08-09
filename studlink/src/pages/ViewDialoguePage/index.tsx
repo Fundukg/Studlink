@@ -7,7 +7,7 @@ import { getEditMessageRoute, type ViewDialoguesRouteParams } from '../../lib/ro
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
-export const DialoguesPage = withPageWrapper({
+export const ViewDialoguesPage = withPageWrapper({
   authorizedOnly: true,
   useQuery: () => {
     const { Dialogue: workdesk } = useParams() as ViewDialoguesRouteParams
@@ -15,10 +15,8 @@ export const DialoguesPage = withPageWrapper({
       dialogue: workdesk,
     })
   },
-  checkExists: ({ queryResult }) => !!queryResult.data.Dialogue,
-  checkExistsMessage: 'Dialogue not found',
-  setProps: ({ queryResult, ctx }) => ({
-    dialogue: queryResult.data.Dialogue!,
+  setProps: ({ queryResult, ctx, checkExists }) => ({
+    dialogue: checkExists(queryResult.data.Dialogue, 'Dialogue not found'),
     me: ctx.me,
   }),
 })(({ dialogue, me }) => (

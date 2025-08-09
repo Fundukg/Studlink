@@ -7,8 +7,6 @@ import css from './index.module.scss'
 
 export const WorkDeskPage = withPageWrapper({
   useQuery: () => trpc.getWorkDesk.useQuery(),
-  checkExists: ({ queryResult }) => !!queryResult.data,
-  checkExistsMessage: 'WorkDesk not found',
   setProps: ({ queryResult }) => ({
     dialogue: queryResult.data!,
   }),

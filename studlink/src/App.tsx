@@ -4,12 +4,12 @@ import { Layout } from './components/Layout'
 import { AppContextProvider } from './lib/ctx'
 import * as routes from './lib/routes'
 import { TrpcProvider } from './lib/trpc'
-import { DialoguesPage } from './pages/DialoguePage'
 import { EditMessagePage } from './pages/EditMessagePage'
 import { NewDistributionPage } from './pages/NewDistributionPage'
 import { SignInPage } from './pages/SignInPage'
 import { SignOutPage } from './pages/SignOutPage'
 import { SignUpPage } from './pages/SignUpPage'
+import { ViewDialoguesPage } from './pages/ViewDialoguePage'
 import { WorkDeskPage } from './pages/WorkDeskPage'
 import './styles/global.scss'
 
@@ -20,7 +20,7 @@ export const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path={routes.getViewDialoguesRoute(routes.viewdialoguesRouteParams)} element={<DialoguesBar />}>
-              <Route path={routes.getViewDialoguesRoute(routes.viewdialoguesRouteParams)} element={<DialoguesPage />} />
+              <Route path={routes.getViewDialoguesRoute(routes.viewdialoguesRouteParams)} element={<ViewDialoguesPage />} />
             </Route>
             <Route path={routes.getSignOutRoute()} element={<SignOutPage />} />
             <Route element={<Layout />}>

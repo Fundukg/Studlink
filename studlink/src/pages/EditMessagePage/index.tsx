@@ -24,9 +24,11 @@ export const EditMessagePage = withPageWrapper({
   checkExistsMessage: 'Dialogue not found',
   checkAccess: ({ queryResult, ctx }) => !!ctx.me && ctx.me.id === queryResult.data.Dialogue?.authorId,
   checkAccessMessage: 'An dialogue can only be edited by the author',
-  setProps: ({ queryResult }) => ({
-    Dialogue: queryResult.data.Dialogue!,
-  }),
+  setProps: ({ queryResult, ctx, checkExists, checkAccess  }) => {
+    const Dialogue = checkExists(queryResult.data.Dialogue, 'Dialogue not found')
+    checkAccess(ctx.me?.id === Dialogue.authorId, 'An dialogue can only be edited by the author')
+      return { Dialogue }
+  },
 })(({ Dialogue }) => {
   const navigate = useNavigate()
   const updateMessage = trpc.updateMessage.useMutation()
