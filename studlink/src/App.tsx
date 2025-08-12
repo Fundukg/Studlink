@@ -6,6 +6,7 @@ import * as routes from './lib/routes'
 import { TrpcProvider } from './lib/trpc'
 import { EditMessagePage } from './pages/EditMessagePage'
 import { NewDistributionPage } from './pages/NewDistributionPage'
+import { NewStudentsPage } from './pages/NewStudentPage'
 import { SignInPage } from './pages/SignInPage'
 import { SignOutPage } from './pages/SignOutPage'
 import { SignUpPage } from './pages/SignUpPage'
@@ -29,6 +30,7 @@ export const App = () => {
               <Route path={routes.getSignUpRoute()} element={<SignUpPage />} />
               <Route path={routes.getSignInRoute()} element={<SignInPage />} />
               <Route path={routes.getEditMessageRoute(routes.editMessageRouteParams)} element={<EditMessagePage />} />
+              <Route path={routes.getStudentRoute()} element={<NewStudentsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

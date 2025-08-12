@@ -20,10 +20,6 @@ export const EditMessagePage = withPageWrapper({
       dialogue: dialogueId,
     })
   },
-  checkExists: ({ queryResult }) => !!queryResult.data.Dialogue,
-  checkExistsMessage: 'Dialogue not found',
-  checkAccess: ({ queryResult, ctx }) => !!ctx.me && ctx.me.id === queryResult.data.Dialogue?.authorId,
-  checkAccessMessage: 'An dialogue can only be edited by the author',
   setProps: ({ queryResult, ctx, checkExists, checkAccess  }) => {
     const Dialogue = checkExists(queryResult.data.Dialogue, 'Dialogue not found')
     checkAccess(ctx.me?.id === Dialogue.authorId, 'An dialogue can only be edited by the author')
