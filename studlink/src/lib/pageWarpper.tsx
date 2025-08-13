@@ -2,6 +2,7 @@ import { type UseTRPCQueryResult, type UseTRPCQuerySuccessResult } from '@trpc/r
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ErrorPageComponent } from '../components/ErrorPageComponent'
+import { NotFoundPage } from '../pages/NotFoundPage'
 import { useAppContext, type AppContext } from './ctx'
 import { getWorkDeskRoute } from './routes'
 
@@ -59,11 +60,11 @@ const PageWrapper = <TProps extends Props = object, TQueryResult extends QueryRe
   authorizedOnlyMessage = 'This page is available only for authorized users',
   redirectAuthorized,
   checkAccess,
-  checkAccessTitle = 'Access Denied',
+  checkAccessTitle,
   checkAccessMessage = 'You have no access to this page',
   checkExists,
-  checkExistsTitle = 'Not Found',
-  checkExistsMessage = 'This page does not exist',
+  checkExistsTitle,
+  checkExistsMessage,
   useQuery,
   setProps,
   Page,
@@ -104,7 +105,7 @@ const PageWrapper = <TProps extends Props = object, TQueryResult extends QueryRe
   if (checkExists) {
     const notExists = !checkExists(helperProps)
     if (notExists) {
-      return <ErrorPageComponent title={checkExistsTitle} message={checkExistsMessage} />
+      return <NotFoundPage title={checkExistsTitle} message={checkExistsMessage} />
     }
   }
   try {

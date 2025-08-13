@@ -7,6 +7,7 @@ import { TrpcProvider } from './lib/trpc'
 import { EditMessagePage } from './pages/EditMessagePage'
 import { NewDistributionPage } from './pages/NewDistributionPage'
 import { NewStudentsPage } from './pages/NewStudentPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 import { SignInPage } from './pages/SignInPage'
 import { SignOutPage } from './pages/SignOutPage'
 import { SignUpPage } from './pages/SignUpPage'
@@ -24,6 +25,7 @@ export const App = () => {
               <Route path={routes.getViewDialoguesRoute(routes.viewdialoguesRouteParams)} element={<ViewDialoguesPage />} />
             </Route>
             <Route path={routes.getSignOutRoute()} element={<SignOutPage />} />
+            <Route path="*" element={<NotFoundPage />} />
             <Route element={<Layout />}>
               <Route path={routes.getWorkDeskRoute()} element={<WorkDeskPage />} />
               <Route path={routes.getNewDistributionRoute()} element={<NewDistributionPage />} />
