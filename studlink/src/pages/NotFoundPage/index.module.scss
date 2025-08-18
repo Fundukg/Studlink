@@ -16,7 +16,7 @@
   bottom: 0;
   justify-self: center;
   margin: 0 auto;
-  animation: catAnim 1.5s ease forwards;
+  animation: catanim 1.5s ease forwards;
 }
 
 .img img {
@@ -52,7 +52,7 @@
   font-size: 750px;
   font-weight: 900;
   transform: translate(-50%, 800px);
-  animation: errorAnim 1.5s ease forwards;
+  animation: erroranim 1.5s ease forwards;
 }
 
 @keyframes erroranim {
