@@ -11,9 +11,9 @@ import { NotFoundPage } from './pages/NotFoundPage'
 import { SignInPage } from './pages/SignInPage'
 import { SignOutPage } from './pages/SignOutPage'
 import { SignUpPage } from './pages/SignUpPage'
-import { ViewDialoguesPage } from './pages/ViewDialoguePage'
+import { ViewDialoguePage } from './pages/ViewDialoguePage'
+import { ViewDialoguesPage } from './pages/ViewDialoguesPage'
 import { ViewStudentPage } from './pages/ViewStudentPage'
-import { WorkDeskPage } from './pages/WorkDeskPage'
 import './styles/global.scss'
 
 
@@ -23,16 +23,16 @@ export const App = () => {
       <AppContextProvider>
         <BrowserRouter>
           <Routes>
-            <Route path={routes.getViewDialoguesRoute(routes.viewdialoguesRouteParams)} element={<DialoguesBar />}>
+            <Route path={routes.getViewDialogueRoute(routes.viewdialogueRouteParams)} element={<DialoguesBar />}>
               <Route
-                path={routes.getViewDialoguesRoute(routes.viewdialoguesRouteParams)}
-                element={<ViewDialoguesPage />}
+                path={routes.getViewDialogueRoute(routes.viewdialogueRouteParams)}
+                element={<ViewDialoguePage />}
               />
             </Route>
             <Route path={routes.getSignOutRoute()} element={<SignOutPage />} />
             <Route path="*" element={<NotFoundPage />} />
             <Route element={<Layout />}>
-              <Route path={routes.getWorkDeskRoute()} element={<WorkDeskPage />} />
+              <Route path={routes.getViewDialoguesRoute()} element={<ViewDialoguesPage />} />
               <Route path={routes.getNewDistributionRoute()} element={<NewDistributionPage />} />
               <Route path={routes.getSignUpRoute()} element={<SignUpPage />} />
               <Route path={routes.getSignInRoute()} element={<SignInPage />} />

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { ErrorPageComponent } from '../components/ErrorPageComponent'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { useAppContext, type AppContext } from './ctx'
-import { getWorkDeskRoute } from './routes'
+import { getViewDialoguesRoute } from './routes'
 
 class CheckExistsError extends Error {}
 const checkExistsFn = <T,>(value: T, message?: string): NonNullable<T> => {
@@ -77,7 +77,7 @@ const PageWrapper = <TProps extends Props = object, TQueryResult extends QueryRe
 
   useEffect(() => {
     if (redirectNeeded) {
-      navigate(getWorkDeskRoute(), { replace: true })
+      navigate(getViewDialoguesRoute(), { replace: true })
     }
   }, [redirectNeeded, navigate])
 

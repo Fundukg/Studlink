@@ -1,6 +1,6 @@
 import { Link, Outlet } from 'react-router-dom'
 import { useMe } from '../../lib/ctx'
-import { getNewDistributionRoute, getNewStudentRoute, getSignInRoute, getSignOutRoute, getSignUpRoute, getViewStudentRoute, getWorkDeskRoute } from '../../lib/routes'
+import { getNewDistributionRoute, getNewStudentRoute, getSignInRoute, getSignOutRoute, getSignUpRoute, getViewStudentRoute, getViewDialoguesRoute } from '../../lib/routes'
 import css from './index.module.scss'
 
 export const Layout = () => {
@@ -12,20 +12,20 @@ export const Layout = () => {
         <b className={css.logo}>StudLink</b>
         <ul className={css.menu}>
           <li className={css.item}>
-            <Link className={css.link} to={getWorkDeskRoute()}>
-              Work Desk
+            <Link className={css.link} to={getViewDialoguesRoute()}>
+              Диалоги
             </Link>
           </li>
           {me ? (
             <>
               <li className={css.item}>
                 <Link className={css.link} to={getNewDistributionRoute()}>
-                  New Distribution
+                  Создать рассылку
                 </Link>
               </li>
               <li className={css.item}>
                 <Link className={css.link} to={getNewStudentRoute()}>
-                  New Student
+                Добавить студента
                 </Link>
               </li>
               <li className={css.item}>
@@ -35,7 +35,7 @@ export const Layout = () => {
               </li>
               <li className={css.item}>
                 <Link className={css.link} to={getSignOutRoute()}>
-                  Log Out ({me.nick})
+                  Выйти ({me.nick})
                 </Link>
               </li>
             </>

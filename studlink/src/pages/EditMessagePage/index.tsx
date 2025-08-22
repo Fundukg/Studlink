@@ -1,53 +1,52 @@
 import { zUpdateMessageTrpcInput } from '@parkstick/backend/src/router/updateMessage/input'
-import pick from 'lodash/pick'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Alert } from '../../components/Alert'
 import { ButtonSend } from '../../components/Button'
 import { FormItems } from '../../components/FormItems'
-import { Input } from '../../components/Input'
+import { ReadOnlyField } from '../../components/Input'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
 import { useForm } from '../../lib/form'
 import { withPageWrapper } from '../../lib/pageWarpper'
-import { type EditMessageRouteParams, getViewDialoguesRoute } from '../../lib/routes'
+import { type EditMessageRouteParams, getViewDialogueRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 
 export const EditMessagePage = withPageWrapper({
   authorizedOnly: true,
   useQuery: () => {
     const { dialogueId } = useParams() as EditMessageRouteParams
-    return trpc.getDialogues.useQuery({
-      dialogue: dialogueId,
+    return trpc.getDialogue.useQuery({
+      distributionId: dialogueId,
     })
   },
-  setProps: ({ queryResult, ctx, checkExists, checkAccess  }) => {
-    const Dialogue = checkExists(queryResult.data.Dialogue, 'Dialogue not found')
-    checkAccess(ctx.me?.id === Dialogue.authorId, 'An dialogue can only be edited by the author')
-      return { Dialogue }
+  setProps: ({ queryResult, ctx, checkExists, checkAccess }) => {
+    const dialogue = checkExists(queryResult.data.distribution, 'Dialogue not found')
+    checkAccess(ctx.me?.id === dialogue.sender.id, 'An dialogue can only be edited by the author')
+    return { dialogue }
   },
-})(({ Dialogue }) => {
+})(({ dialogue }) => {
   const navigate = useNavigate()
   const updateMessage = trpc.updateMessage.useMutation()
+  const initialValues = {
+    text: dialogue.text || '', // Гарантируем, что text будет строкой
+  }
   const { formik, buttonProps, alertProps } = useForm({
-    initialValues: pick(Dialogue, ['course', 'group', 'directions', 'department', 'message']),
+    initialValues,
     validationSchema: zUpdateMessageTrpcInput.omit({ dialogueId: true }),
     onSubmit: async (values) => {
-      await updateMessage.mutateAsync({ dialogueId: Dialogue.id, ...values })
-      navigate(getViewDialoguesRoute({ Dialogue: values.group }))
+      await updateMessage.mutateAsync({ dialogueId: dialogue.id, ...values })
+      navigate(getViewDialogueRoute({ Dialogue: dialogue.id }))
     },
     resetOnSuccess: false,
     showValidationAlert: true,
   })
 
   return (
-    <Segment title={`Edit Idea: ${Dialogue.group}`}>
+    <Segment title={`Редактирование сообщения: ${dialogue.recipient.name}`}>
       <form onSubmit={formik.handleSubmit}>
         <FormItems>
-          <Input label="Сourse" name="course" formik={formik} />
-          <Input label="Group" name="group" formik={formik} />
-          <Input label="Directions" name="directions" maxWidth={500} formik={formik} />
-          <Input label="Department" name="department" maxWidth={500} formik={formik} />
-          <Textarea label="Message" name="message" formik={formik} />
+          <ReadOnlyField label="Получатель" value={dialogue.recipient.name} />
+          <Textarea label="Сообщение" name="text" formik={formik} />
           <Alert {...alertProps} />
           <ButtonSend {...buttonProps}>Изменить</ButtonSend>
         </FormItems>

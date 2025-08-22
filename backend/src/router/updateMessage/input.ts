@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { zCreateDistributionTrpcInput } from '../createDistribution/input'
 
-export const zUpdateMessageTrpcInput = zCreateDistributionTrpcInput.extend({
-  dialogueId: z.string().min(1),
+export const zUpdateMessageTrpcInput = z.object({
+  dialogueId: z.string().uuid(),
+  text: z.string().min(1, "Текст сообщения обязателен"),
 })

@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import { Segment } from '../../components/Segment'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
@@ -9,6 +10,7 @@ export const ViewStudentPage = withPageWrapper({
   setProps: ({ queryResult }) => ({
     student: queryResult.data!,
   }),
+  
 })(({ student }) => {
   return (
     <Segment title="Студенты">
@@ -16,42 +18,33 @@ export const ViewStudentPage = withPageWrapper({
         <table className={css.studentsTable}>
           <thead>
             <tr>
-              <th>ID</th>
+              <th>№</th>
               <th>ФИО</th>
               <th>Дата создания</th>
               <th>Курс</th>
+              <th>Кафедра</th>
               <th>Факультет</th>
-              <th>Направление</th>
               <th>Группа</th>
               <th>Номер студ. билета</th>
             </tr>
           </thead>
           <tbody>
-            {student.Student.map((student) => (
+            {student.Student.map((student, index) => (
               <tr key={student.id}>
-                <td>{student.id}</td>
+                <td>{index + 1}</td>
                 <td>{student.name}</td>
-                <td>{new Date(student.createdAt).toLocaleDateString()}</td>
+                <td>{format(student.createdAt, 'dd.MM.yyyy')}</td>
                 <td>{student.course}</td>
-                <td>{student.department}</td>
-                <td>{student.directions}</td>
-                <td>{student.group}</td>
+                <td>{student.group?.department.name}</td>
+                <td>{student.group?.department.faculty.name}</td>
+                <td>{student.group?.name}</td>
                 <td>{student.student_id}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {/* {student.Student.map((student) => (
-        <div key={student.id}>
-          <p>{student.name}</p>
-          <p>{student.student_id}</p>
-          <p>{student.course}</p>
-          <p>{student.department}</p>
-          <p>{student.directions}</p>
-          <p>{student.group}</p>
-        </div>
-      ))} */}
+     
     </Segment>
   )
 })

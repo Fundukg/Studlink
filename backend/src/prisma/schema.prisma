@@ -1,4 +1,4 @@
-generator  client {
+generator client {
     provider = "prisma-client-js"
 }
 
@@ -7,33 +7,150 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Staff  {
-    id          String @id @default(uuid())
-    nick        String @unique
-    password    String 
-    createdAt   DateTime @default(now())
-    dialogue    Dialogue[]
+// Основные учебные сущности
+model Faculty {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  createdAt   DateTime   @default(now())
+  departments Department[]
+  messages    Message[]
+}
+
+model Department {
+  id         String     @id @default(uuid())
+  name       String     @unique
+  facultyId  String
+  faculty    Faculty    @relation(fields: [facultyId], references: [id])
+  groups     Group[]
+  messages   Message[]
+  createdAt  DateTime   @default(now())
+}
+
+model Group {
+  id           String     @id @default(uuid())
+  name         String     @unique
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  students     Student[]
+  messages     Message[]
+  createdAt    DateTime   @default(now())
+}
+
+model Staff {
+  id              String     @id @default(uuid())
+  nick            String     @unique
+  password        String
+  createdAt       DateTime   @default(now())
+  sentMessages    Message[]  // Отправленные сообщения
+  receivedMessages Message[] @relation("StaffRecipient") // Полученные сообщения
 }
 
 model Student {
-    id          String @id @default(uuid())
-    student_id  String @unique
-    name        String
-    course      String
-    department  String
-    directions  String
-    group       String
-    createdAt   DateTime @default(now())
+  id               String     @id @default(uuid())
+  student_id       String     @unique
+  name             String
+  course           String
+  groupId          String?
+  group            Group?     @relation(fields: [groupId], references: [id])
+  createdAt        DateTime   @default(now())
+  sentMessages     Message[]  // Отправленные сообщения
+  receivedMessages Message[]  @relation("StudentRecipient") // Полученные сообщения
+  botUsers         BotUser[]
 }
-model Dialogue {
-    id          String @id @default(uuid())
-    course      String 
-    department  String
-    directions  String
-    group       String @unique
-    message     String
-    createdAt   DateTime @default(now())
-    authorId    String  
-    author      Staff  @relation(fields: [authorId], references: [id])
 
+model Bot {
+  id          String     @id @default(uuid())
+  platform    BotPlatform @unique
+  token       String     @unique
+  name        String
+  createdAt   DateTime   @default(now())
+  isActive    Boolean    @default(true)
+  users       BotUser[]
+  messages    Message[]  // Сообщения, отправленные через этого бота
+}
+
+model BotUser {
+  id          String     @id @default(uuid())
+  studentId   String
+  student     Student    @relation(fields: [studentId], references: [id])
+  botId       String
+  bot         Bot        @relation(fields: [botId], references: [id])
+  externalId  String     // ID пользователя в мессенджере
+  createdAt   DateTime   @default(now())
+  isActive    Boolean    @default(true)
+
+  @@unique([studentId, botId])
+  @@index([externalId])
+}
+
+model Message {
+  id          String      @id @default(uuid())
+  text        String
+  createdAt   DateTime    @default(now())
+  
+  // Автор сообщения
+  senderType  SenderType
+  staffId     String?
+  studentId   String?
+  staff       Staff?      @relation(fields: [staffId], references: [id])
+  student     Student?    @relation(fields: [studentId], references: [id])
+  
+  // Получатели
+  targetType  TargetType
+  
+  // Для личных сообщений
+  recipientStudentId String?
+  recipientStudent   Student? @relation("StudentRecipient", fields: [recipientStudentId], references: [id])
+  
+  recipientStaffId   String?
+  recipientStaff     Staff?   @relation("StaffRecipient", fields: [recipientStaffId], references: [id])
+
+  //Сообщения по курсам
+  course        Int?
+  
+  // Для групповых сообщений
+  groupId      String?
+  group        Group?      @relation(fields: [groupId], references: [id])
+  
+  // Для сообщений кафедре
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  
+  // Для сообщений факультету
+  facultyId    String?
+  faculty      Faculty?    @relation(fields: [facultyId], references: [id])
+  
+  // Для ответов на сообщения
+  parentId     String?
+  parent       Message?    @relation("MessageReplies", fields: [parentId], references: [id])
+  replies      Message[]   @relation("MessageReplies")
+  
+  // Для связи с ботами
+  botId        String?
+  bot          Bot?        @relation(fields: [botId], references: [id])
+  externalId   String?     // ID сообщения в мессенджере
+  
+}
+
+// Обновленные enums
+enum SenderType {
+  STAFF
+  STUDENT
+  SYSTEM
+}
+
+enum TargetType {
+  STUDENT    // Личное сообщение студенту
+  STAFF      // Личное сообщение сотруднику
+  GROUP      // Группе
+  DEPARTMENT // Кафедре
+  FACULTY    // Факультету
+  COURSE     // Курсу
+  ALL        // Всем студентам
+}
+
+enum BotPlatform {
+  TELEGRAM
+  VK
+  WHATSAPP
 }

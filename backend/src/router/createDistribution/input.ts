@@ -1,21 +1,31 @@
-import z from 'zod'
+import { z } from 'zod'
 
 export const zCreateDistributionTrpcInput = z.object({
-  course: z.string().min(1).max(4),
-  department: z
-    .string()
-    .min(1)
-    .regex(/^[a-zА-Яа-я0-9-]+$/, 'Department contain only  letters number and dashes')
-    .max(10),
-  directions: z
-    .string()
-    .min(1)
-    .regex(/^[a-zА-Яа-я0-9-]+$/, 'Directions contain only  letters number and dashes')
-    .max(10),
-  group: z
-    .string()
-    .min(1)
-    .regex(/^[a-zА-Яа-я0-9-]+$/, 'Group contain only  letters number and dashes')
-    .max(10),
-  message: z.string().min(1, 'Message should be at least 10 characters long'),
-})
+    text: z.string().min(1, 'Текст обязателен'),
+    targetType: z.enum([
+      'STUDENT',
+      'GROUP',
+      'DEPARTMENT',
+      'FACULTY',
+      'COURSE', // Добавлено
+      'ALL',
+    ]),
+    targetId: z.string().optional(),// Добавлено поле для курса
+  })
+  // .superRefine((data, ctx) => {
+  //   // Для всех типов, кроме ALL и COURSE, targetId обязателен
+  //   if (data.targetType !== 'ALL' && data.targetType !== 'COURSE' && !data.targetId) {
+  //     ctx.addIssue({
+  //       code: z.ZodIssueCode.custom,
+  //       message: `Для типа '${data.targetType}' обязательно указать targetId`,
+  //     })
+  //   }
+
+  //   // Для типа COURSE course обязателен
+  //   if (data.targetType === 'COURSE' && data.course === undefined) {
+  //     ctx.addIssue({
+  //       code: z.ZodIssueCode.custom,
+  //       message: `Для типа 'COURSE' обязательно указать курс`,
+  //     })
+  //   }
+  // })

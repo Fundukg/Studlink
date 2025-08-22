@@ -2,11 +2,11 @@ const getRouteParams = <T extends Record<string, boolean>>(object: T) => {
   return Object.keys(object).reduce((acc, key) => ({ ...acc, [key]: `:${key}` }), {}) as Record<keyof T, string>
 }
 
-export const getWorkDeskRoute = () => '/'
+export const getViewDialoguesRoute = () => '/'
 
-export const viewdialoguesRouteParams = getRouteParams({ Dialogue: true })
-export type ViewDialoguesRouteParams = typeof viewdialoguesRouteParams
-export const getViewDialoguesRoute = ({ Dialogue }: ViewDialoguesRouteParams) => `/dialogue/${Dialogue}`
+export const viewdialogueRouteParams = getRouteParams({ Dialogue: true })
+export type ViewDialogueRouteParams = typeof viewdialogueRouteParams
+export const getViewDialogueRoute = ({ Dialogue }: ViewDialogueRouteParams) => `/dialogue/${Dialogue}`
 
 export const editMessageRouteParams = getRouteParams({ dialogueId: true })
 export type EditMessageRouteParams = typeof editMessageRouteParams

@@ -33,9 +33,6 @@ export const Input = ({
         {label}
       </label>
       {bottoms.map((num) => (
-        // <button key={num} type="button"   onClick={() => formik.setFieldValue(name, num)}>
-        //   {num}
-        // </button>
         <ButtonSelect key={num} onClick={() => formik.setFieldValue(name, num)}>
           {num}
         </ButtonSelect>
@@ -54,7 +51,28 @@ export const Input = ({
         disabled={disabled}
       />
       {invalid && <Alert color="red">{errors}</Alert>}
-      {/* {successMessage && Рассылка отправлена!</Alert>} */}
     </div>
   )
 }
+
+export const ReadOnlyField = ({ 
+  label, 
+  value, 
+  maxWidth,
+  className 
+}: { 
+  label: string; 
+  value: string;
+  maxWidth?: number;
+  className?: string;
+}) => (
+  <div 
+    className={cn(css.field, className)} 
+    style={{ maxWidth }}
+  >
+    <label className={css.label}>{label}</label>
+    <div className={cn(css.input, css.readOnly)}>
+      {value}
+    </div>
+  </div>
+)
