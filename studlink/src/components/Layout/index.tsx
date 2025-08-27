@@ -1,6 +1,15 @@
 import { Link, Outlet } from 'react-router-dom'
 import { useMe } from '../../lib/ctx'
-import { getNewDistributionRoute, getNewStudentRoute, getSignInRoute, getSignOutRoute, getSignUpRoute, getViewStudentRoute, getViewDialoguesRoute } from '../../lib/routes'
+import {
+  getNewDistributionRoute,
+  getNewStudentRoute,
+  getSignInRoute,
+  getSignOutRoute,
+  getSignUpRoute,
+  getViewStudentRoute,
+  getViewDialoguesRoute,
+  getViewDistributionsRoute,
+} from '../../lib/routes'
 import css from './index.module.scss'
 
 export const Layout = () => {
@@ -24,8 +33,13 @@ export const Layout = () => {
                 </Link>
               </li>
               <li className={css.item}>
+                <Link className={css.link} to={getViewDistributionsRoute()}>
+                  Рассылки
+                </Link>
+              </li>
+              <li className={css.item}>
                 <Link className={css.link} to={getNewStudentRoute()}>
-                Добавить студента
+                  Добавить студента
                 </Link>
               </li>
               <li className={css.item}>

@@ -20,22 +20,22 @@ export const EditMessagePage = withPageWrapper({
     })
   },
   setProps: ({ queryResult, ctx, checkExists, checkAccess }) => {
-    const dialogue = checkExists(queryResult.data.distribution, 'Dialogue not found')
-    checkAccess(ctx.me?.id === dialogue.sender.id, 'An dialogue can only be edited by the author')
+    const dialogue = checkExists(queryResult.data.dialogue, 'Dialogue not found')
+    checkAccess(ctx.me?.id === dialogue.messages[0].sender.id, 'An dialogue can only be edited by the author')
     return { dialogue }
   },
 })(({ dialogue }) => {
   const navigate = useNavigate()
   const updateMessage = trpc.updateMessage.useMutation()
   const initialValues = {
-    text: dialogue.text || '', // Гарантируем, что text будет строкой
+    text: dialogue.messages[0].text || '', // Гарантируем, что text будет строкой
   }
   const { formik, buttonProps, alertProps } = useForm({
     initialValues,
     validationSchema: zUpdateMessageTrpcInput.omit({ dialogueId: true }),
     onSubmit: async (values) => {
       await updateMessage.mutateAsync({ dialogueId: dialogue.id, ...values })
-      navigate(getViewDialogueRoute({ Dialogue: dialogue.id }))
+      navigate(getViewDialogueRoute({ dialogueId: dialogue.id }))
     },
     resetOnSuccess: false,
     showValidationAlert: true,

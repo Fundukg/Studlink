@@ -2,35 +2,35 @@ import { format } from 'date-fns'
 import { Link } from 'react-router-dom'
 import { Segment } from '../../components/Segment/index'
 import { withPageWrapper } from '../../lib/pageWarpper'
-import { getViewDialogueRoute } from '../../lib/routes'
+import { getViewDistributionRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
-export const ViewDialoguesPage = withPageWrapper({
-  useQuery: () => trpc.getDialogues.useQuery(),
+export const ViewDistributionsPage = withPageWrapper({
+  useQuery: () => trpc.getDistributions.useQuery(),
 
   setProps: ({ queryResult }) => ({
-    dialogues: queryResult.data!,
+    distributions: queryResult.data!,
   }),
-})(({ dialogues }) => {
+})(({ distributions }) => {
   return (
-    <Segment title="Диалоги">
+    <Segment title="Рассылки">
       <div className={css.ideas}>
-        {dialogues.distributions.map((dialogue) => (
-          <div className={css.idea} key={dialogue.student.name}>
+        {distributions.distributions.map((distribution) => (
+          <div className={css.idea} key={distribution.id}>
             <Segment
               title={
                 <Link
                   className={css.ideaLink}
-                  to={getViewDialogueRoute({
-                    dialogueId: dialogue.id,
+                  to={getViewDistributionRoute({
+                    distributionId: distribution.id,
                   })}
                 >
-                  {dialogue.student.name}
+                  {distribution.recipient}
                 </Link>
               }
               size={2}
-              description={`${dialogue.lastMessage.text} ${format(dialogue.lastMessage.createdAt, 'HH:mm')}`}
+              description={`${distribution.text} ${format(distribution.createdAt, 'HH:mm')}`}
             />
           </div>
         ))}

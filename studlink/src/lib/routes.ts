@@ -4,9 +4,15 @@ const getRouteParams = <T extends Record<string, boolean>>(object: T) => {
 
 export const getViewDialoguesRoute = () => '/'
 
-export const viewdialogueRouteParams = getRouteParams({ Dialogue: true })
+export  const getViewDistributionsRoute = () => '/Distributions'
+
+export const viewdialogueRouteParams = getRouteParams({ dialogueId: true })
 export type ViewDialogueRouteParams = typeof viewdialogueRouteParams
-export const getViewDialogueRoute = ({ Dialogue }: ViewDialogueRouteParams) => `/dialogue/${Dialogue}`
+export const getViewDialogueRoute = ({ dialogueId }: ViewDialogueRouteParams) => `/dialogue/${dialogueId}`
+
+export const viewdistributionRouteParams = getRouteParams({ distributionId: true })
+export type ViewDistributionRouteParams = typeof viewdistributionRouteParams
+export const getViewDistributionRoute = ({ distributionId }: ViewDistributionRouteParams) => `/distribution/${distributionId}`
 
 export const editMessageRouteParams = getRouteParams({ dialogueId: true })
 export type EditMessageRouteParams = typeof editMessageRouteParams

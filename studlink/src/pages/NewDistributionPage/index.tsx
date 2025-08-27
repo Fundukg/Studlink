@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { Alert } from '../../components/Alert'
 import { ButtonSend } from '../../components/Button'
 import { FormItems } from '../../components/FormItems'
+import { Input } from '../../components/Input'
 import { List, ListSelect } from '../../components/List'
 import { Segment } from '../../components/Segment'
 import { Textarea } from '../../components/Textarea'
@@ -54,6 +55,7 @@ export const NewDistributionPage = withPageWrapper({
               { value: 'GROUP', label: 'Группа' },
               { value: 'DEPARTMENT', label: 'Кафедра' },
               { value: 'FACULTY', label: 'Факультет' },
+              { value: 'COURSE', label: 'Курс' },
             ]}
           />
           {/* Поле для выбора конкретного получателя в зависимости от типа */}
@@ -95,6 +97,10 @@ export const NewDistributionPage = withPageWrapper({
               formik={formik}
               groups={facultieQuery.data || []}
             />
+          )}
+
+          {formik.values.targetType === 'COURSE' && (
+            <Input name="targetId" label="Курс" formik={formik} bottoms={['1', '2', '3', '4']} />
           )}
 
           <Textarea name="text" label="Сообщение" formik={formik} />

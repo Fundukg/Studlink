@@ -49,6 +49,7 @@ model Student {
   id               String     @id @default(uuid())
   student_id       String     @unique
   name             String
+  telegramChatId   String?
   course           String
   groupId          String?
   group            Group?     @relation(fields: [groupId], references: [id])

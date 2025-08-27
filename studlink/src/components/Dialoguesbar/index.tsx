@@ -26,11 +26,11 @@ export const DialoguesBar = () => {
                 Назад
               </Link>
               {data!.distributions.map((distributions) => (
-                <div className={css.idea} key={distributions.recipient}>
+                <div className={css.idea} key={distributions.id}>
                   <Segment
                     title={
-                      <Link className={css.ideaLink} to={getViewDialogueRoute({ Dialogue: distributions.id })}>
-                        {distributions.recipient}
+                      <Link className={css.ideaLink} to={getViewDialogueRoute({ dialogueId: distributions.id })}>
+                        {distributions.student.name}
                       </Link>
                     }
                     size={2}

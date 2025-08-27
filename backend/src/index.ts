@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express from 'express'
+import { startBot } from './bot/telegram';
 import { AppContext, createAppContext } from './lib/ctx'
 import { env } from './lib/env'
 import { applyPassportToExpressApp } from './lib/passport'
@@ -20,6 +21,13 @@ try {
   expressApp.listen(env.PORT, () => {
     console.info(`Listening at http://localhost:${env.PORT}`)
   })
+  // eslint-disable-next-line node/no-process-env
+  if (process.env.TELEGRAM_BOT_TOKEN) {
+  startBot();
+  // console.log('Telegram бот инициализирован');
+} else {
+  console.error('TELEGRAM_BOT_TOKEN не указан, бот не запущен');
+}
 } catch (error) {
   console.error(error)
   await ctx?.stop()
