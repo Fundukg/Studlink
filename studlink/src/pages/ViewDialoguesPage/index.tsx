@@ -26,7 +26,7 @@ export const ViewDialoguesPage = withPageWrapper({
                     dialogueId: dialogue.id,
                   })}
                 >
-                  {dialogue.student.name}
+                  {dialogue.student.name} {dialogue.student.studentId}
                 </Link>
               }
               size={2}

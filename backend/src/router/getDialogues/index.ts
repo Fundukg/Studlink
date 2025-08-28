@@ -90,7 +90,6 @@ export const getDialoguesTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
       dialogue.lastMessageAt = message.createdAt
     }
   }
-
   // Преобразуем Map в массив и форматируем данные
   const formattedDialogues = Array.from(dialoguesByStudent.values()).map((dialogue) => {
     // Сортируем сообщения по дате (сначала новые)

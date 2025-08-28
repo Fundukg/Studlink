@@ -4,11 +4,11 @@ import { trpc } from '../../lib/trpc'
 export const getDialogueTrpcRoute = trpc.procedure
   .input(
     z.object({
-      distributionId: z.string(), // ID родительского сообщения (рассылки)
+      distributionId: z.string(), // ID родительского сообщения
     })
   )
   .query(async ({ ctx, input }) => {
-    // Находим родительское сообщение (рассылку)
+    // Находим родительское сообщение
     const distribution = await ctx.prisma.message.findUnique({
       where: {
         id: input.distributionId,
@@ -27,20 +27,37 @@ export const getDialogueTrpcRoute = trpc.procedure
             student_id: true,
           },
         },
+        student: {
+          select: {
+            id: true,
+            name: true,
+            student_id: true,
+          },
+        }
       },
     })
 
     if (!distribution) {
-      throw new Error('Диалог не найдена')
+      throw new Error('Сообщение не найдено')
     }
 
-    if (!distribution.recipientStudent) {
-      throw new Error('Получатель не найден')
+    // Определяем, кто является участником диалога
+    let studentId: string | null = null;
+    let recipientName = '';
+
+    if (distribution.recipientStudent) {
+      // Сообщение отправлено сотрудником студенту
+      studentId = distribution.recipientStudent.id;
+      recipientName = `${distribution.recipientStudent.name} ${distribution.recipientStudent.student_id}`;
+    } else if (distribution.student) {
+      // Сообщение отправлено студентом
+      studentId = distribution.student.id;
+      recipientName = `${distribution.student.name} ${distribution.student.student_id}`;
+    } else {
+      throw new Error('Не удалось определить участника диалога');
     }
 
-    const studentId = distribution.recipientStudent.id
-
-    // Находим ВСЕ сообщения для этого студента
+    // Находим все сообщения для этого студента
     const allMessages = await ctx.prisma.message.findMany({
       where: {
         OR: [
@@ -49,12 +66,15 @@ export const getDialogueTrpcRoute = trpc.procedure
             recipientStudentId: studentId,
             senderType: 'STAFF',
           },
-
           // Сообщения, отправленные этим студентом
           {
             studentId: studentId,
             senderType: 'STUDENT',
           },
+          // Также включаем родительское сообщение
+          {
+            id: input.distributionId,
+          }
         ],
       },
       include: {
@@ -78,31 +98,45 @@ export const getDialogueTrpcRoute = trpc.procedure
     })
 
     // Форматируем сообщения для отображения
-    const formattedMessages = allMessages.map((message) => ({
-      id: message.id,
-      text: message.text,
-      createdAt: message.createdAt,
-      sender: message.staff
-        ? {
-            type: 'STAFF' as const,
-            id: message.staff.id,
-            name: message.staff.nick,
-          }
-        : {
-            type: 'STUDENT' as const,
-            id: message.student!.id,
-            name: message.student!.name,
-            studentId: message.student!.student_id,
-          },
+    const formattedMessages = allMessages.map((message) => {
+      // Определяем отправителя
+      let sender;
+      if (message.staff) {
+        sender = {
+          type: 'STAFF' as const,
+          id: message.staff.id,
+          name: message.staff.nick,
+        };
+      } else if (message.student) {
+        sender = {
+          type: 'STUDENT' as const,
+          id: message.student.id,
+          name: message.student.name,
+          studentId: message.student.student_id,
+        };
+      } else {
+        // На случай, если отправитель не определен
+        sender = {
+          type: 'UNKNOWN' as const,
+          id: 'unknown',
+          name: 'Неизвестный отправитель',
+        };
+      }
 
-      isDistribution: message.id === input.distributionId,
-    }))
+      return {
+        id: message.id,
+        text: message.text,
+        createdAt: message.createdAt,
+        sender,
+        isDistribution: message.id === input.distributionId,
+      };
+    });
 
     return {
       dialogue: {
         id: distribution.id,
         recipient: {
-          name: `Студент: ${distribution.recipientStudent.name} (${distribution.recipientStudent.student_id})`,
+          name: recipientName,
           type: distribution.targetType,
         },
         messages: formattedMessages,
