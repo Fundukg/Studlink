@@ -1,3 +1,4 @@
+import { BotPlatform } from '@prisma/client'
 import { sendMessageToStudent } from '../../bot/telegram'
 import { trpc } from '../../lib/trpc'
 import { zCreateDistributionTrpcInput } from './input'
@@ -15,18 +16,27 @@ export const createDistributionTrpcRoute = trpc.procedure
           // Отправка конкретному студенту
           const student = await ctx.prisma.student.findUnique({
             where: { id: input.targetId },
+            include: {
+              botUsers: {
+                where: {
+                  bot: {
+                    platform: BotPlatform.TELEGRAM,
+                  },
+                  isActive: true,
+                },
+              },
+            },
           })
 
           if (!student) {
             throw new Error('Студент не найден')
           }
 
-          if (!student.telegramChatId) {
-            throw new Error(`Студент ${student.student_id} не имеет Telegram чата`)
+          if (student.botUsers.length === 0) {
+            throw new Error(`Студент ${student.student_id} не имеет активного Telegram чата`)
           }
 
-          // console.log(`Попытка отправки сообщения студенту ${student.student_id}`)
-          const success = await sendMessageToStudent(student.student_id, input.text)
+          const success = await sendMessageToStudent(student.botUsers[0].studentId, input.text)
 
           if (!success) {
             throw new Error(`Не удалось отправить сообщение студенту ${student.student_id}`)
@@ -40,33 +50,39 @@ export const createDistributionTrpcRoute = trpc.procedure
           // Отправка всем студентам группы
           const groupStudents = await ctx.prisma.student.findMany({
             where: { groupId: input.targetId },
+            include: {
+              botUsers: {
+                where: {
+                  bot: {
+                    platform: BotPlatform.TELEGRAM,
+                  },
+                  isActive: true,
+                },
+              },
+            },
           })
 
           if (groupStudents.length === 0) {
             throw new Error('Группа не найдена или в ней нет студентов')
           }
 
-          // console.log(`Отправка сообщения группе, количество студентов: ${groupStudents.length}`)
           let atLeastOneSuccess = false
           const errors: string[] = []
 
           for (const student of groupStudents) {
             try {
-              if (student.telegramChatId) {
-                const success = await sendMessageToStudent(student.student_id, input.text)
+              if (student.botUsers.length > 0) {
+                const success = await sendMessageToStudent(student.botUsers[0].studentId, input.text)
 
                 if (success) {
-                  // console.log(`Сообщение отправлено студенту ${student.student_id} из группы`)
                   atLeastOneSuccess = true
                 } else {
-                  // Используем try-catch вместо прямого добавления в массив ошибок
                   throw new Error(`Не удалось отправить сообщение студенту ${student.student_id}`)
                 }
               } else {
-                throw new Error(`Студент ${student.student_id} не имеет Telegram чата`)
+                throw new Error(`Студент ${student.student_id} не имеет активного Telegram чата`)
               }
             } catch (error: any) {
-              // Ловим ошибку и добавляем в массив, но не прерываем цикл
               errors.push(error.message)
               console.error(`Ошибка при отправке студенту ${student.student_id}:`, error.message)
             }
@@ -82,35 +98,43 @@ export const createDistributionTrpcRoute = trpc.procedure
 
           break
         }
+
         case 'COURSE': {
           const courseStudents = await ctx.prisma.student.findMany({
             where: {
-              course: input.targetId, // Ищем студентов с указанным курсом
+              course: input.targetId!,
+            },
+            include: {
+              botUsers: {
+                where: {
+                  bot: {
+                    platform: BotPlatform.TELEGRAM,
+                  },
+                  isActive: true,
+                },
+              },
             },
           })
 
           if (courseStudents.length === 0) {
-            throw new Error(`На курсе ${courseStudents} нет студентов`)
+            throw new Error(`На курсе ${input.targetId} нет студентов`)
           }
-
-          // console.log(`Отправка сообщения курсу ${String(courseStudents)}, количество студентов: ${courseStudents.length}`)
 
           let atLeastOneSuccess = false
           const errors: string[] = []
 
           for (const student of courseStudents) {
             try {
-              if (student.telegramChatId) {
-                const success = await sendMessageToStudent(student.student_id, input.text)
+              if (student.botUsers.length > 0) {
+                const success = await sendMessageToStudent(student.botUsers[0].studentId, input.text)
 
                 if (success) {
-                  // console.log(`Сообщение отправлено студенту ${student.student_id} с курса ${courseStudents}`)
                   atLeastOneSuccess = true
                 } else {
                   throw new Error(`Не удалось отправить сообщение студенту ${student.student_id}`)
                 }
               } else {
-                throw new Error(`Студент ${student.student_id} не имеет Telegram чата`)
+                throw new Error(`Студент ${student.student_id} не имеет активного Telegram чата`)
               }
             } catch (error: any) {
               errors.push(error.message)
@@ -120,7 +144,7 @@ export const createDistributionTrpcRoute = trpc.procedure
 
           if (!atLeastOneSuccess) {
             throw new Error(
-              `Не удалось отправить сообщение ни одному студенту на курсе ${courseStudents}. Ошибки: ${errors.join(', ')}`
+              `Не удалось отправить сообщение ни одному студенту на курсе ${input.targetId}. Ошибки: ${errors.join(', ')}`
             )
           }
 
@@ -130,6 +154,7 @@ export const createDistributionTrpcRoute = trpc.procedure
 
           break
         }
+        
         case 'DEPARTMENT': {
           const departmentGroups = await ctx.prisma.group.findMany({
             where: { departmentId: input.targetId },
@@ -146,29 +171,37 @@ export const createDistributionTrpcRoute = trpc.procedure
                 in: departmentGroups.map((g) => g.id),
               },
             },
+            include: {
+              botUsers: {
+                where: {
+                  bot: {
+                    platform: BotPlatform.TELEGRAM,
+                  },
+                  isActive: true,
+                },
+              },
+            },
           })
 
           if (departmentStudents.length === 0) {
             throw new Error('На кафедре нет студентов')
           }
 
-          // console.log(`Отправка сообщения кафедре, количество студентов: ${departmentStudents.length}`)
           let atLeastOneSuccess = false
           const errors: string[] = []
 
           for (const student of departmentStudents) {
             try {
-              if (student.telegramChatId) {
-                const success = await sendMessageToStudent(student.student_id, input.text)
+              if (student.botUsers.length > 0) {
+                const success = await sendMessageToStudent(student.botUsers[0].studentId, input.text)
 
                 if (success) {
-                  // console.log(`Сообщение отправлено студенту ${student.student_id} с кафедры`)
                   atLeastOneSuccess = true
                 } else {
                   throw new Error(`Не удалось отправить сообщение студенту ${student.student_id}`)
                 }
               } else {
-                throw new Error(`Студент ${student.student_id} не имеет Telegram чата`)
+                throw new Error(`Студент ${student.student_id} не имеет активного Telegram чата`)
               }
             } catch (error: any) {
               errors.push(error.message)
@@ -218,29 +251,37 @@ export const createDistributionTrpcRoute = trpc.procedure
                 in: facultyGroups.map((g) => g.id),
               },
             },
+            include: {
+              botUsers: {
+                where: {
+                  bot: {
+                    platform: BotPlatform.TELEGRAM,
+                  },
+                  isActive: true,
+                },
+              },
+            },
           })
 
           if (facultyStudents.length === 0) {
             throw new Error('На факультете нет студентов')
           }
 
-          // console.log(`Отправка сообщения факультету, количество студентов: ${facultyStudents.length}`)
           let atLeastOneSuccess = false
           const errors: string[] = []
 
           for (const student of facultyStudents) {
             try {
-              if (student.telegramChatId) {
-                const success = await sendMessageToStudent(student.student_id, input.text)
+              if (student.botUsers.length > 0) {
+                const success = await sendMessageToStudent(student.botUsers[0].studentId, input.text)
 
                 if (success) {
-                  // console.log(`Сообщение отправлено студенту ${student.student_id} с факультета`)
                   atLeastOneSuccess = true
                 } else {
                   throw new Error(`Не удалось отправить сообщение студенту ${student.student_id}`)
                 }
               } else {
-                throw new Error(`Студент ${student.student_id} не имеет Telegram чата`)
+                throw new Error(`Студент ${student.student_id} не имеет активного Telegram чата`)
               }
             } catch (error: any) {
               errors.push(error.message)
@@ -262,7 +303,7 @@ export const createDistributionTrpcRoute = trpc.procedure
         }
 
         case 'ALL': {
-          const allStudents = await ctx.prisma.student.findMany()
+          const allStudents = await ctx.prisma.botUser.findMany()
 
           if (allStudents.length === 0) {
             throw new Error('В системе нет студентов')
@@ -274,21 +315,21 @@ export const createDistributionTrpcRoute = trpc.procedure
 
           for (const student of allStudents) {
             try {
-              if (student.telegramChatId) {
-                const success = await sendMessageToStudent(student.student_id, input.text)
+              if (student.externalId) {
+                const success = await sendMessageToStudent(student.studentId, input.text)
 
                 if (success) {
                   // console.log(`Сообщение отправлено студенту ${student.student_id}`)
                   atLeastOneSuccess = true
                 } else {
-                  throw new Error(`Не удалось отправить сообщение студенту ${student.student_id}`)
+                  throw new Error(`Не удалось отправить сообщение студенту ${student.studentId}`)
                 }
               } else {
-                throw new Error(`Студент ${student.student_id} не имеет Telegram чата`)
+                throw new Error(`Студент ${student.studentId} не имеет Telegram чата`)
               }
             } catch (error: any) {
               errors.push(error.message)
-              console.error(`Ошибка при отправке студенту ${student.student_id}:`, error.message)
+              console.error(`Ошибка при отправке студенту ${student.studentId}:`, error.message)
             }
           }
 

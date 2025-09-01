@@ -1,38 +1,33 @@
-import { PrismaClient } from '@prisma/client'
-import bot, { sendMessageToStudent } from '.'
+// utils.ts
+import { PrismaClient, BotPlatform } from '@prisma/client'
+import { botService } from '../botService'
+import { getBot, sendMessageToStudent } from './index'
 
 const prisma = new PrismaClient()
 
-// Функция для поиска chat_id по student_id
-export const getChatIdByStudentId = async (studentId: string): Promise<string | null> => {
-  const student = await prisma.student.findUnique({
-    where: { student_id: studentId },
-    select: { telegramChatId: true },
-  })
-
-  return student?.telegramChatId || null
-}
-
 // Функция для массовой отправки сообщений
 export const sendBulkMessages = async (studentIds: string[], message: string) => {
-  const results = await Promise.allSettled(studentIds.map((id) => sendMessageToStudent(id, message)))
+  const results = await Promise.allSettled(
+    studentIds.map((id) => sendMessageToStudent(id, message))
+  )
 
   return results
 }
 
-// Добавьте эту функцию в utils.ts
+// Функция для отправки сообщения с кнопкой "Ответить"
 export const sendDistributionWithReply = async (
   studentId: string,
   message: string,
   distributionId: string,
   staffId?: string
 ) => {
+  const bot = getBot()
+  
   try {
-    const student = await prisma.student.findUnique({
-      where: { student_id: studentId },
-    })
-
-    if (!student || !student.telegramChatId) {
+    // Получаем chat_id из базы данных
+    const chatId = await botService.getChatIdByStudentId(studentId, BotPlatform.TELEGRAM)
+    
+    if (!chatId) {
       throw new Error('Студент не найден или не авторизован в боте')
     }
 
@@ -49,21 +44,22 @@ export const sendDistributionWithReply = async (
     }
 
     // Отправляем сообщение с кнопкой
-    const telegramMessage = await bot.telegram.sendMessage(student.telegramChatId, message, {
+    const telegramMessage = await bot.telegram.sendMessage(chatId, message, {
       reply_markup: replyMarkup,
     })
 
     // Сохраняем сообщение в базу
-    // await prisma.message.create({
-    //   data: {
-    //     text: message,
-    //     senderType: 'STAFF',
-    //     staffId: staffId,
-    //     recipientStudentId: student.id,
-    //     externalId: telegramMessage.message_id.toString(),
-    //     parentId: distributionId, // Связываем с родительской рассылкой
-    //   },
-    // })
+    await prisma.message.create({
+      data: {
+        text: message,
+        senderType: 'STAFF',
+        staffId: staffId,
+        targetType: 'STUDENT',
+        recipientStudentId: studentId,
+        externalId: telegramMessage.message_id.toString(),
+        parentId: distributionId,
+      },
+    })
 
     return true
   } catch (error) {

@@ -49,7 +49,6 @@ model Student {
   id               String     @id @default(uuid())
   student_id       String     @unique
   name             String
-  telegramChatId   String?
   course           String
   groupId          String?
   group            Group?     @relation(fields: [groupId], references: [id])
@@ -60,14 +59,17 @@ model Student {
 }
 
 model Bot {
-  id          String     @id @default(uuid())
-  platform    BotPlatform @unique
+  id          String      @id @default(uuid())
+  platform    BotPlatform
   token       String     @unique
   name        String
   createdAt   DateTime   @default(now())
   isActive    Boolean    @default(true)
   users       BotUser[]
-  messages    Message[]  // Сообщения, отправленные через этого бота
+  messages    Message[]
+
+  @@unique([platform])
+  @@map("bots")
 }
 
 model BotUser {
@@ -82,6 +84,7 @@ model BotUser {
 
   @@unique([studentId, botId])
   @@index([externalId])
+  @@map("bot_users")
 }
 
 model Message {
