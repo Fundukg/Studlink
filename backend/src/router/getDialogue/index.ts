@@ -136,6 +136,7 @@ export const getDialogueTrpcRoute = trpc.procedure
       dialogue: {
         id: distribution.id,
         recipient: {
+          id: studentId,
           name: recipientName,
           type: distribution.targetType,
         },

@@ -6,6 +6,7 @@ import { zCreateDistributionTrpcInput } from './input'
 export const createDistributionTrpcRoute = trpc.procedure
   .input(zCreateDistributionTrpcInput)
   .mutation(async ({ input, ctx }) => {
+    //  console.log('Получены данные:', input)
     if (!ctx.me) {
       throw new Error('Необходима авторизация')
     }
@@ -154,7 +155,7 @@ export const createDistributionTrpcRoute = trpc.procedure
 
           break
         }
-        
+
         case 'DEPARTMENT': {
           const departmentGroups = await ctx.prisma.group.findMany({
             where: { departmentId: input.targetId },

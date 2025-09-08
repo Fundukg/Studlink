@@ -1,9 +1,13 @@
+import { zCreateDistributionTrpcInput } from '@parkstick/backend/src/router/createDistribution/input'
 import { format } from 'date-fns/format'
 import { useParams } from 'react-router-dom'
-// import { ButtomLink } from '../../components/Button'
+import { Alert } from '../../components/Alert'
+import { ButtonSend } from '../../components/Button'
 import { Segment } from '../../components/Segment'
+import { Textarea } from '../../components/Textarea'
+import { useForm } from '../../lib/form'
 import { withPageWrapper } from '../../lib/pageWarpper'
-import { type ViewDialogueRouteParams } from '../../lib/routes' //import { getEditMessageRoute, type ViewDialogueRouteParams } from '../../lib/routes'
+import { type ViewDialogueRouteParams } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
@@ -19,10 +23,31 @@ export const ViewDialoguePage = withPageWrapper({
     dialogue: checkExists(queryResult.data.dialogue, 'Dialogue not found'),
     me: ctx.me,
   }),
-})(
-  (
-    { dialogue } // { dialogue, me }
-  ) => (
+})(({ dialogue }) => {
+  const createDistribution = trpc.createDistribution.useMutation()
+  const { dialogueId } = useParams() as ViewDialogueRouteParams
+  const trpcUtils = trpc.useContext()
+
+  const { formik, buttonProps, alertProps } = useForm({
+    initialValues: {
+      targetType: 'STUDENT' as const,
+      targetId: dialogue.recipient.id,
+      text: '',
+    },
+    validationSchema: zCreateDistributionTrpcInput,
+
+    onSubmit: async (values) => {
+      await createDistribution.mutateAsync(values)
+
+      // Обновляем данные диалога после отправки сообщения
+      await trpcUtils.getDialogue.invalidate({ distributionId: dialogueId })
+      formik.resetForm()
+    },
+    successMessage: 'Сообщение отправлено',
+    showValidationAlert: true,
+  })
+
+  return (
     <div className={css.dialogue}>
       <Segment title={dialogue.recipient.name} size={1}>
         <div className={css.createdAt}>Все сообщения диалога</div>
@@ -46,13 +71,12 @@ export const ViewDialoguePage = withPageWrapper({
             </div>
           ))}
         </div>
+        <form onSubmit={formik.handleSubmit}>
+          <Textarea name="text" label="Сообщение" formik={formik} />
+          <Alert {...alertProps} />
+          <ButtonSend {...buttonProps}>Отправить</ButtonSend>
+        </form>
       </Segment>
-
-      {/* {me?.id === dialogue.messages.find((m) => m.isDistribution)?.sender.id && (
-      <div className={css.editButton}>
-        <ButtomLink to={getEditMessageRoute({ dialogueId: dialogue.id })}>Редактировать рассылку</ButtomLink>
-      </div>
-    )} */}
     </div>
   )
-)
+})
