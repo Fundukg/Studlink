@@ -7,6 +7,7 @@ import * as routes from './lib/routes'
 import { TrpcProvider } from './lib/trpc'
 import { EditMessagePage } from './pages/EditMessagePage'
 import { NewDistributionPage } from './pages/NewDistributionPage'
+import { NewFacultyPage } from './pages/NewFacultypage'
 import { NewStudentsPage } from './pages/NewStudentPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { SignInPage } from './pages/SignInPage'
@@ -49,6 +50,7 @@ export const App = () => {
               <Route path={routes.getNewStudentRoute()} element={<NewStudentsPage />} />
               <Route path={routes.getViewStudentRoute()} element={<ViewStudentPage />} />
               <Route path={routes.getViewDistributionsRoute()} element={<ViewDistributionsPage />} />
+              <Route path={routes.getNewFacultyRoute()} element={<NewFacultyPage />} />
               {/* <Route
                 path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}
                 element={<ViewDistributionPage />}

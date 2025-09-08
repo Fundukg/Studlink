@@ -5,7 +5,9 @@ export const getFacultyTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
     select: {
       id: true,
       name: true,
+      createdAt: true,
     },
+
     orderBy: {
       name: 'asc',
     },

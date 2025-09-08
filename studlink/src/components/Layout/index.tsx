@@ -9,6 +9,7 @@ import {
   getViewStudentRoute,
   getViewDialoguesRoute,
   getViewDistributionsRoute,
+  getNewFacultyRoute,
 } from '../../lib/routes'
 import css from './index.module.scss'
 
@@ -40,6 +41,11 @@ export const Layout = () => {
               <li className={css.item}>
                 <Link className={css.link} to={getNewStudentRoute()}>
                   Добавить студента
+                </Link>
+              </li>
+              <li className={css.item}>
+                <Link className={css.link} to={getNewFacultyRoute()}>
+                  Добавить факультет
                 </Link>
               </li>
               <li className={css.item}>
