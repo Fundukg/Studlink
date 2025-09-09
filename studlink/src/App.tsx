@@ -22,28 +22,30 @@ import { ViewDistributionsPage } from './pages/ViewDistributionsPage'
 import { ViewStudentPage } from './pages/ViewStudentPage'
 import './styles/global.scss'
 
-
 export const App = () => {
   return (
     <TrpcProvider>
       <AppContextProvider>
         <BrowserRouter>
           <Routes>
+            {/* Маршруты с собственными layout-компонентами */}
             <Route path={routes.getViewDialogueRoute(routes.viewdialogueRouteParams)} element={<DialoguesBar />}>
-              <Route
-                path={routes.getViewDialogueRoute(routes.viewdialogueRouteParams)}
-                element={<ViewDialoguePage />}
-              />
+              <Route index element={<ViewDialoguePage />} />
             </Route>
-             <Route path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)} element={<DistribitionBar />}>
-              <Route
-                path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}
-                element={<ViewDistributionPage />}
-              />
+
+            <Route
+              path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}
+              element={<DistribitionBar />}
+            >
+              <Route index element={<ViewDistributionPage />} />
             </Route>
+
+            {/* Отдельные страницы без Layout */}
             <Route path={routes.getSignOutRoute()} element={<SignOutPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-            <Route element={<Layout />}>
+
+            {/* Основные маршруты с Layout */}
+            <Route path="/" element={<Layout />}>
+              <Route index element={<ViewDialoguesPage />} />
               <Route path={routes.getViewDialoguesRoute()} element={<ViewDialoguesPage />} />
               <Route path={routes.getNewDistributionRoute()} element={<NewDistributionPage />} />
               <Route path={routes.getSignUpRoute()} element={<SignUpPage />} />
@@ -55,11 +57,10 @@ export const App = () => {
               <Route path={routes.getNewFacultyRoute()} element={<NewFacultyPage />} />
               <Route path={routes.getNewDepartmentRoute()} element={<NewDepartmentPage />} />
               <Route path={routes.getNewGroupRoute()} element={<NewGroupPage />} />
-              {/* <Route
-                path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}•
-                element={<ViewDistributionPage />}
-              /> */}
             </Route>
+
+            {/* Маршрут для ненайденных страниц */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
       </AppContextProvider>
