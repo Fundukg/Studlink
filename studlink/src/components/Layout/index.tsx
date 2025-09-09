@@ -11,6 +11,7 @@ import {
   getViewDistributionsRoute,
   getNewFacultyRoute,
   getNewDepartmentRoute,
+  getNewGroupRoute,
 } from '../../lib/routes'
 import css from './index.module.scss'
 
@@ -52,6 +53,11 @@ export const Layout = () => {
               <li className={css.item}>
                 <Link className={css.link} to={getNewDepartmentRoute()}>
                   Добавить кафедру
+                </Link>
+              </li>
+              <li className={css.item}>
+                <Link className={css.link} to={getNewGroupRoute()}>
+                  Добавить группу
                 </Link>
               </li>
               <li className={css.item}>

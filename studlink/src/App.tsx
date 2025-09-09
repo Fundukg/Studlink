@@ -9,6 +9,7 @@ import { EditMessagePage } from './pages/EditMessagePage'
 import { NewDepartmentPage } from './pages/NewDepartmentPage'
 import { NewDistributionPage } from './pages/NewDistributionPage'
 import { NewFacultyPage } from './pages/NewFacultypage'
+import { NewGroupPage } from './pages/NewGroupPage'
 import { NewStudentsPage } from './pages/NewStudentPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { SignInPage } from './pages/SignInPage'
@@ -53,8 +54,9 @@ export const App = () => {
               <Route path={routes.getViewDistributionsRoute()} element={<ViewDistributionsPage />} />
               <Route path={routes.getNewFacultyRoute()} element={<NewFacultyPage />} />
               <Route path={routes.getNewDepartmentRoute()} element={<NewDepartmentPage />} />
+              <Route path={routes.getNewGroupRoute()} element={<NewGroupPage />} />
               {/* <Route
-                path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}
+                path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}•
                 element={<ViewDistributionPage />}
               /> */}
             </Route>

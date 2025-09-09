@@ -4,6 +4,7 @@ import { trpc } from '../lib/trpc'
 import { createDepartmentTrpcRoute } from './createDepartment'
 import { createDistributionTrpcRoute } from './createDistribution'
 import { createFacultyTrpcRoute } from './createFaculty'
+import { createGroupTrpcRoute } from './createGroup'
 import { createStudentTrpcRoute } from './createStudent'
 import { getDepartmentTrpcRoute } from './getDepartment'
 import { getDialogueTrpcRoute } from './getDialogue'
@@ -23,6 +24,7 @@ export const trpcRouter = trpc.router({
   createDepartment: createDepartmentTrpcRoute,
   createDistribution: createDistributionTrpcRoute,
   createFaculty: createFacultyTrpcRoute,
+  createGroup: createGroupTrpcRoute,
   createStudent: createStudentTrpcRoute,
   getDepartment: getDepartmentTrpcRoute,
   getDialogue: getDialogueTrpcRoute,

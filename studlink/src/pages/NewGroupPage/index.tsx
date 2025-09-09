@@ -1,4 +1,4 @@
-import { zCreateDepartmentTrpcInput } from '@parkstick/backend/src/router/createDepartment/input'
+import { zCreateGroupTrpcInput } from '@parkstick/backend/src/router/createGroup/input'
 import { format } from 'date-fns'
 import { Alert } from '../../components/Alert'
 import { ButtonSend } from '../../components/Button'
@@ -11,43 +11,43 @@ import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
-export const NewDepartmentPage = withPageWrapper({
+export const NewGroupPage = withPageWrapper({
   authorizedOnly: true,
-  useQuery: () => trpc.getDepartment.useQuery(),
+  useQuery: () => trpc.getGroup.useQuery(),
   setProps: ({ queryResult }) => ({
-    department: queryResult.data!,
+    group: queryResult.data!,
   }),
-})((Department) => {
-  const createDepartment = trpc.createDepartment.useMutation()
-  const queryFaculty = trpc.getFaculty.useQuery()
+})((Group) => {
+  const createGroup = trpc.createGroup.useMutation()
+  const queryDepartment = trpc.getDepartment.useQuery()
   const trpcUtils = trpc.useContext()
   const { formik, buttonProps, alertProps } = useForm({
     initialValues: {
       name: '',
-      facultyId: '',
+      departmentId: '',
     },
-    validationSchema: zCreateDepartmentTrpcInput,
+    validationSchema: zCreateGroupTrpcInput,
     onSubmit: async (values) => {
-      await createDepartment.mutateAsync(values)
+      await createGroup.mutateAsync(values)
       formik.resetForm()
-      void trpcUtils.getDepartment.invalidate()
+      void trpcUtils.getGroup.invalidate()
     },
-    successMessage: 'Кафедра успешно создана',
+    successMessage: 'Группа успешно создана',
     showValidationAlert: true,
   })
 
   return (
-    <Segment title="Новыая кафедра">
+    <Segment title="Новыая группа">
       <form onSubmit={formik.handleSubmit}>
         <FormItems>
-          <Input name="name" label="Кафедра" formik={formik} />
+          <Input name="name" label="Группа" formik={formik} />
 
           <List
-            name="facultyId"
-            label="Факультет"
-            listlabel="Выберите Факультет"
+            name="departmentId"
+            label="Кафедра"
+            listlabel="Выберите Кафедру"
             formik={formik}
-            groups={queryFaculty.data || []}
+            groups={queryDepartment.data || []}
           />
 
           <Alert {...alertProps} />
@@ -59,18 +59,20 @@ export const NewDepartmentPage = withPageWrapper({
           <thead>
             <tr>
               <th>№</th>
+              <th>Группа</th>
               <th>Кафедра</th>
               <th>Факультет</th>
               <th>Дата создания</th>
             </tr>
           </thead>
           <tbody>
-            {Department.department?.map((department, index) => (
-              <tr key={department.id}>
+            {Group.group?.map((group, index) => (
+              <tr key={group.id}>
                 <td>{index + 1}</td>
-                <td>{department.name}</td>
-                <td>{department.faculty.name}</td>
-                <td>{format(department.createdAt, 'dd.MM.yyyy')}</td>
+                <td>{group.name}</td>
+                <td>{group.department.name}</td>
+                <td>{group.department.faculty.name}</td>
+                <td>{format(group.createdAt, 'dd.MM.yyyy')}</td>
               </tr>
             ))}
           </tbody>
