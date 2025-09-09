@@ -1,6 +1,7 @@
 import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server'
 import { trpc } from '../lib/trpc'
 // @index('./**/index.ts', f => `import { ${f.path.split('/').slice(0, -1).pop()}TrpcRoute } from '${f.path.split('/').slice(0, -1).join('/')}'`)
+import { createDepartmentTrpcRoute } from './createDepartment'
 import { createDistributionTrpcRoute } from './createDistribution'
 import { createFacultyTrpcRoute } from './createFaculty'
 import { createStudentTrpcRoute } from './createStudent'
@@ -19,6 +20,7 @@ import { updateMessageTrpcRoute } from './updateMessage'
 // @endindex
 export const trpcRouter = trpc.router({
   // @index('./**/index.ts', f => `${f.path.split('/').slice(0, -1).pop()}: ${f.path.split('/').slice(0, -1).pop()}TrpcRoute,`)
+  createDepartment: createDepartmentTrpcRoute,
   createDistribution: createDistributionTrpcRoute,
   createFaculty: createFacultyTrpcRoute,
   createStudent: createStudentTrpcRoute,

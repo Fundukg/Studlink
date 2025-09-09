@@ -32,6 +32,8 @@ export const getViewStudentRoute = () => '/student'
 
 export const getNewFacultyRoute = () => '/faculty/new'
 
+export const getNewDepartmentRoute = () => '/department/new'
+
 // export const DialoguesRouteParams = { workdesk: ':WorkDesk' }
 // export type DialoguesRouteParams =  { workdesk: string }
 // export const getDialoguesRoute = ({ workdesk }: { workdesk: string }) => `/dialogue/${workdesk}`

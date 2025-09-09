@@ -6,6 +6,7 @@ import { AppContextProvider } from './lib/ctx'
 import * as routes from './lib/routes'
 import { TrpcProvider } from './lib/trpc'
 import { EditMessagePage } from './pages/EditMessagePage'
+import { NewDepartmentPage } from './pages/NewDepartmentPage'
 import { NewDistributionPage } from './pages/NewDistributionPage'
 import { NewFacultyPage } from './pages/NewFacultypage'
 import { NewStudentsPage } from './pages/NewStudentPage'
@@ -51,6 +52,7 @@ export const App = () => {
               <Route path={routes.getViewStudentRoute()} element={<ViewStudentPage />} />
               <Route path={routes.getViewDistributionsRoute()} element={<ViewDistributionsPage />} />
               <Route path={routes.getNewFacultyRoute()} element={<NewFacultyPage />} />
+              <Route path={routes.getNewDepartmentRoute()} element={<NewDepartmentPage />} />
               {/* <Route
                 path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}
                 element={<ViewDistributionPage />}
