@@ -13,3 +13,9 @@ export const zCreateStudentTrpcInput = z.object({
     .regex(/^[a-zА-Яа-я0-9-]+$/, 'Group contain only lowercase letters number and dashes')
     .max(10),
 })
+
+
+export const zUpdateStudentTrpcInput = zCreateStudentTrpcInput.partial()
+export const zDeleteStudentTrpcInput = z.object({
+  id: z.string().uuid('Неверный ID студента'),
+})
