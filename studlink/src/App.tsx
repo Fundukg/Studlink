@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { DialoguesBar } from './components/DialoguesBar'
 import { DistribitionBar } from './components/DistribitionBar'
 import { Layout } from './components/Layout'
 import { AppContextProvider } from './lib/ctx'
@@ -29,9 +28,6 @@ export const App = () => {
         <BrowserRouter>
           <Routes>
             {/* Маршруты с собственными layout-компонентами */}
-            <Route path={routes.getViewDialogueRoute(routes.viewdialogueRouteParams)} element={<DialoguesBar />}>
-              <Route index element={<ViewDialoguePage />} />
-            </Route>
 
             <Route
               path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}
@@ -45,7 +41,7 @@ export const App = () => {
 
             {/* Основные маршруты с Layout */}
             <Route path="/" element={<Layout />}>
-              <Route index element={<ViewDialoguesPage />} />
+              <Route path={routes.getViewDialogueRoute(routes.viewdialogueRouteParams)} element={<ViewDialoguePage />} />
               <Route path={routes.getViewDialoguesRoute()} element={<ViewDialoguesPage />} />
               <Route path={routes.getNewDistributionRoute()} element={<NewDistributionPage />} />
               <Route path={routes.getSignUpRoute()} element={<SignUpPage />} />

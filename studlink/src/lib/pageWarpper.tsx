@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { ErrorPageComponent } from '../components/ErrorPageComponent'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { useAppContext, type AppContext } from './ctx'
-import { getViewDialoguesRoute } from './routes'
+import { getViewDialogueRoute } from './routes'
+import { trpc } from './trpc'
 
 class CheckExistsError extends Error {}
 const checkExistsFn = <T,>(value: T, message?: string): NonNullable<T> => {
@@ -74,10 +75,11 @@ const PageWrapper = <TProps extends Props = object, TQueryResult extends QueryRe
   const queryResult = useQuery?.()
 
   const redirectNeeded = redirectAuthorized && ctx.me
+  const recentChats = trpc.getDialogues.useQuery()
 
   useEffect(() => {
     if (redirectNeeded) {
-      navigate(getViewDialoguesRoute(), { replace: true })
+      navigate(getViewDialogueRoute({ dialogueId: recentChats.data!.distributions[0].id }), { replace: true })
     }
   }, [redirectNeeded, navigate])
 

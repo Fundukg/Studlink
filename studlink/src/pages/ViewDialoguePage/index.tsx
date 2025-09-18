@@ -78,7 +78,7 @@ export const ViewDialoguePage = withPageWrapper({
           </div>
           <div className={css.userDetails}>
             <h2>{dialogue.recipient.name}</h2>
-            <p>Диалог с участником</p>
+            <p>Student ID: {dialogue.recipient.studentId}</p>
           </div>
         </div>
       </div>

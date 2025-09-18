@@ -48,7 +48,7 @@ export const getDialogueTrpcRoute = trpc.procedure
     if (distribution.recipientStudent) {
       // Сообщение отправлено сотрудником студенту
       studentId = distribution.recipientStudent.id;
-      recipientName = `${distribution.recipientStudent.name} ${distribution.recipientStudent.student_id}`;
+      recipientName = `${distribution.recipientStudent.name}`;
     } else if (distribution.student) {
       // Сообщение отправлено студентом
       studentId = distribution.student.id;
@@ -138,6 +138,7 @@ export const getDialogueTrpcRoute = trpc.procedure
         recipient: {
           id: studentId,
           name: recipientName,
+          studentId: distribution.recipientStudent?.student_id ,
           type: distribution.targetType,
         },
         messages: formattedMessages,
