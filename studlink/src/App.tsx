@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { DistribitionBar } from './components/DistribitionBar'
 import { Layout } from './components/Layout'
 import { AppContextProvider } from './lib/ctx'
 import * as routes from './lib/routes'
@@ -12,10 +11,9 @@ import { NewGroupPage } from './pages/NewGroupPage'
 import { NewStudentsPage } from './pages/NewStudentPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { SignInPage } from './pages/SignInPage'
-import { SignOutPage } from './pages/SignOutPage'
 import { SignUpPage } from './pages/SignUpPage'
 import { ViewDialoguePage } from './pages/ViewDialoguePage'
-import { ViewDialoguesPage } from './pages/ViewDialoguesPage'
+// import { ViewDialoguesPage } from './pages/ViewDialoguesPage'
 import { ViewDistributionPage } from './pages/ViewDistributionPage'
 import { ViewDistributionsPage } from './pages/ViewDistributionsPage'
 import { ViewStudentPage } from './pages/ViewStudentPage'
@@ -27,22 +25,15 @@ export const App = () => {
       <AppContextProvider>
         <BrowserRouter>
           <Routes>
-            {/* Маршруты с собственными layout-компонентами */}
-
-            <Route
-              path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}
-              element={<DistribitionBar />}
-            >
-              <Route index element={<ViewDistributionPage />} />
-            </Route>
-
-            {/* Отдельные страницы без Layout */}
-            <Route path={routes.getSignOutRoute()} element={<SignOutPage />} />
-
-            {/* Основные маршруты с Layout */}
             <Route path="/" element={<Layout />}>
-              <Route path={routes.getViewDialogueRoute(routes.viewdialogueRouteParams)} element={<ViewDialoguePage />} />
-              <Route path={routes.getViewDialoguesRoute()} element={<ViewDialoguesPage />} />
+              <Route
+                path={routes.getViewDialogueRoute(routes.viewdialogueRouteParams)}
+                element={<ViewDialoguePage />}
+              />
+              <Route
+                path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}
+                element={<ViewDistributionPage />}
+              />
               <Route path={routes.getNewDistributionRoute()} element={<NewDistributionPage />} />
               <Route path={routes.getSignUpRoute()} element={<SignUpPage />} />
               <Route path={routes.getSignInRoute()} element={<SignInPage />} />
@@ -54,8 +45,6 @@ export const App = () => {
               <Route path={routes.getNewDepartmentRoute()} element={<NewDepartmentPage />} />
               <Route path={routes.getNewGroupRoute()} element={<NewGroupPage />} />
             </Route>
-
-            {/* Маршрут для ненайденных страниц */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>

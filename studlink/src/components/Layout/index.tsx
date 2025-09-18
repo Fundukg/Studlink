@@ -15,7 +15,12 @@ import {
 } from 'react-icons/fi'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useMe } from '../../lib/ctx'
-import { getSignInRoute, getSignOutRoute, getViewDistributionsRoute, getViewDialogueRoute, getNewDistributionRoute } from '../../lib/routes'
+import {
+  getSignInRoute,
+  getSignOutRoute,
+  getViewDialogueRoute,
+  getNewDistributionRoute,
+} from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
@@ -174,7 +179,11 @@ export const Layout = () => {
               <>
                 <li className={css.item}>
                   <Link
-                    className={`${css.link} ${location.pathname === getViewDistributionsRoute() ? css.active : ''}`}
+                    className={`${css.link} 
+                      
+                      ${location.pathname === '/dialogue/new' ? css.active : ''}
+                      ${location.pathname === '/distributions' ? css.active : ''} 
+                      `}
                     to={getNewDistributionRoute()}
                     onClick={() => {
                       setActiveSection('')

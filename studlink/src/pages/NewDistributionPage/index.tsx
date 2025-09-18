@@ -1,27 +1,27 @@
 import { zCreateDistributionTrpcInput } from '@parkstick/backend/src/router/createDistribution/input'
-import { useEffect } from 'react'
+import { FiSend } from 'react-icons/fi'
 import { Alert } from '../../components/Alert'
-import { ButtonSend } from '../../components/Button'
-import { FormItems } from '../../components/FormItems'
 import { Input } from '../../components/Input'
 import { List, ListSelect } from '../../components/List'
-import { Segment } from '../../components/Segment'
+import { MailingHeader } from '../../components/MailingHeader'
 import { Textarea } from '../../components/Textarea'
 import { useForm } from '../../lib/form'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
-
+import css from './index.module.scss'
+// Страница создания новой рассылки
 export const NewDistributionPage = withPageWrapper({
   authorizedOnly: true,
 })(() => {
   const createDistribution = trpc.createDistribution.useMutation()
-  const groupQuery = trpc.getGroup.useQuery() // Предполагается, что у вас есть такой запрос
-  const studentQuery = trpc.getStudent.useQuery() // Предполагается, что у вас есть такой запрос
-  const departmentQuery = trpc.getDepartment.useQuery() // Предполагается, что у вас есть такой запрос
-  const facultieQuery = trpc.getFaculty.useQuery() // Предполагается, что у вас есть такой запрос
+  const groupQuery = trpc.getGroup.useQuery()
+  const studentQuery = trpc.getStudent.useQuery()
+  const departmentQuery = trpc.getDepartment.useQuery()
+  const facultieQuery = trpc.getFaculty.useQuery()
 
-  const { formik, buttonProps, alertProps } = useForm({
+  const { formik, alertProps } = useForm({ // buttonProps,
     initialValues: {
+      // subject: '',
       targetType: 'ALL',
       targetId: '',
       text: '',
@@ -31,83 +31,100 @@ export const NewDistributionPage = withPageWrapper({
       await createDistribution.mutateAsync(values)
       formik.resetForm()
     },
-    successMessage: 'Рассылка успешно создана',
+    successMessage: 'Mailing successfully sent',
     showValidationAlert: true,
   })
 
-  // Сбросить targetId при изменении типа получателя
-  useEffect(() => {
-    formik.setFieldValue('targetId', '')
-  }, [formik.values.targetType])
-
   return (
-    <Segment title="Новая рассылка">
-      <form onSubmit={formik.handleSubmit}>
-        <FormItems>
-          {/* Выбор типа получателя */}
-          <ListSelect
-            formik={formik}
-            name="targetType"
-            label="Тип получателя"
-            options={[
-              { value: 'ALL', label: 'Всем' },
-              { value: 'STUDENT', label: 'Студент' },
-              { value: 'GROUP', label: 'Группа' },
-              { value: 'DEPARTMENT', label: 'Кафедра' },
-              { value: 'FACULTY', label: 'Факультет' },
-              { value: 'COURSE', label: 'Курс' },
-            ]}
-          />
-          {/* Поле для выбора конкретного получателя в зависимости от типа */}
-          {formik.values.targetType === 'STUDENT' && (
-            <List
-              name="targetId"
-              label="Студент"
-              listlabel="Выберите студента"
-              formik={formik}
-              groups={studentQuery.data?.Student || []}
+    <div className={css.container}>
+      <MailingHeader />
+
+      <div className={css.content}>
+        <h2 className={css.sectionTitle}>Написать новое письмо</h2>
+
+        <form onSubmit={formik.handleSubmit} className={css.form}>
+          {/* <div className={css.formSection}>
+            <label className={css.label}>Subject</label>
+            <Input 
+              name="subject" 
+              formik={formik} 
+              listlabel="Enter mailing subject..."
+              label=""
             />
-          )}
+          </div> */}
 
-          {formik.values.targetType === 'GROUP' && (
-            <List
-              name="targetId"
-              label="Группа"
-              listlabel="Выберите Группу"
+          <div className={css.formSection}>
+            <label className={css.label}>Получатели</label>
+            <ListSelect
               formik={formik}
-              groups={groupQuery.data || []}
+              name="targetType"
+              options={[
+                { value: 'ALL', label: 'Все пользователи' },
+                { value: 'STUDENT', label: 'Студенты' },
+                { value: 'GROUP', label: 'Группы' },
+                { value: 'DEPARTMENT', label: 'Кафедры' },
+                { value: 'FACULTY', label: 'Факультеты' },
+                { value: 'COURSE', label: 'Курсы' },
+              ]}
+              label=""
             />
-          )}
 
-          {formik.values.targetType === 'DEPARTMENT' && (
-            <List
-              name="targetId"
-              label="Кафедра"
-              listlabel="Выберите Кафедру"
-              formik={formik}
-              groups={departmentQuery.data || []}
-            />
-          )}
+            {formik.values.targetType === 'STUDENT' && (
+              <List
+                name="targetId"
+                listlabel="Выберите Студента"
+                formik={formik}
+                groups={studentQuery.data?.Student || []}
+                label=""
+              />
+            )}
 
-          {formik.values.targetType === 'FACULTY' && (
-            <List
-              name="targetId"
-              label="Факультет"
-              listlabel="Выберите Факультет"
-              formik={formik}
-              groups={facultieQuery.data || []}
-            />
-          )}
+            {formik.values.targetType === 'GROUP' && (
+              <List name="targetId" listlabel="Выберите Группу" formik={formik} groups={groupQuery.data || []} label="" />
+            )}
 
-          {formik.values.targetType === 'COURSE' && (
-            <Input name="targetId" label="Курс" formik={formik} bottoms={['1', '2', '3', '4']} />
-          )}
+            {formik.values.targetType === 'DEPARTMENT' && (
+              <List
+                name="targetId"
+                listlabel="Выберите Кафедру"
+                formik={formik}
+                groups={departmentQuery.data || []}
+                label=""
+              />
+            )}
 
-          <Textarea name="text" label="Сообщение" formik={formik} />
+            {formik.values.targetType === 'FACULTY' && (
+              <List
+                name="targetId"
+                listlabel="Выберите Факультет"
+                formik={formik}
+                groups={facultieQuery.data || []}
+                label=""
+              />
+            )}
+
+            {formik.values.targetType === 'COURSE' && (
+              <Input name="targetId" formik={formik} label="" listlabel="Введите номер курса" />
+            )}
+          </div>
+
+          <div className={css.formSection}>
+            <label className={css.label}>Содержание сообщения</label>
+            <Textarea name="text" formik={formik} label="" listlabel="Введите текст вашего сообщения..." />
+          </div>
+
           <Alert {...alertProps} />
-          <ButtonSend {...buttonProps}>Отправить</ButtonSend>
-        </FormItems>
-      </form>
-    </Segment>
+
+          <div className={css.buttonGroup}>
+            {/* <button type="button" className={css.draftButton}>
+              Save as Draft
+            </button> */}
+            <button type="submit" className={css.sendButton}>
+              <FiSend className={css.icon} /> Send Mailing
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   )
 })

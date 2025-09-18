@@ -1,5 +1,7 @@
-import { format, isToday } from 'date-fns'
+import { useState } from 'react'
+import { FiSearch, FiMail, FiClock, FiEye } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
+import { MailingHeader } from '../../components/MailingHeader'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { getViewDistributionRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
@@ -11,64 +13,69 @@ export const ViewDistributionsPage = withPageWrapper({
     distributions: queryResult.data!,
   }),
 })(({ distributions }) => {
-  const formatTime = (dateString: string | number | Date) => {
-    const date = new Date(dateString)
-    if (isToday(date)) {
-      return format(date, 'HH:mm')
-    }
-    return format(date, 'dd.MM.yy')
-  }
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const filteredDistributions = distributions.distributions.filter(
+    (dist) =>
+      dist.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dist.recipient.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   return (
     <div className={css.container}>
-      <div className={css.header}>
-        <h1 className={css.title}>Рассылки</h1>
-        <div className={css.search}>
-          <input 
-            type="text" 
-            placeholder="Поиск рассылок..." 
-            className={css.searchInput}
-          />
-          <button className={css.searchButton}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
-      </div>
+      <MailingHeader />
 
-      <div className={css.distributionList}>
-        {distributions.distributions.map((distribution) => (
-          <Link
-            key={distribution.id}
-            to={getViewDistributionRoute({ distributionId: distribution.id })}
-            className={css.distributionItem}
-          >
-            <div className={css.icon}>
-              📧
-            </div>
-            
-            <div className={css.distributionContent}>
-              <div className={css.distributionHeader}>
-                <h3 className={css.recipient}>
-                  {distribution.recipient}
-                </h3>
-                <span className={css.time}>
-                  {distribution.createdAt && formatTime(distribution.createdAt)}
-                </span>
+      <div className={css.content}>
+        <div className={css.listHeader}>
+          <h2 className={css.sectionTitle}>Sent Mailings</h2>
+          <div className={css.searchContainer}>
+            <FiSearch className={css.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search mailings..."
+              className={css.searchInput}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className={css.distributionList}>
+          {filteredDistributions.map((distribution) => (
+            <div key={distribution.id} className={css.distributionItem}>
+              <div className={css.distributionIcon}>
+                <FiMail className={css.icon} />
               </div>
-              
-              <div className={css.messagePreview}>
-                <p className={css.messageText}>
-                  {distribution.text 
-                    ? distribution.text.substring(0, 80) + (distribution.text.length > 80 ? '...' : '')
-                    : 'Нет текста'
-                  }
-                </p>
+
+              <div className={css.distributionContent}>
+                <div className={css.distributionHeader}>
+                  <div className={css.recipientInfo}>
+                    <h3 className={css.distributionSubject}>{distribution.recipient || 'No subject'}</h3>
+                    <span className={css.status}>sent</span>
+                  </div>
+                  <div className={css.distributionTime}>
+                    <FiClock style={{ marginRight: '4px' }} />
+                    {new Date(distribution.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+
+                <div className={css.distributionMessage}>
+                  <p>
+                    {distribution.text
+                      ? distribution.text.substring(0, 120) + (distribution.text.length > 120 ? '...' : '')
+                      : 'No content'}
+                  </p>
+                </div>
+
+                <div className={css.distributionActions}>
+                  <Link className={css.viewDetailsButton} to={getViewDistributionRoute({distributionId: distribution.id})}>
+                    <FiEye className={css.icon} /> View Details
+                  </Link>
+                </div>
               </div>
             </div>
-          </Link>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   )

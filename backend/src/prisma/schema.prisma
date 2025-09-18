@@ -1,29 +1,29 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // Основные учебные сущности
 model Faculty {
-  id          String     @id @default(uuid())
-  name        String     @unique
-  createdAt   DateTime   @default(now())
+  id          String       @id @default(uuid())
+  name        String       @unique
+  createdAt   DateTime     @default(now())
   departments Department[]
   messages    Message[]
 }
 
 model Department {
-  id         String     @id @default(uuid())
-  name       String     @unique
-  facultyId  String
-  faculty    Faculty    @relation(fields: [facultyId], references: [id])
-  groups     Group[]
-  messages   Message[]
-  createdAt  DateTime   @default(now())
+  id        String    @id @default(uuid())
+  name      String    @unique
+  facultyId String
+  faculty   Faculty   @relation(fields: [facultyId], references: [id])
+  groups    Group[]
+  messages  Message[]
+  createdAt DateTime  @default(now())
 }
 
 model Group {
@@ -37,50 +37,50 @@ model Group {
 }
 
 model Staff {
-  id              String     @id @default(uuid())
-  nick            String     @unique
-  password        String
-  createdAt       DateTime   @default(now())
-  sentMessages    Message[]  // Отправленные сообщения
+  id               String    @id @default(uuid())
+  nick             String    @unique
+  password         String
+  createdAt        DateTime  @default(now())
+  sentMessages     Message[] // Отправленные сообщения
   receivedMessages Message[] @relation("StaffRecipient") // Полученные сообщения
 }
 
 model Student {
-  id               String     @id @default(uuid())
-  student_id       String     @unique
+  id               String    @id @default(uuid())
+  student_id       String    @unique
   name             String
   course           String
   groupId          String?
-  group            Group?     @relation(fields: [groupId], references: [id])
-  createdAt        DateTime   @default(now())
-  sentMessages     Message[]  // Отправленные сообщения
-  receivedMessages Message[]  @relation("StudentRecipient") // Полученные сообщения
+  group            Group?    @relation(fields: [groupId], references: [id])
+  createdAt        DateTime  @default(now())
+  sentMessages     Message[] // Отправленные сообщения
+  receivedMessages Message[] @relation("StudentRecipient") // Полученные сообщения
   botUsers         BotUser[]
 }
 
 model Bot {
-  id          String      @id @default(uuid())
-  platform    BotPlatform
-  token       String     @unique
-  name        String
-  createdAt   DateTime   @default(now())
-  isActive    Boolean    @default(true)
-  users       BotUser[]
-  messages    Message[]
+  id        String      @id @default(uuid())
+  platform  BotPlatform
+  token     String      @unique
+  name      String
+  createdAt DateTime    @default(now())
+  isActive  Boolean     @default(true)
+  users     BotUser[]
+  messages  Message[]
 
   @@unique([platform])
   @@map("bots")
 }
 
 model BotUser {
-  id          String     @id @default(uuid())
-  studentId   String
-  student     Student    @relation(fields: [studentId], references: [id])
-  botId       String
-  bot         Bot        @relation(fields: [botId], references: [id])
-  externalId  String     // ID пользователя в мессенджере
-  createdAt   DateTime   @default(now())
-  isActive    Boolean    @default(true)
+  id         String   @id @default(uuid())
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id])
+  botId      String
+  bot        Bot      @relation(fields: [botId], references: [id])
+  externalId String // ID пользователя в мессенджере
+  createdAt  DateTime @default(now())
+  isActive   Boolean  @default(true)
 
   @@unique([studentId, botId])
   @@index([externalId])
@@ -88,52 +88,52 @@ model BotUser {
 }
 
 model Message {
-  id          String      @id @default(uuid())
-  text        String
-  createdAt   DateTime    @default(now())
+  id        String   @id @default(uuid())
   
+  text      String
+  createdAt DateTime @default(now())
+
   // Автор сообщения
-  senderType  SenderType
-  staffId     String?
-  studentId   String?
-  staff       Staff?      @relation(fields: [staffId], references: [id])
-  student     Student?    @relation(fields: [studentId], references: [id])
-  
+  senderType SenderType
+  staffId    String?
+  studentId  String?
+  staff      Staff?     @relation(fields: [staffId], references: [id])
+  student    Student?   @relation(fields: [studentId], references: [id])
+
   // Получатели
-  targetType  TargetType
-  
+  targetType TargetType
+
   // Для личных сообщений
   recipientStudentId String?
   recipientStudent   Student? @relation("StudentRecipient", fields: [recipientStudentId], references: [id])
-  
-  recipientStaffId   String?
-  recipientStaff     Staff?   @relation("StaffRecipient", fields: [recipientStaffId], references: [id])
+
+  recipientStaffId String?
+  recipientStaff   Staff?  @relation("StaffRecipient", fields: [recipientStaffId], references: [id])
 
   //Сообщения по курсам
-  course        Int?
-  
+  course Int?
+
   // Для групповых сообщений
-  groupId      String?
-  group        Group?      @relation(fields: [groupId], references: [id])
-  
+  groupId String?
+  group   Group?  @relation(fields: [groupId], references: [id])
+
   // Для сообщений кафедре
   departmentId String?
   department   Department? @relation(fields: [departmentId], references: [id])
-  
+
   // Для сообщений факультету
-  facultyId    String?
-  faculty      Faculty?    @relation(fields: [facultyId], references: [id])
-  
+  facultyId String?
+  faculty   Faculty? @relation(fields: [facultyId], references: [id])
+
   // Для ответов на сообщения
-  parentId     String?
-  parent       Message?    @relation("MessageReplies", fields: [parentId], references: [id])
-  replies      Message[]   @relation("MessageReplies")
-  
+  parentId String?
+  parent   Message?  @relation("MessageReplies", fields: [parentId], references: [id])
+  replies  Message[] @relation("MessageReplies")
+
   // Для связи с ботами
-  botId        String?
-  bot          Bot?        @relation(fields: [botId], references: [id])
-  externalId   String?     // ID сообщения в мессенджере
-  
+  botId      String?
+  bot        Bot?    @relation(fields: [botId], references: [id])
+  externalId String? // ID сообщения в мессенджере
 }
 
 // Обновленные enums
@@ -144,13 +144,13 @@ enum SenderType {
 }
 
 enum TargetType {
-  STUDENT    // Личное сообщение студенту
-  STAFF      // Личное сообщение сотруднику
-  GROUP      // Группе
+  STUDENT // Личное сообщение студенту
+  STAFF // Личное сообщение сотруднику
+  GROUP // Группе
   DEPARTMENT // Кафедре
-  FACULTY    // Факультету
-  COURSE     // Курсу
-  ALL        // Всем студентам
+  FACULTY // Факультету
+  COURSE // Курсу
+  ALL // Всем студентам
 }
 
 enum BotPlatform {

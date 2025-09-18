@@ -1,35 +1,75 @@
 @use '../../styles/vars' as *;
 @use '../../styles/mixins' as *;
 @use '../../../node_modules/include-media/dist/_include-media.scss' as *;
+// Стили для List компонентов
+.listField {
+  margin-bottom: 20px;
+}
 
-.field {
-  .label {
-    font-weight: bold;
-    margin-bottom: 2px;
-    display: block;
+.listLabel {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2d3748;
+  font-size: 16px;
+}
+
+.select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  appearance: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgb(66, 153, 225, 0.2);
   }
 
-  .input {
-    display: block;
-    padding: 7px;
-    border: 1px solid $black;
-    border-radius: $borderRadiusSmall;
-    background-color: $white;
-    outline: none;
-    width: 100%;
-    max-width: 200px;
+  &.invalid {
+    border-color: #e53e3e;
 
     &:focus {
-      border-color: $blue;
-    }
-
-    &.invalid {
-      border-color: $red;
+      box-shadow: 0 0 0 3px rgb(229, 62, 62, 0.2);
     }
   }
 
-  .error {
-    margin-top: 2px;
-    color: $red;
+  &:disabled {
+    background-color: #f7fafc;
+    color: #a0aec0;
+    cursor: not-allowed;
+  }
+}
+
+// Дополнительные стили для разделителя как на изображении
+.divider {
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 20px 0;
+}
+
+// Стили для отображения количества получателей
+.recipientCount {
+  font-weight: normal;
+  color: #718096;
+  margin-left: 8px;
+}
+
+// Стили для опций в выпадающем списке
+.option {
+  padding: 8px 12px;
+
+  &:hover {
+    background-color: #edf2f7;
   }
 }

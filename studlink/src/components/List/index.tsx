@@ -1,3 +1,4 @@
+// List и ListSelect компоненты
 import cn from 'classnames'
 import type { FormikProps } from 'formik'
 import { Alert } from '../Alert'
@@ -13,7 +14,7 @@ export const List = ({
 }: {
   name: string
   label: string
-  listlabel: string
+  listlabel?: string
   groups: {
     id: string
     name: string
@@ -32,12 +33,12 @@ export const List = ({
   }
 
   return (
-    <div className={cn({ [css.field]: true, [css.disabled]: disabled })}>
-      <label className={css.label} htmlFor={name}>
+    <div className={css.listField}>
+      <label className={css.listLabel} htmlFor={name}>
         {label}
       </label>
       <select
-        className={cn({ [css.input]: true, [css.invalid]: invalid, [css.select]: true })}
+        className={cn(css.select, { [css.invalid]: invalid })}
         style={{ maxWidth }}
         onChange={handleChange}
         onBlur={() => formik.setFieldTouched(name)}
@@ -48,7 +49,7 @@ export const List = ({
       >
         <option value="">{listlabel}</option>
         {groups.map((group) => (
-          <option key={group.id} value={group.id}>
+          <option key={group.id} value={group.id} className={css.option}>
             {group.name}
           </option>
         ))}
@@ -86,9 +87,10 @@ export const ListSelect = ({
   const handleBlur = () => {
     formik.setFieldTouched(name)
   }
+
   return (
-    <div className={cn({ [css.field]: true, [css.disabled]: disabled || isSubmitting }, className)}>
-      <label className={css.label} htmlFor={name}>
+    <div className={cn(css.listField, { [css.disabled]: disabled || isSubmitting }, className)}>
+      <label className={css.listLabel} htmlFor={name}>
         {label}
       </label>
       <select
@@ -98,11 +100,11 @@ export const ListSelect = ({
         onChange={handleChange}
         onBlur={handleBlur}
         disabled={disabled || isSubmitting}
-        className={cn({ [css.input]: true, [css.invalid]: invalid, [css.select]: true })}
+        className={cn(css.select, { [css.invalid]: invalid })}
         {...props}
       >
         {options.map((option) => (
-          <option key={option.value} value={option.value}>
+          <option key={option.value} value={option.value} className={css.option}>
             {option.label}
           </option>
         ))}

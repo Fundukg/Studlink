@@ -1,10 +1,48 @@
 @use '../Input/index.module' as *;
 
-.field {
-  .textarea {
-    min-height: 150px;
-    width: 100%;
-    max-width: none;
-    resize: vertical;
+// Стили для Textarea компонента
+.textareaField {
+  margin-bottom: 20px;
+}
+
+.textareaLabel {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2d3748;
+  font-size: 16px;
+}
+
+.textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 120px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgb(66, 153, 225, 0.2);
+  }
+
+  &.invalid {
+    border-color: #e53e3e;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgb(229, 62, 62, 0.2);
+    }
+  }
+
+  &:disabled {
+    background-color: #f7fafc;
+    color: #a0aec0;
+    cursor: not-allowed;
   }
 }

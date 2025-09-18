@@ -8,6 +8,7 @@ import css from './index.module.scss'
 export const Input = ({
   name,
   label,
+  listlabel,
   bottoms = [],
   formik,
   maxWidth,
@@ -16,6 +17,7 @@ export const Input = ({
 }: {
   name: string
   label: string
+  listlabel?: string
   bottoms?: string[]
   formik: FormikProps<any>
   maxWidth?: number
@@ -32,6 +34,7 @@ export const Input = ({
       <label className={css.label} htmlFor={name}>
         {label}
       </label>
+      
       {bottoms.map((num) => (
         <ButtonSelect key={num} onClick={() => formik.setFieldValue(name, num)}>
           {num}
@@ -41,6 +44,7 @@ export const Input = ({
         className={cn({ [css.input]: true, [css.invalid]: invalid })}
         style={{ maxWidth }}
         type= {type}
+        placeholder={listlabel}
         onChange={(e) => {
           void formik.setFieldValue(name, e.target.value)
         }}
