@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import css from './index.module.scss'
 
 export type ButtonProps = { children: React.ReactNode; loading?: boolean }
-export const ButtonSend = ({ children, loading = false }: { children: React.ReactNode; loading?: boolean }) => {
+export const ButtonSend = ({ children, loading = false, className }: { children: React.ReactNode; loading?: boolean; className?: string }) => {
   return (
-    <button className={cn({ [css.button]: true, [css.disabled]: loading })} type="submit" disabled={loading}>
+    <button className={className} type="submit" disabled={loading}>
       {loading ? 'Загрузка...' : children}
     </button>
   )
 }
-
+//cn({ [css.button]: true, [css.disabled]: loading, className })
 export const ButtonSelect = ({
   children,
   type = 'button',

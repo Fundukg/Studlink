@@ -14,6 +14,7 @@ import { getDistributionsTrpcRoute } from './getDistributions'
 import { getFacultyTrpcRoute } from './getFaculty'
 import { getGroupTrpcRoute } from './getGroup'
 import { getMeTrpcRoute } from './getMe'
+import { getStaffTrpcRoute } from './getStaff'
 import { getStudentTrpcRoute } from './getStudent'
 import { signInTrpcRoute } from './signIn'
 import { signUpTrpcRoute } from './signUp'
@@ -34,6 +35,7 @@ export const trpcRouter = trpc.router({
   getFaculty: getFacultyTrpcRoute,
   getGroup: getGroupTrpcRoute,
   getMe: getMeTrpcRoute,
+  getStaff: getStaffTrpcRoute,
   getStudent: getStudentTrpcRoute,
   signIn: signInTrpcRoute,
   signUp: signUpTrpcRoute,

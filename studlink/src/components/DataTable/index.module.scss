@@ -10,14 +10,14 @@
 
 .header {
   margin-bottom: 30px;
-  
+
   h1 {
     font-size: 28px;
     font-weight: 700;
     color: #2d3748;
     margin-bottom: 8px;
   }
-  
+
   p {
     font-size: 16px;
     color: #718096;
@@ -41,11 +41,11 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  
+
   &:hover {
     color: #4299e1;
   }
-  
+
   &.active {
     color: #4299e1;
     border-bottom-color: #4299e1;
@@ -88,7 +88,7 @@
   border-radius: 6px;
   font-size: 14px;
   width: 250px;
-  
+
   &:focus {
     outline: none;
     border-color: #4299e1;
@@ -106,7 +106,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
-  
+
   &:hover {
     background-color: #3182ce;
   }
@@ -120,7 +120,7 @@
   text-align: center;
   padding: 40px 0;
   color: #a0aec0;
-  
+
   h3 {
     margin: 16px 0 8px;
     font-size: 18px;
@@ -144,7 +144,7 @@
   border-radius: 8px;
   padding: 16px;
   transition: box-shadow 0.2s;
-  
+
   &:hover {
     box-shadow: 0 4px 12px rgb(0, 0, 0, 0.1);
   }
@@ -168,7 +168,7 @@
 
 .cardContent {
   margin-bottom: 16px;
-  
+
   p {
     margin: 4px 0;
     color: #718096;
@@ -193,7 +193,7 @@
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  
+
   &:hover {
     background-color: #e2e8f0;
   }
@@ -206,19 +206,20 @@
 .dataTable {
   width: 100%;
   border-collapse: collapse;
-  
-  th, td {
+
+  th,
+  td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #e2e8f0;
   }
-  
+
   th {
     font-weight: 600;
     color: #2d3748;
     background-color: #f7fafc;
   }
-  
+
   tr:hover {
     background-color: #f7fafc;
   }
@@ -239,7 +240,7 @@
   border-radius: 6px;
   font-weight: 500;
   cursor: pointer;
-  
+
   &:hover {
     background-color: #cbd5e0;
   }

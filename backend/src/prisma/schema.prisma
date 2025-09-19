@@ -89,7 +89,7 @@ model BotUser {
 
 model Message {
   id        String   @id @default(uuid())
-  
+  // subject String?
   text      String
   createdAt DateTime @default(now())
 

@@ -47,7 +47,7 @@ export const NewDepartmentPage = withPageWrapper({
             label="Факультет"
             listlabel="Выберите Факультет"
             formik={formik}
-            groups={queryFaculty.data || []}
+            groups={queryFaculty.data?.Faculty || []}
           />
 
           <Alert {...alertProps} />
@@ -65,7 +65,7 @@ export const NewDepartmentPage = withPageWrapper({
             </tr>
           </thead>
           <tbody>
-            {Department.department?.map((department, index) => (
+            {Department.department?.Department.map((department, index) => (
               <tr key={department.id}>
                 <td>{index + 1}</td>
                 <td>{department.name}</td>

@@ -12,5 +12,5 @@ export const getFacultyTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
       name: 'asc',
     },
   })
-  return Faculty
+  return { Faculty }
 })

@@ -80,7 +80,7 @@ export const NewDistributionPage = withPageWrapper({
             )}
 
             {formik.values.targetType === 'GROUP' && (
-              <List name="targetId" listlabel="Выберите Группу" formik={formik} groups={groupQuery.data || []} label="" />
+              <List name="targetId" listlabel="Выберите Группу" formik={formik} groups={groupQuery.data?.Group || []} label="" />
             )}
 
             {formik.values.targetType === 'DEPARTMENT' && (
@@ -88,7 +88,7 @@ export const NewDistributionPage = withPageWrapper({
                 name="targetId"
                 listlabel="Выберите Кафедру"
                 formik={formik}
-                groups={departmentQuery.data || []}
+                groups={departmentQuery.data?.Department || []}
                 label=""
               />
             )}
@@ -98,7 +98,7 @@ export const NewDistributionPage = withPageWrapper({
                 name="targetId"
                 listlabel="Выберите Факультет"
                 formik={formik}
-                groups={facultieQuery.data || []}
+                groups={facultieQuery.data?.Faculty || []}
                 label=""
               />
             )}

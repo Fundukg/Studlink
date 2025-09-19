@@ -5,7 +5,7 @@ export const zCreateStudentTrpcInput = z.object({
   name: z
     .string()
     .min(1)
-    .regex(/^[a-zА-Яа-я -]+$/, 'Name contain only letters'),
+    .regex(/^[a-zА-Яа-я -]+$/, 'Name contain only letters and not ё'),
   course: z.string().min(1, 'Course contain only number'),
   groupId: z
     .string()

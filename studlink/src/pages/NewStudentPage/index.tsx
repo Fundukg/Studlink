@@ -38,7 +38,7 @@ export const NewStudentsPage = withPageWrapper({
           <Input name="name" label="ФИО" formik={formik} />
           <Input name="course" bottoms={['1', '2', '3', '4']} label="Курс" formik={formik} />
           {groupQuery.data && (
-            <List name="groupId" label="Группа" listlabel="Выберите Группу" groups={groupQuery.data || []} formik={formik} maxWidth={200} />
+            <List name="groupId" label="Группа" listlabel="Выберите Группу" groups={groupQuery.data.Group || []} formik={formik} maxWidth={200} />
           )}
           <Alert {...alertProps} />
           <ButtonSend {...buttonProps}>Зарегистрировать</ButtonSend>

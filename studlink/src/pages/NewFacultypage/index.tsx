@@ -52,7 +52,7 @@ export const NewFacultyPage = withPageWrapper({
             </tr>
           </thead>
           <tbody>
-            {faculty.Faculty?.map((faculty, index) => (
+            {faculty.Faculty?.Faculty.map((faculty, index) => (
               <tr key={faculty.id}>
                 <td>{index + 1}</td>
                 <td>{faculty.name}</td>

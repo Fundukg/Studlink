@@ -20,6 +20,7 @@ import {
   getSignOutRoute,
   getViewDialogueRoute,
   getNewDistributionRoute,
+  getViewStudentRoute,
 } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
@@ -175,12 +176,12 @@ export const Layout = () => {
                 <span className={css.text}>Диалоги</span>
               </div>
             </li>
-            {me?.nick === 'admin' ? (
+            {me ? (
               <>
                 <li className={css.item}>
                   <Link
-                    className={`${css.link} 
-                      
+                    className={`
+                      ${css.link} 
                       ${location.pathname === '/dialogue/new' ? css.active : ''}
                       ${location.pathname === '/distributions' ? css.active : ''} 
                       `}
@@ -198,8 +199,11 @@ export const Layout = () => {
                 </li>
                 <li className={css.item}>
                   <Link
-                    className={css.link}
-                    to="/users_list"
+                    className={`
+                      ${css.link} 
+                      ${location.pathname === getViewStudentRoute() ? css.active : ''} 
+                      `}
+                    to={getViewStudentRoute()}
                     onClick={() => {
                       setActiveSection('')
                       if (isMobile) {
@@ -235,7 +239,7 @@ export const Layout = () => {
           </ul>
 
           {/* Условное отображение списка диалогов */}
-          {!isCollapsed && activeSection === 'dialogues' && (
+          {me && !isCollapsed && activeSection === 'dialogues' && (
             <div className={css.dialoguesList}>
               <div className={css.dialoguesHeader}>
                 <h3>Recent Chats</h3>

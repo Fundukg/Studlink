@@ -1,7 +1,7 @@
 import { trpc } from '../../lib/trpc'
 
 export const getDepartmentTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
-  const Departmen = await ctx.prisma.department.findMany({
+  const Department = await ctx.prisma.department.findMany({
     select: {
       id: true,
       name: true,
@@ -17,5 +17,5 @@ export const getDepartmentTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
       name: 'asc',
     },
   })
-  return Departmen
+  return { Department }
 })

@@ -23,5 +23,5 @@ export const getGroupTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
       name: 'asc',
     },
   })
-  return Group
+  return { Group }
 })
