@@ -6,6 +6,7 @@ import { env } from './lib/env'
 import { applyPassportToExpressApp } from './lib/passport'
 import { applyTrpcToExpressApp } from './lib/trpc'
 import { trpcRouter } from './router'
+import { createInitialAdmin } from './scripts/initAdmin';
 
 void (async () => {
 let ctx: AppContext | null = null
@@ -16,6 +17,11 @@ try {
   expressApp.get('/ping', (req, res) => {
     res.send('pong')
   })
+
+createInitialAdmin().then(() => {
+  console.log('Admin initialization check completed');
+});
+
   applyPassportToExpressApp(expressApp, ctx)
   await applyTrpcToExpressApp(expressApp, ctx, trpcRouter)
   expressApp.listen(env.PORT, () => {

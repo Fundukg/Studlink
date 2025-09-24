@@ -11,7 +11,7 @@ export const zCreateStudentTrpcInput = z.object({
     .string()
     .min(1)
     .regex(/^[a-zА-Яа-я0-9-]+$/, 'Group contain only lowercase letters number and dashes')
-    .max(10),
+    
 })
 
 
