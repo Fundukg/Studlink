@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { getPasswordHash } from '..//utils/getPasswordHash';
 import { env } from '../lib/env';
+import { prisma } from '../lib/prisma'
 
-const prisma = new PrismaClient();
+
 
 async function createInitialAdmin() {
   try {

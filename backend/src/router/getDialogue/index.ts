@@ -138,7 +138,7 @@ export const getDialogueTrpcRoute = trpc.procedure
         recipient: {
           id: studentId,
           name: recipientName,
-          studentId: distribution.recipientStudent?.student_id ,
+          studentId: distribution.student?.student_id ,
           type: distribution.targetType,
         },
         messages: formattedMessages,

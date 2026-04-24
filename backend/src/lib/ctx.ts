@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client'
+import { prisma } from './prisma'
 
 export const createAppContext = () => {
-  const prisma = new PrismaClient()
   return {
     prisma,
     stop: async () => {

@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // Основные учебные сущности
@@ -67,6 +66,7 @@ model Bot {
   isActive  Boolean     @default(true)
   users     BotUser[]
   messages  Message[]
+  settings  Json?
 
   @@unique([platform])
   @@map("bots")
@@ -156,5 +156,5 @@ enum TargetType {
 enum BotPlatform {
   TELEGRAM
   VK
-  WHATSAPP
+  OK
 }
