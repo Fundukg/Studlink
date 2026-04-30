@@ -133,6 +133,7 @@ model Message {
   // Для связи с ботами
   botId      String?
   bot        Bot?    @relation(fields: [botId], references: [id])
+  platform   BotPlatform
   externalId String? // ID сообщения в мессенджере
 }
 
@@ -157,4 +158,5 @@ enum BotPlatform {
   TELEGRAM
   VK
   OK
+  ALL
 }
