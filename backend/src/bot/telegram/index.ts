@@ -108,6 +108,7 @@ function setupBotHandlers() {
           targetType: 'STAFF',
           externalId: ctx.message.message_id.toString(),
           botId: botUser.bot.id,
+          platform: BotPlatform.TELEGRAM,
         },
       })
 
@@ -153,10 +154,11 @@ export const sendMessageToStudent = async (studentId: string, message: string) =
 
     // Отправляем сообщение
     await bot.telegram.sendMessage(chatId, message)
-    return true
-  } catch (error) {
+    return {  success: true, error: '' }
+  } catch (error: any) {
     console.error('Ошибка отправки сообщения:', error)
-    throw error
+    // throw error
+    return {  success: false, error: error }
   }
 }
 
@@ -169,7 +171,7 @@ export const startBot = async () => {
   const bot = getBot()
   bot.launch()
 
-  // console.log('Telegram бот запущен')
+  console.log('Telegram бот запущен')
 
   process.once('SIGINT', () => bot.stop('SIGINT'))
   process.once('SIGTERM', () => bot.stop('SIGTERM'))

@@ -58,6 +58,8 @@ export const sendDistributionWithReply = async (
         recipientStudentId: studentId,
         externalId: telegramMessage.message_id.toString(),
         parentId: distributionId,
+        botId: BotPlatform.TELEGRAM,
+        platform: BotPlatform.TELEGRAM,
       },
     })
 
