@@ -19,7 +19,7 @@ model Department {
   id        String    @id @default(uuid())
   name      String    @unique
   facultyId String
-  faculty   Faculty   @relation(fields: [facultyId], references: [id])
+  faculty   Faculty   @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   groups    Group[]
   messages  Message[]
   createdAt DateTime  @default(now())
@@ -123,7 +123,7 @@ model Message {
 
   // Для сообщений факультету
   facultyId String?
-  faculty   Faculty? @relation(fields: [facultyId], references: [id])
+  faculty   Faculty? @relation(fields: [facultyId], references: [id], onDelete: Cascade)
 
   // Для ответов на сообщения
   parentId String?
