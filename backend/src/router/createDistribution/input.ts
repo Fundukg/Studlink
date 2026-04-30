@@ -11,4 +11,5 @@ export const zCreateDistributionTrpcInput = z.object({
     'ALL',
   ]),
   targetId: z.string().optional(),
+  platform: z.enum(['TELEGRAM', 'VK', 'OK', 'ALL']),
 })
