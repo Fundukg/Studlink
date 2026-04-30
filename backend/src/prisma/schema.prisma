@@ -29,8 +29,8 @@ model Group {
   id           String     @id @default(uuid())
   name         String     @unique
   departmentId String
-  department   Department @relation(fields: [departmentId], references: [id])
-  students     Student[]
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  students     Student[]  
   messages     Message[]
   createdAt    DateTime   @default(now())
 }
@@ -50,7 +50,7 @@ model Student {
   name             String
   course           String
   groupId          String?
-  group            Group?    @relation(fields: [groupId], references: [id])
+  group            Group?    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   createdAt        DateTime  @default(now())
   sentMessages     Message[] // Отправленные сообщения
   receivedMessages Message[] @relation("StudentRecipient") // Полученные сообщения
@@ -115,7 +115,7 @@ model Message {
 
   // Для групповых сообщений
   groupId String?
-  group   Group?  @relation(fields: [groupId], references: [id])
+  group   Group?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   // Для сообщений кафедре
   departmentId String?

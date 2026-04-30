@@ -115,7 +115,7 @@ export const getDistributionTrpcRoute = trpc.procedure
           id: message.staff.id,
           name: message.staff.nick,
         }
-      } else if (message.student) {
+      } else if (message.student) { 
         sender = {
           type: 'STUDENT' as const,
           id: message.student.id,
