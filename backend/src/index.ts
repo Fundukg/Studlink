@@ -1,7 +1,9 @@
 import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
+import { startOkBot } from './bot/ok/poller';
 import { startBot } from './bot/telegram';
+import {startVkBot} from './bot/vk';
 import { AppContext, createAppContext } from './lib/ctx'
 import { env } from './lib/env'
 import { applyPassportToExpressApp } from './lib/passport'
@@ -31,6 +33,8 @@ createInitialAdmin().then(() => {
   // eslint-disable-next-line node/no-process-env
   if (process.env.TELEGRAM_BOT_TOKEN) {
   startBot();
+  startVkBot();
+  startOkBot.start();
   // console.log('Telegram бот инициализирован');
 } else {
   console.error('TELEGRAM_BOT_TOKEN не указан, бот не запущен');
