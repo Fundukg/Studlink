@@ -1,6 +1,7 @@
 import { format } from 'date-fns/format'
 import { useState, useRef, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { PlatformSelector } from '../../components/PlatformSelector'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { type ViewDialogueRouteParams } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
@@ -27,9 +28,14 @@ export const ViewDialoguePage = withPageWrapper({
   const textareaRef = useRef<HTMLTextAreaElement>(null) // Добавляем тип для textareaRef
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
-
+  type PlatformType = 'ALL' | 'TELEGRAM' | 'VK' | 'OK'
+  const [platform, setPlatform] = useState<PlatformType>(() => {
+    const saved = localStorage.getItem('platform')
+    // Простая проверка на валидность данных из localStorage
+    return saved === 'TELEGRAM' || saved === 'VK' || saved === 'OK' || saved === 'ALL' ? saved : 'ALL'
+  })
   useEffect(() => {
     scrollToBottom()
   }, [dialogue.messages])
@@ -41,19 +47,20 @@ export const ViewDialoguePage = withPageWrapper({
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`
     }
   }, [messageText])
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!messageText.trim()) {return}
-    
+
+    if (!messageText.trim()) {
+      return
+    }
+
     try {
       await createDistribution.mutateAsync({
         targetType: 'STUDENT',
         targetId: dialogue.recipient.id,
         text: messageText,
+        platform: platform,
       })
-
       // Обновляем данные диалога после отправки сообщения
       await trpcUtils.getDialogue.invalidate({ distributionId: dialogueId })
       setMessageText('')
@@ -73,13 +80,15 @@ export const ViewDialoguePage = withPageWrapper({
     <div className={css.dialogueContainer}>
       <div className={css.dialogueHeader}>
         <div className={css.userInfo}>
-          <div className={css.avatar}>
-            {dialogue.recipient.name.charAt(0).toUpperCase()}
-          </div>
+          <div className={css.avatar}>{dialogue.recipient.name.charAt(0).toUpperCase()}</div>
           <div className={css.userDetails}>
             <h2>{dialogue.recipient.name}</h2>
             <p>Student ID: {dialogue.recipient.studentId}</p>
           </div>
+        </div>
+
+        <div className={css.platformSelector}>
+          <PlatformSelector value={platform} dialogue={true} onChange={setPlatform} />
         </div>
       </div>
 
@@ -89,7 +98,13 @@ export const ViewDialoguePage = withPageWrapper({
             <div className={css.emptyState}>
               <div className={css.emptyIcon}>
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.4183 16.9706 20 12 20C10.4607 20 9.01172 19.6565 7.74467 19.0511L3 20L4.39499 16.28C3.51156 15.0423 3 13.5743 3 12C3 7.58172 7.02944 4 12 4C16.9706 4 21 7.58172 21 12Z" stroke="#A0AEC0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path
+                    d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.4183 16.9706 20 12 20C10.4607 20 9.01172 19.6565 7.74467 19.0511L3 20L4.39499 16.28C3.51156 15.0423 3 13.5743 3 12C3 7.58172 7.02944 4 12 4C16.9706 4 21 7.58172 21 12Z"
+                    stroke="#A0AEC0"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </div>
               <h3>Нет сообщений</h3>
@@ -130,15 +145,22 @@ export const ViewDialoguePage = withPageWrapper({
               className={css.textArea}
               rows={1}
             />
-            <button 
-              type="submit" 
-              className={css.sendButton}
-              disabled={!messageText.trim()}
-              title="Отправить сообщение"
-            >
+            <button type="submit" className={css.sendButton} disabled={!messageText.trim()} title="Отправить сообщение">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path
+                  d="M22 2L11 13"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M22 2L15 22L11 13L2 9L22 2Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           </div>

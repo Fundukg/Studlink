@@ -11,6 +11,8 @@
 }
 
 .dialogueHeader {
+  display: flex;
+  justify-content: space-between;
   padding: 16px 24px;
   background: white;
   box-shadow: 0 2px 15px rgb(0, 0, 0, 0.06);

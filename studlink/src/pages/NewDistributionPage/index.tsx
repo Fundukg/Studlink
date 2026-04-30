@@ -4,6 +4,7 @@ import { Alert } from '../../components/Alert'
 import { Input } from '../../components/Input'
 import { List, ListSelect } from '../../components/List'
 import { MailingHeader } from '../../components/MailingHeader'
+import { PlatformSelector } from '../../components/PlatformSelector'
 import { Textarea } from '../../components/Textarea'
 import { useForm } from '../../lib/form'
 import { withPageWrapper } from '../../lib/pageWarpper'
@@ -19,12 +20,14 @@ export const NewDistributionPage = withPageWrapper({
   const departmentQuery = trpc.getDepartment.useQuery()
   const facultieQuery = trpc.getFaculty.useQuery()
 
-  const { formik, alertProps } = useForm({ // buttonProps,
+  type PlatformType = 'ALL' | 'TELEGRAM' | 'VK' | 'OK'
+
+  const { formik, alertProps } = useForm({
     initialValues: {
-      // subject: '',
       targetType: 'ALL',
       targetId: '',
       text: '',
+      platform: (localStorage.getItem('platform_distribution') as PlatformType) || 'ALL',
     },
     validationSchema: zCreateDistributionTrpcInput,
     onSubmit: async (values) => {
@@ -40,8 +43,19 @@ export const NewDistributionPage = withPageWrapper({
       <MailingHeader />
 
       <div className={css.content}>
-        <h2 className={css.sectionTitle}>Написать новое письмо</h2>
-
+        <div className={css.listHeader}>
+          <h2 className={css.sectionTitle}>Написать новое письмо</h2>
+          <div className={css.platformSelector}>
+            <PlatformSelector
+              value={formik.values.platform}
+              dialogue={false}
+              onChange={(newPlatform) => {
+                formik.setFieldValue('platform', newPlatform)
+                localStorage.setItem('selected_platform', newPlatform)
+              }}
+            />
+          </div>
+        </div>
         <form onSubmit={formik.handleSubmit} className={css.form}>
           {/* <div className={css.formSection}>
             <label className={css.label}>Subject</label>
@@ -54,7 +68,6 @@ export const NewDistributionPage = withPageWrapper({
           </div> */}
 
           <div className={css.formSection}>
-            <label className={css.label}>Получатели</label>
             <ListSelect
               formik={formik}
               name="targetType"
@@ -66,9 +79,8 @@ export const NewDistributionPage = withPageWrapper({
                 { value: 'FACULTY', label: 'Факультеты' },
                 { value: 'COURSE', label: 'Курсы' },
               ]}
-              label=""
+              label="Получатели"
             />
-
             {formik.values.targetType === 'STUDENT' && (
               <List
                 name="targetId"
@@ -80,7 +92,13 @@ export const NewDistributionPage = withPageWrapper({
             )}
 
             {formik.values.targetType === 'GROUP' && (
-              <List name="targetId" listlabel="Выберите Группу" formik={formik} groups={groupQuery.data?.Group || []} label="" />
+              <List
+                name="targetId"
+                listlabel="Выберите Группу"
+                formik={formik}
+                groups={groupQuery.data?.Group || []}
+                label=""
+              />
             )}
 
             {formik.values.targetType === 'DEPARTMENT' && (
@@ -109,8 +127,12 @@ export const NewDistributionPage = withPageWrapper({
           </div>
 
           <div className={css.formSection}>
-            <label className={css.label}>Содержание сообщения</label>
-            <Textarea name="text" formik={formik} label="" listlabel="Введите текст вашего сообщения..." />
+            <Textarea
+              name="text"
+              formik={formik}
+              label="Содержание сообщения"
+              listlabel="Введите текст вашего сообщения..."
+            />
           </div>
 
           <Alert {...alertProps} />
@@ -120,7 +142,7 @@ export const NewDistributionPage = withPageWrapper({
               Save as Draft
             </button> */}
             <button type="submit" className={css.sendButton}>
-              <FiSend className={css.icon} /> Send Mailing
+              <FiSend className={css.icon} /> Отправить
             </button>
           </div>
         </form>
