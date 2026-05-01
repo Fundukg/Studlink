@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { RoleStaff } from '@prisma/client';
 import { getPasswordHash } from '..//utils/getPasswordHash';
 import { env } from '../lib/env';
 import { prisma } from '../lib/prisma'
@@ -26,7 +27,10 @@ async function createInitialAdmin() {
     await prisma.staff.create({
       data: {
         nick: 'admin',
-        password: hashedPassword
+        password: hashedPassword,
+        firstName: 'Admin',
+        lastName: 'Admin',
+        role: RoleStaff.ADMIN
       }
     });
 
