@@ -50,7 +50,7 @@ model Student {
   name             String
   course           String
   groupId          String?
-  group            Group?    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group            Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
   createdAt        DateTime  @default(now())
   sentMessages     Message[] // Отправленные сообщения
   receivedMessages Message[] @relation("StudentRecipient") // Полученные сообщения
@@ -78,7 +78,7 @@ model BotUser {
   student    Student  @relation(fields: [studentId], references: [id])
   botId      String
   bot        Bot      @relation(fields: [botId], references: [id])
-  externalId String // ID пользователя в мессенджере
+  externalId String // ID пользователя в мессенджереq
   createdAt  DateTime @default(now())
   isActive   Boolean  @default(true)
 
@@ -98,7 +98,7 @@ model Message {
   staffId    String?
   studentId  String?
   staff      Staff?     @relation(fields: [staffId], references: [id])
-  student    Student?   @relation(fields: [studentId], references: [id])
+  student    Student?   @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   // Получатели
   targetType TargetType
@@ -119,7 +119,7 @@ model Message {
 
   // Для сообщений кафедре
   departmentId String?
-  department   Department? @relation(fields: [departmentId], references: [id])
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
 
   // Для сообщений факультету
   facultyId String?
