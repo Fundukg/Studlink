@@ -7,17 +7,16 @@ export const getStaffTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
       nick: true,
       createdAt: true,
       password: true,
-      sentMessages:{
+      sentMessages: {
         select: {
-          id: true
-
-        }
+          id: true,
+        },
       },
       receivedMessages: {
         select: {
-          id: true
-        }
-      }
+          id: true,
+        },
+      },
     },
 
     orderBy: {
