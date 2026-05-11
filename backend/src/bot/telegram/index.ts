@@ -38,7 +38,9 @@ function setupBotHandlers() {
 
   // Команда для начала работы
   bot.start(async (ctx) => {
-    await ctx.reply('Добро пожаловать! Для идентификации введите ваш student_id в формате: /auth YOUR_STUDENT_ID')
+    await ctx.reply(
+      'Добро пожаловать! Для идентификации введите ваш student_id в формате: /auth YOUR_STUDENT_ID'
+    )
   })
 
   // Команда для идентификации
@@ -61,7 +63,11 @@ function setupBotHandlers() {
       }
 
       // Регистрируем пользователя бота
-      await botService.registerBotUser(student.id, BotPlatform.TELEGRAM, ctx.from.id.toString())
+      await botService.registerBotUser(
+        student.id,
+        BotPlatform.TELEGRAM,
+        ctx.from.id.toString()
+      )
 
       await ctx.reply(`Вы успешно идентифицированы как ${student.name}`)
     } catch (error) {
@@ -122,7 +128,9 @@ function setupBotHandlers() {
         )
       }
 
-      await ctx.reply('Ваше сообщение сохранено и будет рассмотрено администратором.')
+      await ctx.reply(
+        'Ваше сообщение сохранено и будет рассмотрено администратором.'
+      )
     } catch (error) {
       console.error('Ошибка при сохранении сообщения:', error)
       await ctx.reply('Произошла ошибка при сохранении сообщения')
@@ -141,24 +149,27 @@ export const getBot = (): Telegraf<BotContext> => {
 }
 
 // Функция отправки сообщения студенту
-export const sendMessageToStudent = async (studentId: string, message: string) => {
+export const sendMessageToStudent = async (
+  studentId: string,
+  message: string
+) => {
   const bot = getBot()
-
+  const chatId = await botService.getChatIdByStudentId(
+    studentId,
+    BotPlatform.TELEGRAM
+  )
+  console.log('🚀 ~ chatId:', chatId)
+  if (!chatId) {
+    throw new Error('Студент не авторизован в боте')
+    return
+  }
   try {
-    // Получаем chat_id из базы данных
-    const chatId = await botService.getChatIdByStudentId(studentId, BotPlatform.TELEGRAM)
-
-    if (!chatId) {
-      throw new Error('Студент не найден или не авторизован в боте')
-    }
-
-    // Отправляем сообщение
     await bot.telegram.sendMessage(chatId, message)
-    return {  success: true, error: '' }
+    return { success: true, error: '' }
   } catch (error: any) {
     console.error('Ошибка отправки сообщения:', error)
     // throw error
-    return {  success: false, error: error }
+    return { success: false, error: error }
   }
 }
 

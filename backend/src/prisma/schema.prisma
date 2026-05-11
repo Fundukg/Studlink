@@ -22,7 +22,7 @@ model Staff {
   
   sentMessages     Message[] @relation("SentByStaff")
   receivedMessages Message[] @relation("StaffRecipient")
-
+  sentDistribution Distribution[] @relation("SentByStaffForDistribution")
   @@index([role]) // Быстрая фильтрация по ролям
   @@index([lastName, firstName]) // Оптимизация поиска по ФИО
 }
@@ -107,7 +107,26 @@ model BotUser {
   @@index([externalId])
   @@map("bot_users")
 }
+model Distribution {
+  id           String      @id @default(uuid())
+  text         String
+  createdAt    DateTime    @default(now())
+  
+  // Кто инициировал
+  staffId      String
+  staff      Staff?     @relation("SentByStaffForDistribution", fields: [staffId], references: [id], onDelete: Cascade)
 
+  // Параметры таргетинга (чтобы знать, кому отправляли)
+  targetType   TargetType
+  targetId     String?     // UUID группы, кафедры или факультета
+  course       Int?        // Если рассылка по курсу
+  platform     BotPlatform // ALL, VK, TG, OK
+
+  // Связь с конкретными сообщениями
+  messages     Message[]
+
+  @@index([createdAt])
+}
 model Message {
   id        String   @id @default(uuid())
   text      String
@@ -122,7 +141,8 @@ model Message {
   student    Student?   @relation("SentByStudent", fields: [studentId], references: [id], onDelete: Cascade)
 
   targetType TargetType
-
+  distributionId String?
+  distribution   Distribution? @relation(fields: [distributionId], references: [id], onDelete: Cascade)
   // Получатели (Личные)
   recipientStudentId String?
   recipientStudent   Student? @relation("StudentRecipient", fields: [recipientStudentId], references: [id], onDelete: Cascade)
@@ -153,6 +173,7 @@ model Message {
   @@index([groupId])
   @@index([staffId])
   @@index([studentId])
+  @@index([distributionId])
 }
 
 // Обновленные enums

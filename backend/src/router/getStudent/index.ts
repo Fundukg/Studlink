@@ -26,6 +26,23 @@ export const getStudentTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
         },
       },
       createdAt: true,
+      // Добавляем получение данных об авторизациях в ботах 
+      botUsers: {
+        where: {
+          isActive: true, // Рекомендуется выбирать только активные привязки 
+        },
+        select: {
+          externalId: true, // ID пользователя в мессенджере [cite: 1]
+          bot: {
+            select: {
+              id: true,
+              platform: true,
+              name: true,
+              // Здесь можно добавить platform или name бота из модели Bot 
+            },
+          },
+        },
+      },
     },
   })
   return { Student }

@@ -4,123 +4,53 @@ import { trpc } from '../../lib/trpc'
 export const getDialogueTrpcRoute = trpc.procedure
   .input(
     z.object({
-      distributionId: z.string(), // ID родительского сообщения
+      studentId: z.string(), // Теперь запрашиваем диалог по ID студента
     })
   )
   .query(async ({ ctx, input }) => {
-    // Находим родительское сообщение
-    const distribution = await ctx.prisma.message.findUnique({
-      where: {
-        id: input.distributionId,
-      },
-      include: {
-        staff: {
-          select: {
-            id: true,
-            nick: true,
-          },
-        },
-        recipientStudent: {
-          select: {
-            id: true,
-            name: true,
-            student_id: true,
-          },
-        },
-        student: {
-          select: {
-            id: true,
-            name: true,
-            student_id: true,
-          },
-        }
-      },
+    // 1. Получаем данные студента для заголовка чата
+    const student = await ctx.prisma.student.findUnique({
+      where: { id: input.studentId },
+      select: { id: true, name: true, student_id: true },
     })
 
-    if (!distribution) {
-      throw new Error('Сообщение не найдено')
+    if (!student) {
+      throw new Error('Студент не найден')
     }
 
-    // Определяем, кто является участником диалога
-    let studentId: string | null = null;
-    let recipientName = '';
-
-    if (distribution.recipientStudent) {
-      // Сообщение отправлено сотрудником студенту
-      studentId = distribution.recipientStudent.id;
-      recipientName = `${distribution.recipientStudent.name}`;
-    } else if (distribution.student) {
-      // Сообщение отправлено студентом
-      studentId = distribution.student.id;
-      recipientName = `${distribution.student.name} ${distribution.student.student_id}`;
-    } else {
-      throw new Error('Не удалось определить участника диалога');
-    }
-
-    // Находим все сообщения для этого студента
+    // 2. Получаем все сообщения:
+    // - Где студент является отправителем (STUDENT -> STAFF)
+    // - Где студент является получателем (STAFF -> STUDENT), включая рассылки
     const allMessages = await ctx.prisma.message.findMany({
       where: {
         OR: [
-          // Сообщения, отправленные этому студенту
-          {
-            recipientStudentId: studentId,
-            senderType: 'STAFF',
-          },
-          // Сообщения, отправленные этим студентом
-          {
-            studentId: studentId,
-            senderType: 'STUDENT',
-          },
-          // Также включаем родительское сообщение
-          {
-            id: input.distributionId,
-          }
+          { studentId: input.studentId },          // Сообщения ОТ студента
+          { recipientStudentId: input.studentId }, // Сообщения К студенту (личные и рассылки)
         ],
       },
       include: {
-        staff: {
-          select: {
-            id: true,
-            nick: true,
-          },
-        },
-        student: {
-          select: {
-            id: true,
-            name: true,
-            student_id: true,
-          },
-        },
+        staff: { select: { id: true, nick: true } },
+        student: { select: { id: true, name: true, student_id: true } },
+        distribution: { select: { id: true } }, // Чтобы пометить, что это было частью рассылки
       },
-      orderBy: {
-        createdAt: 'asc', // Сортируем по времени создания
-      },
+      orderBy: { createdAt: 'asc' },
     })
 
-    // Форматируем сообщения для отображения
     const formattedMessages = allMessages.map((message) => {
-      // Определяем отправителя
-      let sender;
-      if (message.staff) {
+      let sender
+      if (message.senderType === 'STAFF') {
         sender = {
           type: 'STAFF' as const,
-          id: message.staff.id,
-          name: message.staff.nick,
-        };
-      } else if (message.student) {
+          id: message.staffId || 'system',
+          name: message.staff?.nick || 'Сотрудник',
+        }
+      } else {
         sender = {
           type: 'STUDENT' as const,
-          id: message.student.id,
-          name: message.student.name,
-          studentId: message.student.student_id,
-        };
-      } else {
-        // На случай, если отправитель не определен
-        sender = {
-          type: 'UNKNOWN' as const,
-          id: 'unknown',
-          name: 'Неизвестный отправитель',
-        };
+          id: student.id,
+          name: student.name,
+          studentId: student.student_id,
+        }
       }
 
       return {
@@ -128,21 +58,20 @@ export const getDialogueTrpcRoute = trpc.procedure
         text: message.text,
         createdAt: message.createdAt,
         sender,
-        isDistribution: message.id === input.distributionId,
-      };
-    });
+        platform: message.platform,
+        // Помечаем сообщение, если оно пришло из массовой рассылки
+        isDistribution: !!message.distributionId, 
+      }
+    })
 
     return {
       dialogue: {
-        id: distribution.id,
         recipient: {
-          id: studentId,
-          name: recipientName,
-          studentId: distribution.student?.student_id ,
-          type: distribution.targetType,
+          id: student.id,
+          name: student.name,
+          studentId: student.student_id,
         },
         messages: formattedMessages,
-        createdAt: distribution.createdAt,
       },
     }
   })

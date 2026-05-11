@@ -1,124 +1,80 @@
 import { trpc } from '../../lib/trpc'
 
 export const getDialoguesTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
-  // Получаем все сообщения, которые являются частью диалогов со студентами
-  const studentMessages = await ctx.prisma.message.findMany({
+  // 1. Получаем сообщения
+  const allMessages = await ctx.prisma.message.findMany({
     where: {
       OR: [
-        {
-          // Сообщения, отправленные конкретным студентам
-          recipientStudentId: { not: null },
-          senderType: 'STAFF',
-        },
-        {
-          // Сообщения, отправленные от студентов
-          studentId: { not: null },
-          senderType: 'STUDENT',
-        },
+        { recipientStudentId: { not: null } },
+        { studentId: { not: null } },
       ],
     },
-    select: {
-      id: true,
-      text: true,
-      createdAt: true,
-      senderType: true,
-      // Информация о студенте (как получателе)
+    include: {
       recipientStudent: {
-        select: {
-          id: true,
-          name: true,
-          student_id: true,
-        },
+        select: { id: true, name: true, student_id: true },
       },
-      // Информация о студенте (как отправителе)
       student: {
-        select: {
-          id: true,
-          name: true,
-          student_id: true,
-        },
+        select: { id: true, name: true, student_id: true },
       },
-      // Информация о сотруднике (отправителе)
       staff: {
-        select: {
-          id: true,
-          nick: true,
-        },
+        select: { nick: true },
       },
+      // Убедитесь, что в схеме Prisma поле называется platform
     },
     orderBy: {
-      createdAt: 'desc', // Сначала новые сообщения
+      createdAt: 'desc',
     },
   })
+  const dialoguesMap = new Map<string, any>()
 
-  // Группируем сообщения по студентам
-  const dialoguesByStudent = new Map()
+  for (const msg of allMessages) {
+    const studentInfo = msg.recipientStudent || msg.student
+    if (!studentInfo) {continue}
 
-  for (const message of studentMessages) {
-    // Определяем ID студента для группировки
-    let studentId: string | null = null
-    let studentInfo: any = null
+    const studentId = studentInfo.id
 
-    if (message.recipientStudent) {
-      // Сообщение отправлено студенту
-      studentId = message.recipientStudent.id
-      studentInfo = message.recipientStudent
-    } else if (message.student) {
-      // Сообщение отправлено от студента
-      studentId = message.student.id
-      studentInfo = message.student
-    }
-
-    if (!studentId) {
-      continue
-    }
-
-    // Получаем или создаем диалог для этого студента
-    if (!dialoguesByStudent.has(studentId)) {
-      dialoguesByStudent.set(studentId, {
-        student: studentInfo,
-        messages: [],
-        lastMessageAt: message.createdAt,
+    if (!dialoguesMap.has(studentId)) {
+      dialoguesMap.set(studentId, {
+        student: {
+          id: studentId,
+          name: studentInfo.name,
+          student_id: studentInfo.student_id,
+        },
+        lastMessage: msg,
+        count: 0,
       })
     }
-
-    const dialogue = dialoguesByStudent.get(studentId)
-    dialogue.messages.push(message)
-
-    // Обновляем время последнего сообщения, если текущее сообщение новее
-    if (message.createdAt > dialogue.lastMessageAt) {
-      dialogue.lastMessageAt = message.createdAt
-    }
+    dialoguesMap.get(studentId).count++
   }
-  // Преобразуем Map в массив и форматируем данные
-  const formattedDialogues = Array.from(dialoguesByStudent.values()).map((dialogue) => {
-    // Сортируем сообщения по дате (сначала новые)
-    const sortedMessages = dialogue.messages.sort(
-      (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
 
-    // Берем последнее сообщение для превью
-    const lastMessage = sortedMessages[0]
-    const distributionId = dialogue.originalDistribution ? dialogue.originalDistribution.id : lastMessage.id
+  const formattedDialogues = Array.from(dialoguesMap.values()).map((item) => {
+    const lastMsg = item.lastMessage
     return {
-      id: distributionId,
+      id: item.student.id,
       student: {
-        name: dialogue.student.name,
-        studentId: dialogue.student.student_id,
+        name: item.student.name,
+        studentId: item.student.student_id,
       },
       lastMessage: {
-        text: lastMessage.text,
-        senderType: lastMessage.senderType,
-        senderName: lastMessage.senderType === 'STAFF' ? lastMessage.staff?.name : lastMessage.student?.name,
-        createdAt: lastMessage.createdAt,
+        text: lastMsg.text,
+        senderType: lastMsg.senderType,
+        // Исправлена опечатка: platform вместо palatform
+        platform: lastMsg.platform,
+        senderName:
+          lastMsg.senderType === 'STAFF'
+            ? lastMsg.staff?.nick || 'Сотрудник'
+            : item.student.name,
+        createdAt: lastMsg.createdAt,
       },
-      messageCount: dialogue.messages.length,
-      lastActivity: dialogue.lastMessageAt,
+      messageCount: item.count,
+      isLastFromDistribution: !!lastMsg.distributionId,
     }
   })
 
-  // Сортируем диалоги по времени последней активности (сначала новые)
-  formattedDialogues.sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime())
-
-  return { distributions: formattedDialogues }
+  return {
+    dialogues: formattedDialogues.sort(
+      (a, b) =>
+        b.lastMessage.createdAt.getTime() - a.lastMessage.createdAt.getTime()
+    ),
+  }
 })

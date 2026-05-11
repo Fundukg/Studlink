@@ -1,22 +1,24 @@
-import { z } from 'zod';
-import { trpc } from '../../lib/trpc';
-import { zDeleteDepartmentTrpcInput } from './input';
+import { z } from 'zod'
+import { trpc } from '../../lib/trpc'
+import { zDeleteDepartmentTrpcInput } from './input'
 
 export const deleteDepartmentTrpcRoute = trpc.procedure
   .input(zDeleteDepartmentTrpcInput)
   .mutation(async ({ input, ctx }) => {
-    if (!ctx.me) {throw Error('Unauthorized');}
+    if (!ctx.me) {
+      throw Error('Unauthorized')
+    }
 
-    // Благодаря onDelete: Cascade в Prisma, удаление кафедры 
+    // Благодаря onDelete: Cascade в Prisma, удаление кафедры
     // автоматически удалит все связанные группы и сообщения.
     await ctx.prisma.department.delete({
       where: { id: input.id },
-    });
+    })
 
-    return { success: true };
-  });
+    return { success: true }
+  })
 
-  export const getDepartmentDeleteStats = trpc.procedure
+export const getDepartmentDeleteStats = trpc.procedure
   .input(zDeleteDepartmentTrpcInput)
   .query(async ({ input, ctx }) => {
     const stats = await ctx.prisma.department.findUnique({
@@ -26,9 +28,9 @@ export const deleteDepartmentTrpcRoute = trpc.procedure
           select: {
             groups: true,
             messages: true,
-          }
-        }
-      }
-    });
-    return stats;
-  });
+          },
+        },
+      },
+    })
+    return stats
+  })

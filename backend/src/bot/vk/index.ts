@@ -100,7 +100,7 @@ export const startVkBot = async () => {
 export const sendMessageToVkStudent = async (studentId: string, message: string) => {
   if (!vkInstance) {throw new Error('ВК бот не инициализирован');}
   const chatId = await botService.getChatIdByStudentId(studentId, BotPlatform.VK);
-  if (!chatId) {throw new Error('Студент не авторизован в ВК');}
+  if (!chatId) {throw new Error('Студент не авторизован в боте');}
   try {
     // console.log(`[VK] Отправляем сообщение в чат ${chatId}: ${message}`);
     
@@ -115,7 +115,7 @@ export const sendMessageToVkStudent = async (studentId: string, message: string)
   } catch (error: any) {
     // Выводим реальную ошибку от ВК (например, "Permission denied" или "Can't send messages to this user")
     // console.error(`[VK] Ошибка API при отправке:`, error.message || error);
-    // throw error || error.message;
+    throw error || error.message;
     return {success: false, error: error || error.message};
   }
 };

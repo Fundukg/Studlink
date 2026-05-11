@@ -1,42 +1,62 @@
 import { BotPlatform } from '@prisma/client'
-import { sendOkMessage } from './ok';
+import { sendOkMessage } from './ok'
 import { sendMessageToStudent as sendTg } from './telegram'
 import { sendMessageToVkStudent as sendVk } from './vk'
 
 /**
- * Универсальная функция отправки для использования в циклах рассылки
- * Возвращает объект со статусом для корректной записи в БД
+ * Оптимизированная универсальная функция отправки.
+ * Использует параллельное выполнение для ускорения рассылки по всем платформам.
  */
 export const sendToAnyPlatform = async (
-  studentId: string, 
-  text: string, 
+  studentId: string,
+  text: string,
   platform: BotPlatform
 ): Promise<{ success: boolean; error: string }> => {
-  try {
-    let result: any;
+  const tasks: { name: string; fn: () => Promise<any> }[] = []
 
-    if (platform === BotPlatform.TELEGRAM ) {
-      result = await sendTg(studentId, text);
-    } else if (platform === BotPlatform.VK) {
-      result = await sendVk(studentId, text);
-    }else if (platform === BotPlatform.OK) {
-      console.log('🚀 ~ studentId:', studentId)
-      result = await sendOkMessage(studentId, text);
-    } else if (platform === BotPlatform.ALL) {
-      result = await sendVk(studentId, text)
-      result.push(result = await sendTg(studentId, text))
-      result.push(result = await sendOkMessage(studentId, text))
-      
-    }else {
-      return { success: false, error: `Платформа ${platform} не поддерживается` };
+  // 1. Формируем список задач в зависимости от платформы
+  if (platform === BotPlatform.TELEGRAM || platform === BotPlatform.ALL) {
+    tasks.push({ name: 'TG', fn: () => sendTg(studentId, text) })
+  }
+  if (platform === BotPlatform.VK || platform === BotPlatform.ALL) {
+    tasks.push({ name: 'VK', fn: () => sendVk(studentId, text) })
+  }
+  if (platform === BotPlatform.OK || platform === BotPlatform.ALL) {
+    tasks.push({ name: 'OK', fn: () => sendOkMessage(studentId, text) })
+  }
+
+  if (tasks.length === 0) {
+    return { success: false, error: `Платформа ${platform} не поддерживается или не активна` }
+  }
+
+  // 2. Запускаем все задачи параллельно
+  // allSettled гарантирует, что мы дождемся результата всех задач, даже если часть упадет
+  const results = await Promise.allSettled(tasks.map(t => t.fn()))
+
+  const errors: string[] = []
+  let anySuccess = false
+
+  // 3. Анализируем результаты
+  results.forEach((result, index) => {
+    const taskName = tasks[index].name
+
+    if (result.status === 'fulfilled') {
+      const response = result.value
+      // Проверяем, что API вернул успех (адаптируй под свои функции отправки)
+      if (response && response.success !== false) {
+        anySuccess = true
+      } else {
+        errors.push(`${taskName}: API вернул ошибку`)
+      }
+    } else {
+      // Здесь обрабатываются именно "вылеты" (reject/throw) функций
+      // console.error(`Критическая ошибка API ${taskName}:`, result.reason)
+      errors.push(`${taskName}: ${result.reason?.message || 'Network Error'}`)
     }
+  })
 
-    // Проверяем, что функция отправки вернула положительный результат
-    // (Большинство библиотек возвращают объект сообщения при успехе)
-    return { success: !!result, error: result ? '' : 'Ошибка при отправке в API' };
-    
-  } catch (e: any) {
-    console.error(`Ошибка отправки (${platform}):`, e);
-    return { success: false, error: e.message || 'Неизвестная ошибка API' };
+  return {
+    success: anySuccess,
+    error: errors.join('; '),
   }
 }

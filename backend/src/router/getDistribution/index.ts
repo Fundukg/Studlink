@@ -4,40 +4,24 @@ import { trpc } from '../../lib/trpc'
 export const getDistributionTrpcRoute = trpc.procedure
   .input(
     z.object({
-      distributionId: z.string(), // ID родительского сообщения (рассылки)
+      distributionId: z.string(), // ID из таблицы Distribution
     })
   )
   .query(async ({ ctx, input }) => {
-    // Находим родительское сообщение (рассылку)
-    const distribution = await ctx.prisma.message.findUnique({
-      where: {
-        id: input.distributionId,
-      },
+    // 1. Находим саму рассылку в новой таблице
+    const distribution = await ctx.prisma.distribution.findUnique({
+      where: { id: input.distributionId },
       include: {
-        staff: {
-          select: {
-            id: true,
-            nick: true,
+        staff: { select: { id: true, nick: true } },
+        // Подгружаем сообщения, чтобы увидеть детализацию (опционально)
+        messages: {
+          include: {
+            recipientStudent: {
+              select: { name: true, student_id: true }
+            }
           },
-        },
-        group: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        department: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        faculty: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
+          take: 5 // Можно взять несколько для превью или убрать, если не нужно
+        }
       },
     })
 
@@ -45,131 +29,48 @@ export const getDistributionTrpcRoute = trpc.procedure
       throw new Error('Рассылка не найдена')
     }
 
-    // Определяем получателя рассылки
+    // 2. Формируем имя получателя (таргетинг)
     let recipientName = ''
     switch (distribution.targetType) {
       case 'GROUP':
-        recipientName = `Группа: ${distribution.group?.name || 'Неизвестная'}`
+        // Здесь можно сделать доп. запрос к Group, если в Distribution только targetId
+        recipientName = `Группа (ID: ${distribution.targetId})`
         break
       case 'DEPARTMENT':
-        recipientName = `Кафедра: ${distribution.department?.name || 'Неизвестная'}`
+        recipientName = `Кафедра (ID: ${distribution.targetId})`
         break
       case 'FACULTY':
-        recipientName = `Факультет: ${distribution.faculty?.name || 'Неизвестный'}`
+        recipientName = `Факультет (ID: ${distribution.targetId})`
         break
       case 'COURSE':
-        recipientName = `Курс: ${distribution.course}`
+        recipientName = `${distribution.course} курс`
         break
       case 'ALL':
         recipientName = 'Все студенты'
         break
       default:
-        recipientName = 'Неизвестный получатель'
+        recipientName = 'Личная рассылка'
     }
 
-    // Находим все ответы на эту рассылку
-    const replies = await ctx.prisma.message.findMany({
-      where: {
-        parentId: input.distributionId, // Ответы на эту рассылку
-      },
-      include: {
-        staff: {
-          select: {
-            id: true,
-            nick: true,
-          },
-        },
-        student: {
-          select: {
-            id: true,
-            name: true,
-            student_id: true,
-          },
-        },
-        // Информация о группе студента (для контекста)
-        recipientStudent: {
-          select: {
-            id: true,
-            name: true,
-            student_id: true,
-            group: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'asc', // Сортируем по времени создания
-      },
-    })
-
-    // Форматируем сообщения для отображения
-    const formattedMessages = replies.map((message) => {
-      // Определяем отправителя
-      let sender
-      if (message.staff) {
-        sender = {
-          type: 'STAFF' as const,
-          id: message.staff.id,
-          name: message.staff.nick,
-        }
-      } else if (message.student) { 
-        sender = {
-          type: 'STUDENT' as const,
-          id: message.student.id,
-          name: message.student.name,
-          studentId: message.student.student_id,
-          group: message.recipientStudent?.group?.name || null,
-        }
-      } else {
-        // На случай, если отправитель не определен
-        sender = {
-          type: 'UNKNOWN' as const,
-          id: 'unknown',
-          name: 'Неизвестный отправитель',
-        }
-      }
-
-      return {
-        id: message.id,
-        text: message.text,
-        createdAt: message.createdAt,
-        sender,
-        isDistribution: false, // Это ответ, а не рассылка
-      }
-    })
-
-    // Добавляем саму рассылку в начало списка сообщений
-    const allMessages = [
-      {
-        id: distribution.id,
-        text: distribution.text,
-        createdAt: distribution.createdAt,
-        sender: {
-          type: 'STAFF' as const,
-          id: distribution.staff?.id,
-          name: distribution.staff?.nick,
-        },
-        isDistribution: true, // Это исходная рассылка
-      },
-      ...formattedMessages,
-    ]
-
+    // 3. Возвращаем данные для отображения "карточки" рассылки
     return {
       distribution: {
         id: distribution.id,
+        text: distribution.text,
+        createdAt: distribution.createdAt,
+        platform: distribution.platform,
+        targetType: distribution.targetType,
         recipient: {
           name: recipientName,
-          type: distribution.targetType,
         },
-        messages: allMessages,
-        createdAt: distribution.createdAt,
         sender: {
           id: distribution.staff?.id,
-          name: distribution.staff?.nick,
+          name: distribution.staff?.nick || 'Система',
         },
+        // Статистика: сколько сообщений было создано в рамках этой рассылки
+        stats: {
+          totalSent: distribution.messages.length,
+        }
       },
     }
   })

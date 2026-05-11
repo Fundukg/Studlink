@@ -5,6 +5,9 @@ import { botService } from '../botService'
 
 export const sendOkMessage = async (studentId: string, text: string) => {
   const recipientId = await botService.getChatIdByStudentId(studentId, BotPlatform.OK)
+  if (!recipientId) {
+    throw new Error('Студент не авторизован в боте')
+  }
   try {
     const token = await botService.getBotToken(BotPlatform.OK)
     const payload = {
