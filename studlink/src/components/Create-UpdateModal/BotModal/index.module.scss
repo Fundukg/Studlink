@@ -1,0 +1,148 @@
+@use '../../../styles/_vars.scss' as *;
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+// Группа для кастомного селекта
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-gray;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+}
+
+.selectField {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: $white;
+  border: 1px solid $border-color;
+  border-radius: 10px;
+  font-size: 14px;
+  color: $text-dark;
+  outline: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  // Кастомная иконка стрелочки
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+
+  &:focus {
+    border-color: $accent-green;
+    box-shadow: 0 0 0 3px rgba($accent-green, 0.1);
+  }
+
+  &:disabled {
+    background-color: $bg-main;
+    color: $text-gray;
+    cursor: not-allowed;
+    opacity: 0.8;
+  }
+}
+
+// Вспомогательный текст
+.hint {
+  font-size: 11px;
+  color: $text-gray;
+  margin-top: -4px;
+}
+
+// Блок информации (про Privacy Mode)
+.infoBox {
+  background-color: #eff6ff; // Нежно-голубой для инфо
+  border: 1px solid #dbeafe;
+  border-left: 4px solid #3b82f6;
+  padding: 12px 15px;
+  border-radius: 8px;
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: #1e40af;
+    line-height: 1.5;
+
+    b {
+      font-weight: 700;
+    }
+  }
+}
+
+// Ошибки
+.errorInput {
+  border-color: $red !important;
+}
+
+.errorText {
+  color: $red;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+// Футер и кнопки
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  padding-top: 15px;
+  border-top: 1px solid $border-color;
+  margin-top: 10px;
+
+  .submitBtn {
+    background: $primary-gradient;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 140px;
+    box-shadow: 0 4px 6px rgba($dark-green, 0.15);
+
+    &:hover:not(:disabled) {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba($dark-green, 0.25);
+    }
+
+    &:disabled {
+      background: $text-gray;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+  }
+
+  .cancelBtn {
+    background: $white;
+    border: 1px solid $border-color;
+    padding: 10px 24px;
+    border-radius: 10px;
+    color: $text-gray;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: $bg-main;
+      color: $text-dark;
+    }
+  }
+}

@@ -1,0 +1,93 @@
+@use '../../../styles/_vars.scss' as *;
+
+.modalForm {
+  padding: 10px 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; // Две колонки
+  gap: 20px;
+}
+
+.fullWidth {
+  grid-column: span 2; // Растягиваем на всю ширину
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-gray;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+}
+
+.selectField {
+  width: 100%;
+  padding: 11px 12px;
+  background-color: $white;
+  border: 1px solid $border-color;
+  border-radius: 10px;
+  font-size: 14px;
+  color: $text-dark;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+
+  &:focus {
+    border-color: $accent-green;
+    box-shadow: 0 0 0 3px rgba($accent-green, 0.1);
+  }
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid $border-color;
+
+  button {
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .cancelBtn {
+    background: white;
+    border: 1px solid $border-color;
+    color: $text-gray;
+
+    &:hover {
+      background: $bg-main;
+    }
+  }
+
+  .submitBtn {
+    background: $primary-gradient;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 10px rgba($accent-green, 0.2);
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      background: $text-gray;
+      cursor: not-allowed;
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { trpc } from '../../lib/trpc'
+import { isAdmin, isDeanery } from '../../utils/role'
 import { zUpdateGroupTrpcInput } from './input'
 
 export const updateGroupTrpcRoute = trpc.procedure
@@ -7,7 +8,9 @@ export const updateGroupTrpcRoute = trpc.procedure
     if (!ctx.me) {
       throw Error('Unauthorized')
     }
-
+    if (!isAdmin(ctx.me?.role) && !isDeanery(ctx.me?.role)) {
+          throw new Error('Доступ запрещен: недостаточно прав')
+        }
     const group = await ctx.prisma.group.findUnique({
       where: { id: input.id },
     })

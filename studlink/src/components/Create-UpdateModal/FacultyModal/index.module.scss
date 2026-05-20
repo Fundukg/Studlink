@@ -1,0 +1,91 @@
+@use '../../../styles/_vars.scss' as *;
+
+// Стили формы внутри модалки
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; // Увеличенный отступ между полями для чистоты
+  padding: 10px 0;
+}
+
+// Подвал модального окна
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  padding-top: 16px;
+  border-top: 1px solid $border-color; // Разделительная линия
+  margin-top: 10px;
+
+  .submitBtn {
+    background: $primary-gradient;
+    color: $white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 10px; // Округление как у инпутов
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    box-shadow: 0 4px 6px rgba($dark-green, 0.15);
+
+    &:hover:not(:disabled) {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba($dark-green, 0.25);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      background: $text-gray; // Используем серый из переменных
+      cursor: not-allowed;
+      box-shadow: none;
+      opacity: 0.6;
+    }
+  }
+
+  .cancelBtn {
+    background: $white;
+    border: 1px solid $border-color;
+    padding: 10px 24px;
+    border-radius: 10px;
+    color: $text-gray;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $bg-main;
+      border-color: $border-color, 5%;
+      color: $text-dark;
+    }
+  }
+}
+
+// Лоадер
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+  color: $accent-green; // Теперь лоадер брендового цвета
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+// Глобальные уточнения для инпутов внутри формы
+.global {
+  .input-container {
+    margin-bottom: 0 !important; // gap в .form уже управляет отступами
+  }
+}

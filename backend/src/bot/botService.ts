@@ -20,19 +20,19 @@ export const botService = {
         platform: BotPlatform.TELEGRAM,
         token: process.env.TELEGRAM_BOT_TOKEN,
         enabled: toBool(process.env.ENABLE_TELEGRAM_BOT),
-        name: 'StudLink Telegram Bot',
+        name: 'VKurse Telegram Bot',
       },
       {
         platform: BotPlatform.VK,
         token: process.env.VK_BOT_TOKEN,
         enabled: toBool(process.env.ENABLE_VK_BOT),
-        name: 'StudLink VK Bot',
+        name: 'VKurse VK Bot',
       },
       {
         platform: BotPlatform.OK,
         token: process.env.OK_BOT_TOKEN,
         enabled: toBool(process.env.ENABLE_OK_BOT),
-        name: 'StudLink OK Bot',
+        name: 'VKurse OK Bot',
       },
     ]
 

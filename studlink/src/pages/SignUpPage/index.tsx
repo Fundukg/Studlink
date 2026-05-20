@@ -16,11 +16,11 @@ export const SignUpPage = withPageWrapper({
   const trpcutils = trpc.useUtils()
   const signUp = trpc.signUp.useMutation()
   const { formik, buttonProps, alertProps } = useForm({
-    initialValues: {
-      nick: '',
-      password: '',
-      passwordAgain: '',
-    },
+    // initialValues: {
+    //   nick: '',
+    //   password: '',
+    //   passwordAgain: '',
+    // },
     validationSchema: zSignUpTrpcInput
       .extend({
         passwordAgain: z.string().min(1, 'Пароль должен быть не менее 8 символов'),

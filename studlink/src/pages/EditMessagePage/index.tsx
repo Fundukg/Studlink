@@ -16,7 +16,7 @@ export const EditMessagePage = withPageWrapper({
   useQuery: () => {
     const { dialogueId } = useParams() as EditMessageRouteParams
     return trpc.getDialogue.useQuery({
-      distributionId: dialogueId,
+      studentId: dialogueId,
     })
   },
   setProps: ({ queryResult, ctx, checkExists, checkAccess }) => {
@@ -34,8 +34,8 @@ export const EditMessagePage = withPageWrapper({
     initialValues,
     validationSchema: zUpdateMessageTrpcInput.omit({ dialogueId: true }),
     onSubmit: async (values) => {
-      await updateMessage.mutateAsync({ dialogueId: dialogue.id, ...values })
-      navigate(getViewDialogueRoute({ dialogueId: dialogue.id }))
+      await updateMessage.mutateAsync({ dialogueId: dialogue.recipient.id, ...values })
+      navigate(getViewDialogueRoute({ dialogueId: dialogue.recipient.id }))
     },
     resetOnSuccess: false,
     showValidationAlert: true,

@@ -1,0 +1,58 @@
+.badgeWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #fff;
+  flex-shrink: 0;
+  //   border: 1.5px solid #ffffff; // Белая обводка для наложения на аватар
+
+  // Цвета платформ
+  &.telegram {
+    background-color: #229ed9;
+  }
+
+  &.vk {
+    background-color: #0077ff;
+  }
+
+  &.ok {
+    background-color: #f93;
+  }
+
+  &.all {
+    background-color: #20dc36;
+  }
+
+  // Размеры
+  &.sm {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
+  &.md {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+
+  &.lg {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+}
+
+.labelText {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}

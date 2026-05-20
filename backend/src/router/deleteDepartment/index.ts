@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import { trpc } from '../../lib/trpc'
+import { isAdmin, isDeanery } from '../../utils/role'
 import { zDeleteDepartmentTrpcInput } from './input'
 
 export const deleteDepartmentTrpcRoute = trpc.procedure
@@ -8,7 +8,9 @@ export const deleteDepartmentTrpcRoute = trpc.procedure
     if (!ctx.me) {
       throw Error('Unauthorized')
     }
-
+    if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
+        throw new Error('Доступ запрещен: недостаточно прав')
+      }
     // Благодаря onDelete: Cascade в Prisma, удаление кафедры
     // автоматически удалит все связанные группы и сообщения.
     await ctx.prisma.department.delete({
@@ -18,9 +20,15 @@ export const deleteDepartmentTrpcRoute = trpc.procedure
     return { success: true }
   })
 
-export const getDepartmentDeleteStats = trpc.procedure
+export const getDepartmentDeleteStatsTrpcRoute = trpc.procedure
   .input(zDeleteDepartmentTrpcInput)
   .query(async ({ input, ctx }) => {
+    if (!ctx.me) {
+      throw Error('Unauthorized')
+    }
+    if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
+        throw new Error('Доступ запрещен: недостаточно прав')
+      }
     const stats = await ctx.prisma.department.findUnique({
       where: { id: input.id },
       select: {

@@ -1,0 +1,178 @@
+@use '../../styles/_vars.scss' as *;
+
+.importContainer {
+  padding: 30px;
+  max-width: 900px;
+  margin: 0 auto;
+
+  h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: $text-dark;
+    margin-bottom: 25px;
+    text-align: center;
+  }
+}
+
+// --- Зона Drag & Drop ---
+.dropZone {
+  border: 2px dashed $border-color;
+  border-radius: 20px;
+  padding: 60px 40px;
+  text-align: center;
+  background: $white;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  &:hover,
+  &.active {
+    border-color: $accent-green;
+    background: rgba($accent-green, 0.05);
+    transform: translateY(-2px);
+  }
+
+  &.active {
+    border-style: solid;
+    box-shadow: 0 0 0 4px rgba($accent-green, 0.1);
+  }
+
+  .icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-dark;
+    margin: 0;
+  }
+
+  span {
+    font-size: 13px;
+    color: $text-gray;
+  }
+}
+
+// --- Информация о выбранном файле ---
+.fileInfo {
+  margin-top: 20px;
+  padding: 20px;
+  background: $white;
+  border-radius: 12px;
+  border: 1px solid $border-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: fade-in 0.3s ease;
+
+  strong {
+    color: $text-dark;
+  }
+
+  .uploadBtn {
+    background: $primary-gradient;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    box-shadow: 0 4px 12px rgba($accent-green, 0.2);
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      background: $text-gray;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+  }
+}
+
+// --- Отчет об импорте ---
+.errorTableContainer {
+  margin-top: 40px;
+  animation: slide-up 0.4s ease;
+
+  .reportSummary {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: $white;
+    border-radius: 12px;
+    border: 1px solid $border-color;
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .errorHeader {
+      color: #e53e3e;
+    }
+  }
+}
+
+// --- Таблица ошибок ---
+.studentsTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: $white;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid $border-color;
+
+  th {
+    background: #f9fafb;
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: $text-gray;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid $border-color;
+  }
+
+  td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+    color: $text-dark;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+// --- Анимации ---
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

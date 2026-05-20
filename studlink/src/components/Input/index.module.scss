@@ -1,44 +1,113 @@
-@use '../../styles/vars' as *;
-@use '../../styles/mixins' as *;
-@use '../../../node_modules/include-media/dist/_include-media.scss' as *;
+@use '../../styles/vars' as *; // Предполагаем, что здесь $blue, $red, $border-color
 
 .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  width: 100%;
+
   &.disabled {
-    opacity: 0.5;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2px;
   }
 
   .label {
-    font-weight: bold;
-    margin-bottom: 2px;
-    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4a5568; // Dark gray
+  }
+
+  .presets {
+    display: flex;
+    gap: 4px;
+
+    .presetBtn {
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      border: 1px solid #e2e8f0;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: #4299e1;
+        color: #4299e1;
+      }
+
+      &.active {
+        background: #4299e1;
+        border-color: #4299e1;
+        color: white;
+      }
+    }
+  }
+
+  .inputWrapper {
+    position: relative;
+    display: flex;
   }
 
   .input {
-    padding: 10px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
     font-size: 14px;
+    color: #2d3748;
+    transition: all 0.2s ease;
+    background: #fff;
+
+    &::placeholder {
+      color: #a0aec0;
+    }
 
     &:focus {
       outline: none;
-      border-color: #4299e1;
-      box-shadow: 0 0 0 3px rgb(66, 153, 225, 0.2);
-    }
-
-    &.invalid {
-      border-color: $red;
+      border-color: #4299e1; // Наш основной синий
+      box-shadow: 0 0 0 3px rgb(66, 153, 225, 0.15);
     }
   }
 
-  .error {
-    margin-top: 2px;
-    color: $red;
+  &.invalid {
+    .label {
+      color: #e53e3e;
+    }
+
+    .input {
+      border-color: #e53e3e;
+      background: #fff5f5;
+
+      &:focus {
+        box-shadow: 0 0 0 3px rgb(229, 62, 62, 0.15);
+      }
+    }
+  }
+
+  .errorWrapper {
+    margin-top: 4px;
   }
 }
 
-.readonly {
-  background-color: #f5f5f5;
-  color: #666;
-  cursor: not-allowed;
-  border-color: #ddd;
+// Стили для поля "Только чтение"
+.readOnlyField {
+  .displayValue {
+    padding: 10px 14px;
+    background: #f7fafc;
+    border: 1.5px solid #edf2f7;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #718096;
+    min-height: 41px;
+    display: flex;
+    align-items: center;
+  }
 }

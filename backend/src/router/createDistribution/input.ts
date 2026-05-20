@@ -10,6 +10,7 @@ export const zCreateDistributionTrpcInput = z.object({
     'COURSE',
     'ALL',
   ]),
-  targetId: z.string().optional(),
+  // Теперь это массив строк. Для ALL он может быть пустым.
+  targetIds: z.array(z.string()).default([]), 
   platform: z.enum(['TELEGRAM', 'VK', 'OK', 'ALL']),
 })

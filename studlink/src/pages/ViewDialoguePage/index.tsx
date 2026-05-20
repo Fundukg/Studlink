@@ -1,7 +1,9 @@
-import { format } from 'date-fns/format'
+import { format } from 'date-fns'
 import { useState, useRef, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { PlatformBadge } from '../../components/PlatformBadge'
 import { PlatformSelector } from '../../components/PlatformSelector'
+import { UniversalModal } from '../../components/UniversalModal'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { type ViewDialogueRouteParams } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
@@ -12,7 +14,7 @@ export const ViewDialoguePage = withPageWrapper({
   useQuery: () => {
     const { dialogueId } = useParams() as ViewDialogueRouteParams
     return trpc.getDialogue.useQuery({
-      distributionId: dialogueId,
+      studentId: dialogueId,
     })
   },
   setProps: ({ queryResult, ctx, checkExists }) => ({
@@ -20,52 +22,56 @@ export const ViewDialoguePage = withPageWrapper({
     me: ctx.me,
   }),
 })(({ dialogue }) => {
-  const createDistribution = trpc.createDistribution.useMutation()
+  const createDirectMessage = trpc.createDirectMessage.useMutation()
   const { dialogueId } = useParams() as ViewDialogueRouteParams
   const trpcUtils = trpc.useContext()
+
+  // Получаем расширенные данные студента
+  const { data: studentQuery } = trpc.getOneStudent.useQuery({
+    id: dialogueId,
+  })
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
   const [messageText, setMessageText] = useState('')
-  const textareaRef = useRef<HTMLTextAreaElement>(null) // Добавляем тип для textareaRef
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false)
+
+  type PlatformType = 'ALL' | 'TELEGRAM' | 'VK' | 'OK'
+  const [platform, setPlatform] = useState<PlatformType>(() => {
+    const saved = localStorage.getItem('platform') as PlatformType
+    return ['TELEGRAM', 'VK', 'OK', 'ALL'].includes(saved) ? saved : 'ALL'
+  })
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
-  type PlatformType = 'ALL' | 'TELEGRAM' | 'VK' | 'OK'
-  const [platform, setPlatform] = useState<PlatformType>(() => {
-    const saved = localStorage.getItem('platform')
-    // Простая проверка на валидность данных из localStorage
-    return saved === 'TELEGRAM' || saved === 'VK' || saved === 'OK' || saved === 'ALL' ? saved : 'ALL'
-  })
+
   useEffect(() => {
     scrollToBottom()
   }, [dialogue.messages])
 
-  // Автоматическое изменение высоты textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`
     }
   }, [messageText])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!messageText.trim()) {
-      return
-    }
+    if (!messageText.trim()) {return}
 
     try {
-      await createDistribution.mutateAsync({
-        targetType: 'STUDENT',
-        targetId: dialogue.recipient.id,
+      await createDirectMessage.mutateAsync({
+        studentId: dialogue.recipient.id,
         text: messageText,
         platform: platform,
       })
-      // Обновляем данные диалога после отправки сообщения
-      await trpcUtils.getDialogue.invalidate({ distributionId: dialogueId })
+      await trpcUtils.getDialogue.invalidate({ studentId: dialogueId })
       setMessageText('')
     } catch (error) {
-      console.error('Ошибка отправки сообщения:', error)
+      console.error('Ошибка отправки:', error)
     }
   }
 
@@ -78,85 +84,95 @@ export const ViewDialoguePage = withPageWrapper({
 
   return (
     <div className={css.dialogueContainer}>
+      {/* HEADER */}
       <div className={css.dialogueHeader}>
         <div className={css.userInfo}>
-          <div className={css.avatar}>{dialogue.recipient.name.charAt(0).toUpperCase()}</div>
+          <div
+            className={css.avatar}
+            onClick={() => setIsStudentModalOpen(true)}
+            style={{ cursor: 'pointer' }}
+          >
+            {dialogue.recipient.name.charAt(0).toUpperCase()}
+          </div>
           <div className={css.userDetails}>
-            <h2>{dialogue.recipient.name}</h2>
-            <p>Student ID: {dialogue.recipient.studentId}</p>
+            <h2
+              onClick={() => setIsStudentModalOpen(true)}
+              style={{ cursor: 'pointer' }}
+            >
+              {dialogue.recipient.name}
+            </h2>
+            <p>Онлайн • {studentQuery?.group?.name || 'Загрузка...'}</p>
           </div>
         </div>
 
-        <div className={css.platformSelector}>
-          <PlatformSelector value={platform} dialogue={true} onChange={setPlatform} />
+        <div className={css.headerActions}>
+          <PlatformSelector
+            value={platform}
+            dialogue={true}
+            onChange={setPlatform}
+          />
         </div>
       </div>
 
+      {/* MESSAGES AREA */}
       <div className={css.messagesWrapper}>
         <div className={css.messages}>
-          {dialogue.messages.length === 0 ? (
-            <div className={css.emptyState}>
-              <div className={css.emptyIcon}>
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.4183 16.9706 20 12 20C10.4607 20 9.01172 19.6565 7.74467 19.0511L3 20L4.39499 16.28C3.51156 15.0423 3 13.5743 3 12C3 7.58172 7.02944 4 12 4C16.9706 4 21 7.58172 21 12Z"
-                    stroke="#A0AEC0"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <h3>Нет сообщений</h3>
-              <p>Начните диалог, отправив первое сообщение</p>
-            </div>
-          ) : (
-            dialogue.messages.map((message) => (
+          {dialogue.messages.map((message) => {
+            const isStaff = message.sender.type === 'STAFF'
+            return (
               <div
                 key={message.id}
-                className={`${css.message} ${message.sender.type === 'STAFF' ? css.staffMessage : css.studentMessage}`}
+                className={`${css.message} ${isStaff ? css.staffMessage : css.studentMessage}`}
               >
                 <div className={css.messageContent}>
                   <div className={css.messageHeader}>
                     <span className={css.senderName}>
                       {message.sender.name}
-                      {message.sender.type === 'STUDENT' && ` (${message.sender.studentId})`}
                     </span>
-                    <span className={css.messageTime}>{format(message.createdAt, 'HH:mm')}</span>
+                    <div className={css.meta}>
+                      <span className={css.messageTime}>
+                        {format(new Date(message.createdAt), 'HH:mm')}
+                      </span>
+                      <PlatformBadge
+                        platform={message.platform}
+                        className={css.badge}
+                      />
+                    </div>
                   </div>
-                  <div className={css.messageText} dangerouslySetInnerHTML={{ __html: message.text }} />
+                  <div
+                    className={css.messageText}
+                    dangerouslySetInnerHTML={{ __html: message.text }}
+                  />
                 </div>
               </div>
-            ))
-          )}
+            )
+          })}
           <div ref={messagesEndRef} />
         </div>
       </div>
 
+      {/* INPUT AREA */}
       <div className={css.messageInputContainer}>
         <form onSubmit={handleSubmit} className={css.messageForm}>
           <div className={css.inputWrapper}>
             <textarea
-              ref={textareaRef} // Используем ref с правильным типом
+              ref={textareaRef}
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Введите сообщение..."
+              placeholder="Напишите сообщение..."
               className={css.textArea}
               rows={1}
             />
-            <button type="submit" className={css.sendButton} disabled={!messageText.trim()} title="Отправить сообщение">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <button
+              type="submit"
+              className={css.sendButton}
+              disabled={!messageText.trim()}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
-                  d="M22 2L11 13"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M22 2L15 22L11 13L2 9L22 2Z"
-                  stroke="currentColor"
+                  d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"
+                  stroke="white"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -166,6 +182,72 @@ export const ViewDialoguePage = withPageWrapper({
           </div>
         </form>
       </div>
+
+      {/* MODAL WITH FULL STUDENT INFO */}
+      <UniversalModal
+        isOpen={isStudentModalOpen}
+        onClose={() => setIsStudentModalOpen(false)}
+        title="Информация о студенте"
+        maxWidth={500}
+      >
+        <div className={css.studentInfoModal}>
+          <div className={css.modalAvatar}>
+            {dialogue.recipient.name.charAt(0).toUpperCase()}
+          </div>
+          <h3>{dialogue.recipient.name}</h3>
+
+          <div className={css.infoGrid}>
+            <div className={css.infoItem}>
+              <label>ID Студента</label>
+              <span>{dialogue.recipient.studentId}</span>
+            </div>
+            <div className={css.infoItem}>
+              <label>Факультет</label>
+              <span>
+                {studentQuery?.group?.department?.faculty?.name || '—'}
+              </span>
+            </div>
+            <div className={css.infoItem}>
+              <label>Кафедра</label>
+              <span>{studentQuery?.group?.department?.name || '—'}</span>
+            </div>
+            <div className={css.infoItem}>
+              <label>Группа</label>
+              <span>{studentQuery?.group?.name || '—'}</span>
+            </div>
+            <div className={css.infoItem}>
+              <label>Курс</label>
+              <span>{studentQuery?.course || '—'} курс</span>
+            </div>
+
+            <div className={css.divider} />
+
+            <div className={css.infoItem}>
+              <label>Платформы</label>
+              <div className={css.platformsList}>
+                {studentQuery?.botUsers.map((bu) => (
+                  <PlatformBadge
+                    key={bu.id}
+                    platform={bu.bot.platform}
+                    size="sm"
+                  />
+                ))}
+                {studentQuery?.botUsers.length === 0 && (
+                  <span>Не зарегистрирован</span>
+                )}
+              </div>
+            </div>
+
+            <div className={css.infoItem}>
+              <label>Сообщений</label>
+              <div className={css.stats}>
+                <span>Вы: {studentQuery?._count.receivedMessages}</span>
+                <span>Он: {studentQuery?._count.sentMessages}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </UniversalModal>
     </div>
   )
 })

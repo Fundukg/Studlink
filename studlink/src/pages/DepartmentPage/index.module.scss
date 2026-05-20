@@ -1,0 +1,323 @@
+@use '../../styles/_vars.scss' as *;
+
+.container {
+  padding: 30px;
+  background-color: $bg-main;
+  min-height: 100vh;
+}
+
+// --- Хедер ---
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  .titleBlock {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      color: $text-dark;
+      font-weight: 700;
+    }
+
+    .countBadge {
+      background: rgba($accent-green, 0.1);
+      color: $accent-green;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba($accent-green, 0.2);
+    }
+  }
+}
+
+// --- Поиск и Кнопка ---
+.controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+
+  .searchWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .searchIcon {
+      position: absolute;
+      left: 12px;
+      color: $text-gray;
+      z-index: 1;
+    }
+
+    .searchInput {
+      padding: 10px 15px 10px 40px;
+      border: 1px solid $border-color;
+      border-radius: 10px;
+      width: 300px;
+      font-size: 14px;
+      outline: none;
+      background: $white;
+      transition: all 0.25s ease;
+
+      &:focus {
+        border-color: $accent-green;
+        box-shadow: 0 0 0 3px rgba($accent-green, 0.1);
+        width: 350px;
+      }
+    }
+  }
+
+  .addBtn {
+    background: $primary-gradient;
+    color: $white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      transform 0.2s,
+      opacity 0.2s;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+}
+
+// --- Таблица ---
+.tableWrapper {
+  background: $white;
+  border-radius: 16px;
+  border: 1px solid $border-color;
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.03);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: #f9fafb;
+    padding: 16px 20px;
+    text-align: left;
+    color: $text-gray;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid $border-color;
+    font-weight: 700;
+  }
+
+  td {
+    padding: 16px 20px;
+    border-bottom: 1px solid $border-color;
+    color: $text-dark;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .studentName {
+    font-weight: 600;
+    color: $text-dark;
+
+    .nameWithIcon {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+}
+
+// Бейдж факультета в таблице
+.facultyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: $bg-main;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: $text-gray;
+  font-size: 13px;
+  border: 1px solid $border-color;
+
+  svg {
+    color: $accent-green;
+  }
+}
+
+.actions {
+  text-align: end;
+}
+// --- Модалка деталей ---
+.studentInfoModal {
+  padding: 10px 5px;
+
+  .modalHeaderSection {
+    text-align: center;
+    margin-bottom: 24px;
+
+    .modalAvatar {
+      width: 64px;
+      height: 64px;
+      background: $light-bg-green;
+      color: $accent-green;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 12px;
+      box-shadow: 0 4px 10px rgb(0, 0, 0, 0.05);
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 20px;
+      color: $text-dark;
+      font-weight: 700;
+    }
+
+    .studentIdBadge {
+      color: $text-gray;
+      font-size: 13px;
+      margin-top: 4px;
+      font-family: monospace;
+    }
+  }
+
+  .infoGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    background: $bg-main;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid $border-color;
+
+    .infoItem {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      label {
+        font-size: 11px;
+        color: $text-gray;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      span {
+        font-size: 14px;
+        color: $text-dark;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// --- Модалка удаления ---
+.deleteConfirm {
+  text-align: center;
+  padding: 10px 0;
+
+  .warningIcon {
+    font-size: 48px;
+    color: #ef4444;
+    background: #fef2f2;
+    padding: 12px;
+    border-radius: 50%;
+    margin-bottom: 16px;
+  }
+
+  .statsHint {
+    margin-top: 20px;
+    padding: 16px;
+    background-color: #fffaf0;
+    border-radius: 12px;
+    text-align: left;
+    color: #9a3412;
+    font-size: 14px;
+    border: 1px solid #ffedd5;
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+
+      li {
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// --- Футер и кнопки модалок ---
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid $border-color;
+
+  button {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+
+  .cancelBtn {
+    background: $white;
+    border: 1px solid $border-color;
+    color: $text-gray;
+
+    &:hover {
+      background: $bg-main;
+    }
+  }
+
+  .dangerBtn {
+    background: #ef4444;
+    border: none;
+    color: $white;
+
+    &:hover {
+      background: #dc2626;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: 50px;
+  color: $accent-green;
+  font-weight: 600;
+}

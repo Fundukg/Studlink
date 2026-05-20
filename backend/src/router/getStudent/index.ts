@@ -1,6 +1,13 @@
 import { trpc } from '../../lib/trpc'
+import { isAdmin, isDeanery } from '../../utils/role'
 
 export const getStudentTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
+  if (!ctx.me) {
+    throw Error('Unauthorized')
+  }
+  if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
+        throw new Error('Доступ запрещен: недостаточно прав')
+      }
   const Student = await ctx.prisma.student.findMany({
     select: {
       id: true,
@@ -26,10 +33,10 @@ export const getStudentTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
         },
       },
       createdAt: true,
-      // Добавляем получение данных об авторизациях в ботах 
+      // Добавляем получение данных об авторизациях в ботах
       botUsers: {
         where: {
-          isActive: true, // Рекомендуется выбирать только активные привязки 
+          isActive: true, // Рекомендуется выбирать только активные привязки
         },
         select: {
           externalId: true, // ID пользователя в мессенджере [cite: 1]
@@ -38,7 +45,7 @@ export const getStudentTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
               id: true,
               platform: true,
               name: true,
-              // Здесь можно добавить platform или name бота из модели Bot 
+              // Здесь можно добавить platform или name бота из модели Bot
             },
           },
         },

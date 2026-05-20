@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import css from './index.module.scss'
 
 export type ButtonProps = { children: React.ReactNode; loading?: boolean }
-export const ButtonSend = ({ children, loading = false, className }: { children: React.ReactNode; loading?: boolean; className?: string }) => {
+export const ButtonSend = ({ children, loading = false, className, form }: { children: React.ReactNode; loading?: boolean; className?: string, form?: string }) => {
   return (
-    <button className={className} type="submit" disabled={loading}>
+    <button form={form}  className={className} type="submit" disabled={loading}>
       {loading ? 'Загрузка...' : children}
     </button>
   )

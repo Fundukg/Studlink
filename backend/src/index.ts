@@ -74,6 +74,7 @@ void (async () => {
     expressApp.listen(env.PORT, () => {
       console.info(`Listening at http://localhost:${env.PORT}`)
     })
+    createInitialAdmin()
     // eslint-disable-next-line node/no-process-env
     if (process.env.TELEGRAM_BOT_TOKEN) {
       startBot()

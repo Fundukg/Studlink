@@ -1,7 +1,14 @@
 import { trpc } from '../../lib/trpc'
+import { isAdmin, isDeanery } from '../../utils/role'
 
 export const getDistributionsTrpcRoute = trpc.procedure.query(
   async ({ ctx }) => {
+    if (!ctx.me) {
+      throw Error('Unauthorized')
+    }
+    if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
+        throw new Error('Доступ запрещен: недостаточно прав')
+      }
     const distributions = await ctx.prisma.distribution.findMany({
       include: {
         staff: { select: { nick: true } },

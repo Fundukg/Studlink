@@ -76,11 +76,11 @@ export const DistribitionBar = () => {
                   to={getViewDistributionRoute({ distributionId: distribution.id })}
                 >
                   <div className={css.avatar}>
-                    {distribution.recipient?.charAt(0) || 'Р'}
+                    {distribution.targetType?.charAt(0) || 'Р'}
                   </div>
                   <div className={css.dialogContent}>
                     <div className={css.dialogHeader}>
-                      <span className={css.recipient}>{distribution.recipient}</span>
+                      <span className={css.recipient}>{distribution.targetType}</span>
                       <span className={css.time}>
                         {distribution.createdAt 
                           ? new Date(distribution.createdAt).toLocaleDateString() 

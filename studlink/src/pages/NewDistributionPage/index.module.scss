@@ -1,160 +1,123 @@
 .container {
-  max-width: 1000px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 24px;
+  background-color: #fcfdfc;
 }
 
 .content {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgb(0, 0, 0, 0.1);
-  padding: 24px;
+  display: grid;
+  // Увеличили правую колонку до 450px
+  grid-template-columns: 1fr 450px;
+  gap: 20px;
+  align-items: stretch; // Растягиваем колонки по высоте друг друга
+
+  @media (width <= 1024px) {
+    grid-template-columns: 1fr;
+  }
 }
 
-.listHeader {
+.leftSide {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  flex-direction: column;
+}
+
+.messageCard {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  // Убираем фиксированный min-height, теперь высота зависит от контента
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .textarea-input {
+    flex-grow: 1; // Заставляем текстовое поле занять все пространство
+    display: flex;
+    flex-direction: column;
+
+    textarea {
+      flex-grow: 1;
+      min-height: 400px;
+    }
+  }
+}
+
+.rightSide {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%; // Растягиваем на всю высоту сетки
+}
+
+// Контейнер для кнопки внизу правой колонки
+.footerRight {
+  margin-top: auto; // Магия: толкает кнопку в самый низ правой колонки
+}
+
+// Добавим это, чтобы если карточка целиком disabled, блокировалось всё
+.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  filter: grayscale(1);
 }
 
 .sectionTitle {
-  font-size: 20px;
-  font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 24px;
-}
-
-.form {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.formSection {
-  display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 8px;
-}
 
-.label {
-  font-weight: 500;
-  color: #4a5568;
-  margin-bottom: 4px;
-}
-
-.buttonGroup {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 16px;
+  &:before {
+    content: '';
+    width: 4px;
+    height: 16px;
+    background: #10b981;
+    border-radius: 4px;
+  }
 }
 
 .sendButton {
+  width: 100%;
   display: flex;
   align-items: center;
-  padding: 10px 20px;
-  background-color: #164e63;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px; // Чуть больше отступ для солидности
+  background-color: #10b981;
   color: white;
   border: none;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #2b5f72;
-  }
-}
-
-.icon {
-  margin-right: 8px;
-  width: 18px;
-  height: 18px;
-}
-
-// Стили для компонентов формы
-.textareaField,
-.listField {
-  margin-bottom: 20px;
-}
-
-.textareaLabel,
-.listLabel {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #2d3748;
+  border-radius: 10px;
   font-size: 16px;
-}
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 
-.textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 14px;
-  font-family: inherit;
-  resize: vertical;
-  min-height: 120px;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
-
-  &:focus {
-    outline: none;
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgb(66, 153, 225, 0.2);
-  }
-
-  &.invalid {
-    border-color: #e53e3e;
-
-    &:focus {
-      box-shadow: 0 0 0 3px rgb(229, 62, 62, 0.2);
-    }
+  &:hover:not(:disabled) {
+    background-color: #059669;
   }
 
   &:disabled {
-    background-color: #f7fafc;
-    color: #a0aec0;
-    cursor: not-allowed;
+    background-color: #cbd5e1;
   }
 }
 
-.select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 14px;
-  background-color: white;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  appearance: none;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+.groupWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+  transition: opacity 0.3s ease; // Плавное исчезновение/появление
 
-  &:focus {
-    outline: none;
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgb(66, 153, 225, 0.2);
-  }
-
-  &.invalid {
-    border-color: #e53e3e;
-
-    &:focus {
-      box-shadow: 0 0 0 3px rgb(229, 62, 62, 0.2);
-    }
-  }
-
-  &:disabled {
-    background-color: #f7fafc;
-    color: #a0aec0;
-    cursor: not-allowed;
+  // Если обертка disabled, блокируем всё внутри физически
+  &.disabled {
+    opacity: 0.4;
+    pointer-events: none; // Это предотвратит клики по select и checkbox
+    user-select: none;
+    filter: grayscale(1);
   }
 }

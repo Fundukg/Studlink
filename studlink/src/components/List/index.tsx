@@ -1,17 +1,9 @@
-// List и ListSelect компоненты
 import cn from 'classnames'
 import type { FormikProps } from 'formik'
 import { Alert } from '../Alert'
 import css from './index.module.scss'
 
-export const List = ({
-  name,
-  label,
-  listlabel,
-  groups,
-  formik,
-  maxWidth,
-}: {
+type ListProps = {
   name: string
   label: string
   listlabel?: string
@@ -21,15 +13,35 @@ export const List = ({
   }[]
   formik: FormikProps<any>
   maxWidth?: number
-}) => {
-  const value = formik.values[name]
+  disabled?: boolean
+  // Добавляем опциональные пропсы для ручного управления
+  value?: string
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void
+}
+
+export const List = ({
+  name,
+  label,
+  listlabel,
+  groups,
+  formik,
+  maxWidth,
+  value,
+  onChange,
+}: ListProps) => {
+  // Если value передано снаружи — используем его, иначе берем из formik
+  const currentValue = value !== undefined ? value : formik.values[name]
   const errors = formik.errors[name] as string | undefined
   const touched = formik.touched[name]
   const invalid = !!touched && !!errors
   const disabled = formik.isSubmitting
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    formik.setFieldValue(name, e.target.value)
+    if (onChange) {
+      onChange(e)
+    } else {
+      formik.setFieldValue(name, e.target.value)
+    }
   }
 
   return (
@@ -42,7 +54,7 @@ export const List = ({
         style={{ maxWidth }}
         onChange={handleChange}
         onBlur={() => formik.setFieldTouched(name)}
-        value={value}
+        value={currentValue}
         name={name}
         id={name}
         disabled={disabled}
@@ -71,7 +83,9 @@ export const ListSelect = ({
   name: string
   label: string
   options: { value: string; label: string }[]
+  formik: FormikProps<any> // Добавил явный тип для formik
   disabled?: boolean
+  className?: string
   [props: string]: any
 }) => {
   const value = formik.values[name]
@@ -89,7 +103,13 @@ export const ListSelect = ({
   }
 
   return (
-    <div className={cn(css.listField, { [css.disabled]: disabled || isSubmitting }, className)}>
+    <div
+      className={cn(
+        css.listField,
+        { [css.disabled]: disabled || isSubmitting },
+        className
+      )}
+    >
       <label className={css.listLabel} htmlFor={name}>
         {label}
       </label>
@@ -104,7 +124,11 @@ export const ListSelect = ({
         {...props}
       >
         {options.map((option) => (
-          <option key={option.value} value={option.value} className={css.option}>
+          <option
+            key={option.value}
+            value={option.value}
+            className={css.option}
+          >
             {option.label}
           </option>
         ))}

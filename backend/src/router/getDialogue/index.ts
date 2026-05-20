@@ -8,6 +8,9 @@ export const getDialogueTrpcRoute = trpc.procedure
     })
   )
   .query(async ({ ctx, input }) => {
+    if (!ctx.me) {
+      throw Error('Unauthorized')
+    }
     // 1. Получаем данные студента для заголовка чата
     const student = await ctx.prisma.student.findUnique({
       where: { id: input.studentId },

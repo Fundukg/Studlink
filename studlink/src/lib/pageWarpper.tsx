@@ -79,7 +79,7 @@ const PageWrapper = <TProps extends Props = object, TQueryResult extends QueryRe
 
   useEffect(() => {
     if (redirectNeeded) {
-      navigate(getViewDialogueRoute({ dialogueId: recentChats.data!.distributions[0].id }), { replace: true })
+      navigate(getViewDialogueRoute({ dialogueId: recentChats.data?.dialogues[0].id }), { replace: true })
     }
   }, [redirectNeeded, navigate])
 

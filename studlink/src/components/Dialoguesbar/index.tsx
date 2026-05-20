@@ -34,7 +34,7 @@ export const DialoguesBar = () => {
     )
   }
 
-  if (!data?.distributions || data.distributions.length === 0) {
+  if (!data?.dialogues || data.dialogues.length === 0) {
     return (
       <div className={css.layout}>
         <div className={css.navigation}>
@@ -59,7 +59,7 @@ export const DialoguesBar = () => {
         
 
         <div className={css.dialogs}>
-          {data.distributions.map((dialogue) => {
+          {data.dialogues.map((dialogue) => {
             const isActive =
               location.pathname ===
               getViewDialogueRoute({
@@ -74,7 +74,7 @@ export const DialoguesBar = () => {
                     <div className={css.dialogHeader}>
                       <span className={css.name}>{dialogue.student?.name || 'Студент'}</span>
                       <span className={css.time}>
-                        {dialogue.lastActivity ? new Date(dialogue.lastActivity).toLocaleDateString() : ''}
+                        {dialogue.lastMessage.createdAt ? new Date(dialogue.lastMessage.createdAt).toLocaleDateString() : ''}
                       </span>
                     </div>
                     <div className={css.dialogFooter}>

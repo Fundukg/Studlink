@@ -4,6 +4,9 @@ import { zGetOneStudentTrpcInput } from './input'
 export const getOneStudentTrpcRoute = trpc.procedure
   .input(zGetOneStudentTrpcInput)
   .query(async ({ input, ctx }) => {
+    if (!ctx.me) {
+      throw Error('Unauthorized')
+    }
     const student = await ctx.prisma.student.findUnique({
       where: {
         id: input.id,

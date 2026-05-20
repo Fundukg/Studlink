@@ -1,71 +1,98 @@
-.header {
-  margin-bottom: 30px;
-}
+// Палитра
+$green-primary: #2e7d32; // Основной зеленый (Forest Green)
+$green-light: #e8f5e9; // Очень светлый зеленый для фона активного таба
+$text-main: #2d3748; // Темно-серый для заголовков
+$text-secondary: #718096; // Серый для подзаголовков
+$border-color: #e2e8f0; // Цвет разделителей
+$white: #ffffff;
 
-.headerTop {
-  text-align: center;
+.header {
+  background: $white;
+  border-bottom: 1px solid $border-color;
+  padding: 24px 24px 0 24px; // Нижний паддинг 0, так как табы прижаты к линии
   margin-bottom: 20px;
 }
 
-.title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #2d3748;
-  margin-bottom: 8px;
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.subtitle {
-  font-size: 16px;
-  color: #718096;
+.headerTop {
+  margin-bottom: 24px;
+
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    color: $text-main;
+    margin: 0 0 4px 0;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: $text-secondary;
+    margin: 0;
+  }
 }
 
 .navTabs {
   display: flex;
-  justify-content: center;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 20px;
+  gap: 8px;
 }
 
 .tab {
   display: flex;
   align-items: center;
-  padding: 12px 24px;
+  gap: 10px;
+  padding: 12px 20px;
   text-decoration: none;
-  color: #4a5568;
+  color: $text-secondary;
   font-weight: 500;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  font-size: 15px;
+  border-radius: 8px 8px 0 0; // Скругляем только верх
   transition: all 0.2s ease;
+  border: 1px solid transparent;
+  border-bottom: none;
+
+  .icon {
+    font-size: 18px;
+  }
 
   &:hover {
-    color: #2d3748;
-    border-bottom-color: #cbd5e0;
-    background-color: #f7fafc;
+    color: $green-primary;
+    background-color: $green-light;
   }
 }
 
 .activeTab {
-  color: #4299e1;
-  border-bottom-color: #4299e1;
+  color: $green-primary;
+  background-color: $white;
+  border-color: $border-color;
+  position: relative;
+  z-index: 1;
+  margin-bottom: -1px; // Перекрываем границу хедера снизу
+  border-bottom: 2px solid $green-primary; // Зеленая полоска под активным табом
 
-  &:hover {
-    color: #4299e1;
-    border-bottom-color: #4299e1;
-    background-color: transparent;
-  }
-}
-
-.icon {
-  margin-right: 8px;
-  width: 20px;
-  height: 20px;
-  transition: color 0.2s ease;
-
-  .activeTab & {
-    color: #4299e1;
+  .icon {
+    color: $green-primary;
   }
 }
 
 .tabText {
-  display: inline-block;
+  white-space: nowrap;
+}
+
+// Мобильная адаптивность
+@media (width <= 600px) {
+  .header {
+    padding: 16px 16px 0 16px;
+  }
+
+  .tabText {
+    display: none; // На мобилках оставляем только иконки для экономии места
+  }
+
+  .tab {
+    padding: 12px 16px;
+  }
 }

@@ -1,141 +1,350 @@
+// Переменные для зеленой цветовой палитры
+$accent-green: #10b981; // Изумрудный (Emerald)
+$dark-green: #059669;
+$light-bg-green: #f0fdf4;
+$primary-gradient: linear-gradient(135deg, #10b981 0%, #047857 100%);
+$student-msg-bg: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+$bg-main: #f8fafc;
+$white: #ffffff;
+$text-dark: #1e293b;
+$text-gray: #64748b;
+$border-color: #e2e8f0;
+
 .dialogueContainer {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f8fafc;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: $bg-main;
+  font-family:
+    Inter,
+    -apple-system,
+    sans-serif;
   width: 100%;
-  top: 0;
-  left: 0;
-  z-index: 1000;
 }
 
+// --- HEADER ---
 .dialogueHeader {
   display: flex;
   justify-content: space-between;
-  padding: 16px 24px;
-  background: white;
-  box-shadow: 0 2px 15px rgb(0, 0, 0, 0.06);
-  border-bottom: 1px solid #eaeef2;
-  flex-shrink: 0;
-}
-
-.userInfo {
-  display: flex;
   align-items: center;
-  gap: 12px;
-}
+  padding: 12px 24px;
+  background: $white;
+  border-bottom: 1px solid $border-color;
+  box-shadow: 0 2px 10px rgb(0, 0, 0, 0.03);
+  z-index: 10;
 
-.avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 18px;
-  box-shadow: 0 4px 10px rgb(37, 117, 252, 0.3);
-}
+  .userInfo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
 
-.userDetails {
-  h2 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #2d3748;
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: $primary-gradient;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $white;
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: 0 4px 8px rgb(16, 185, 129, 0.2);
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    .userDetails {
+      h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: $text-dark;
+        cursor: pointer;
+
+        &:hover {
+          color: $accent-green;
+        }
+      }
+
+      p {
+        margin: 2px 0 0;
+        font-size: 12px;
+        color: $text-gray;
+      }
+    }
   }
-
-  p {
-    margin: 4px 0 0;
-    font-size: 13px;
-    color: #718096;
-  }
 }
 
+// --- MESSAGES AREA ---
 .messagesWrapper {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  background: #f8fafc;
+  padding: 24px;
+  scroll-behavior: smooth;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
+  }
 }
 
 .messages {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  max-width: 100%;
+  gap: 12px;
+  max-width: 900px;
   margin: 0 auto;
-}
-
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #a0aec0;
-  text-align: center;
-
-  h3 {
-    margin: 16px 0 8px;
-    font-size: 18px;
-    font-weight: 500;
-  }
-
-  p {
-    margin: 0;
-    font-size: 14px;
-  }
-}
-
-.emptyIcon {
-  margin-bottom: 16px;
-  opacity: 0.6;
 }
 
 .message {
   display: flex;
-  max-width: 80%;
-  animation: fade-in 0.3s ease;
+  flex-direction: column;
+  max-width: 75%;
+  animation: message-appear 0.3s ease-out;
 
+  .messageContent {
+    padding: 10px 16px;
+    position: relative;
+  }
+
+  .messageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 12px;
+
+    .senderName {
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .messageTime {
+        font-size: 11px;
+        opacity: 0.8;
+      }
+
+      .badge {
+        transform: scale(0.75);
+      }
+    }
+  }
+
+  .messageText {
+    font-size: 15px;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  // Сотрудник (Слева)
   &.staffMessage {
     align-self: flex-start;
 
     .messageContent {
-      background: white;
-      border: 1px solid #e2e8f0;
+      background: $white;
+      color: $text-dark;
       border-radius: 18px 18px 18px 4px;
-      box-shadow: 0 2px 10px rgb(0, 0, 0, 0.04);
+      border: 1px solid $border-color;
+      box-shadow: 0 2px 5px rgb(0, 0, 0, 0.02);
+    }
+
+    .senderName {
+      color: $accent-green;
+    }
+
+    .messageTime {
+      color: $text-gray;
     }
   }
 
+  // Студент (Справа) - Зеленый градиент
   &.studentMessage {
     align-self: flex-end;
 
     .messageContent {
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      color: white;
+      background: $student-msg-bg;
+      color: $white;
       border-radius: 18px 18px 4px 18px;
-      box-shadow: 0 4px 15px rgb(37, 117, 252, 0.25);
+      box-shadow: 0 4px 12px rgb(16, 185, 129, 0.2);
     }
 
     .senderName {
-      color: rgb(255, 255, 255, 0.9);
+      color: rgba($white, 0.9);
     }
 
     .messageTime {
-      color: rgb(255, 255, 255, 0.7);
+      color: rgba($white, 0.7);
     }
   }
 }
 
-@keyframes fade-in {
+// --- INPUT AREA ---
+.messageInputContainer {
+  padding: 16px 24px;
+  background: $white;
+  border-top: 1px solid $border-color;
+
+  .inputWrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    max-width: 900px;
+    background: #f1f5f9;
+    border: 1px solid $border-color;
+    border-radius: 30px;
+    padding: 6px 6px 6px 18px;
+    transition: all 0.2s;
+
+    &:focus-within {
+      border-color: $accent-green;
+      background: $white;
+      box-shadow: 0 0 0 3px rgb(16, 185, 129, 0.1);
+    }
+
+    .textArea {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 10px 0;
+      resize: none;
+      outline: none;
+      font-size: 15px;
+      max-height: 1000px;
+
+      &::placeholder {
+        color: #94a3b8;
+      }
+    }
+
+    .sendButton {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: none;
+      background: $student-msg-bg;
+      color: $white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 4px 10px rgb(16, 185, 129, 0.3);
+      }
+
+      &:disabled {
+        background: #cbd5e0;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// --- MODAL STUDENT INFO (Расширенная) ---
+.studentInfoModal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+
+  .modalAvatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: $primary-gradient;
+    color: $white;
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 16px rgb(16, 185, 129, 0.2);
+  }
+
+  h3 {
+    margin: 0 0 20px;
+    font-size: 20px;
+    font-weight: 700;
+    color: $text-dark;
+  }
+
+  .infoGrid {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .infoItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid $border-color;
+
+    label {
+      color: $text-gray;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    span {
+      font-weight: 600;
+      color: $text-dark;
+      font-size: 14px;
+      text-align: right;
+    }
+  }
+
+  .platformsList {
+    display: flex;
+    gap: 6px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 12px;
+
+    span {
+      font-size: 12px;
+      background: #e2e8f0;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+  }
+
+  .divider {
+    height: 1px;
+    background: $border-color;
+    margin: 12px 0;
+    width: 100%;
+  }
+}
+
+@keyframes message-appear {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -147,189 +356,18 @@
   }
 }
 
-.messageContent {
-  padding: 12px 16px;
-  position: relative;
-}
-
-.messageHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.senderName {
-  font-weight: 600;
-  font-size: 14px;
-  color: #4a5568;
-}
-
-.messageTime {
-  font-size: 12px;
-  color: #a0aec0;
-  margin-left: 12px;
-}
-
-.messageText {
-  font-size: 15px;
-  line-height: 1.4;
-
-  & > *:first-child {
-    margin-top: 0;
-  }
-
-  & > *:last-child {
-    margin-bottom: 0;
-  }
-
-  p {
-    margin: 8px 0;
-  }
-
-  blockquote {
-    border-left: 3px solid #e2e8f0;
-    margin-left: 0;
-    padding-left: 12px;
-    color: #4a5568;
-    font-style: italic;
-  }
-}
-
-.messageInputContainer {
-  padding: 20px 24px;
-  background: white;
-  border-top: 1px solid #eaeef2;
-  flex-shrink: 0;
-  box-shadow: 0 -2px 15px rgb(0, 0, 0, 0.03);
-}
-
-.messageForm {
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-}
-
-.inputWrapper {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  position: relative;
-}
-
-.textArea {
-  flex: 1;
-  border: 1px solid #e2e8f0;
-  border-radius: 24px;
-  padding: 14px 20px;
-  resize: none;
-  min-height: 50px;
-  max-height: 120px;
-  font-family: inherit;
-  font-size: 15px;
-  transition: all 0.2s ease;
-  outline: none;
-  box-shadow: 0 2px 8px rgb(0, 0, 0, 0.05);
-
-  &:focus {
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgb(66, 153, 225, 0.15);
-  }
-
-  &::placeholder {
-    color: #a0aec0;
-  }
-}
-
-.sendButton {
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgb(37, 117, 252, 0.3);
-
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgb(37, 117, 252, 0.4);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-}
-
-// Адаптивность для мобильных устройств
 @media (width <= 768px) {
-  .dialogueHeader {
-    padding: 12px 16px;
-  }
-
-  .messagesWrapper {
-    padding: 16px;
-  }
-
   .message {
     max-width: 90%;
   }
 
-  .messageInputContainer {
-    padding: 16px;
+  .dialogueHeader {
+    padding: 10px 16px;
   }
 
-  .textArea {
-    padding: 12px 16px;
-  }
-
-  .sendButton {
-    width: 44px;
-    height: 44px;
-  }
-
-  .avatar {
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
-  }
-
-  .userDetails {
-    h2 {
-      font-size: 16px;
-    }
-
-    p {
-      font-size: 12px;
+  .studentInfoModal {
+    .infoItem {
+      padding: 10px;
     }
   }
-}
-
-// Стили для полосы прокрутки
-.messagesWrapper::-webkit-scrollbar {
-  width: 6px;
-}
-
-.messagesWrapper::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.messagesWrapper::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
-  border-radius: 3px;
-}
-
-.messagesWrapper::-webkit-scrollbar-thumb:hover {
-  background: #a0aec0;
 }

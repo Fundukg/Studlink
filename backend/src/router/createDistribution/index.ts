@@ -6,54 +6,61 @@ import { zCreateDistributionTrpcInput } from './input'
 export const createDistributionTrpcRoute = trpc.procedure
   .input(zCreateDistributionTrpcInput)
   .mutation(async ({ input, ctx }) => {
-    if (!ctx.me) {
-      throw new Error('Необходима авторизация')
-    }
+    if (!ctx.me) {throw new Error('Необходима авторизация')}
 
-    // 1. Поиск целевых студентов
     let students: { id: string; student_id: string }[] = []
-    switch (input.targetType) {
-      case 'STUDENT': {
-        const s = await ctx.prisma.student.findUnique({
-          where: { id: input.targetId },
+    const { targetIds, targetType } = input
+
+    // 1. Поиск студентов по массиву ID
+    switch (targetType) {
+      case 'STUDENT':
+        students = await ctx.prisma.student.findMany({
+          where: { id: { in: targetIds } },
           select: { id: true, student_id: true },
         })
-        if (s) {
-          students = [s]
-        }
         break
-      }
       case 'GROUP':
         students = await ctx.prisma.student.findMany({
-          where: { groupId: input.targetId },
+          where: { groupId: { in: targetIds } },
           select: { id: true, student_id: true },
         })
         break
       case 'COURSE':
+        // targetIds здесь — это ["1", "2"]
         students = await ctx.prisma.student.findMany({
-          where: { course: input.targetId! },
+          where: { course: { in: targetIds.map(String) } },
           select: { id: true, student_id: true },
         })
         break
-      // ... остальные кейсы (Department, Faculty, All) работают так же
+      case 'DEPARTMENT':
+        students = await ctx.prisma.student.findMany({
+          where: { group: { departmentId: { in: targetIds } } },
+          select: { id: true, student_id: true },
+        })
+        break
+      case 'FACULTY':
+        students = await ctx.prisma.student.findMany({
+          where: { group: { department: { facultyId: { in: targetIds } } } },
+          select: { id: true, student_id: true },
+        })
+        break
+      case 'ALL':
+        students = await ctx.prisma.student.findMany({
+          select: { id: true, student_id: true },
+        })
+        break
     }
 
-    if (students.length === 0) {
-      throw new Error('Получатели не найдены')
-    }
+    if (students.length === 0) {throw new Error('Получатели не найдены')}
 
-    // 2. Создаем "шапку" рассылки
+    // 2. Создаем запись о рассылке 
+    // (targetId в базе обычно строка, можно сохранить первый ID или объединить их)
     const distribution = await ctx.prisma.distribution.create({
       data: {
         text: input.text,
         staffId: ctx.me.id,
-        targetType: input.targetType,
-        targetId:
-          input.targetType !== 'ALL' && input.targetType !== 'COURSE'
-            ? input.targetId
-            : null,
-        course:
-          input.targetType === 'COURSE' ? parseInt(input.targetId!) : null,
+        targetType: targetType,
+        targetId: targetIds.length > 0 ? targetIds.join(',') : null,
         platform: input.platform as BotPlatform,
       },
     })

@@ -1,0 +1,295 @@
+$sidebar-bg: #ffffff;
+$item-hover: #f3f4f6;
+$item-active: #ecfdf5; // Светло-зеленый фон как на фото
+$accent-green: #10b981;
+$text-dark: #111827;
+$text-muted: #6b7280;
+$border-color: #f1f5f9;
+
+.secondarySidebar {
+  width: 320px;
+  height: 100%;
+  background: $sidebar-bg;
+  border-right: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebarHeader {
+  padding: 20px 16px;
+  border-bottom: 1px solid $border-color;
+
+  .topRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $text-dark;
+      margin: 0;
+    }
+
+    .actionIcon {
+      background: none;
+      border: none;
+      color: $text-muted;
+      cursor: pointer;
+
+      &:hover {
+        color: $accent-green;
+      }
+    }
+  }
+
+  .searchWrapper {
+    position: relative;
+
+    .searchIcon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $text-muted;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px 10px 38px;
+      background: #f9fafb;
+      border: 1px solid $border-color;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+
+      &:focus {
+        border-color: $accent-green;
+      }
+    }
+  }
+}
+
+.dialogueList {
+  flex: 1;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 4px;
+  }
+}
+
+.dialogueItem {
+  display: flex;
+  padding: 14px 16px;
+  gap: 12px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba($border-color, 0.5);
+  transition: background 0.2s;
+
+  &:hover {
+    background: $item-hover;
+  }
+
+  &.active {
+    background: $item-active;
+    border-left: 3px solid $accent-green;
+
+    .avatar {
+      border-color: transparent;
+    }
+  }
+
+  .avatar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #64748b;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+
+    .avatar {
+      position: relative; // Чтобы абсолютный бейдж позиционировался относительно аватара
+      width: 48px;
+      height: 48px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      .initials {
+        font-weight: 600;
+        color: #64748b;
+        font-size: 1.1rem;
+      }
+    }
+
+    // Позиционирование нашего переиспользуемого компонента в углу аватара
+    .platformPosition {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      z-index: 2;
+    }
+
+    .lastMessageRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+
+      .messageBody {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .messagePreview {
+        font-size: 0.85rem;
+        color: $text-muted;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .statusIcon {
+        color: $accent-green;
+        flex-shrink: 0;
+      }
+    }
+    // Бейдж платформы поверх аватара
+    .platformBadge {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      border: 2px solid #ffffff;
+      z-index: 2;
+
+      &.tg {
+        background-color: #229ed9;
+      }
+
+      &.vk {
+        background-color: #0077ff;
+      }
+
+      &.ok {
+        background-color: #f93;
+      }
+
+      &.all {
+        background-color: #10b981;
+      }
+    }
+  }
+
+  .chatContent {
+    flex: 1;
+    min-width: 0;
+
+    .chatHeader {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+
+      .studentName {
+        font-weight: 600;
+        color: $text-dark;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .time {
+        font-size: 0.75rem;
+        color: $text-muted;
+      }
+    }
+
+    .lastMessageRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+
+      .messageBody {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .messagePreview {
+        font-size: 0.85rem;
+        color: $text-muted;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      // Текстовая метка платформы (если нужна в строке)
+      .platformLabel {
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 1px 4px;
+        border-radius: 4px;
+        flex-shrink: 0;
+        line-height: 1;
+        text-transform: uppercase;
+
+        &.tg {
+          background-color: #e0f2fe;
+          color: #0ea5e9;
+        }
+
+        &.vk {
+          background-color: #ebf5ff;
+          color: #0077ff;
+        }
+
+        &.ok {
+          background-color: #fff7ed;
+          color: #ea580c;
+        }
+
+        &.all {
+          background-color: #f1f5f9;
+          color: #ee00ff;
+        }
+      }
+
+      .statusIcon {
+        color: $accent-green;
+        flex-shrink: 0;
+      }
+    }
+  }
+}

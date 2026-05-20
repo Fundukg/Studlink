@@ -1,0 +1,394 @@
+@use '../../styles/_vars.scss' as *;
+
+.container {
+  padding: 30px;
+  background-color: $bg-main;
+  min-height: 100vh;
+}
+
+// --- HEADER ---
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  .titleBlock {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      color: $text-dark;
+      font-weight: 700;
+    }
+
+    .countBadge {
+      background: rgba($accent-green, 0.1);
+      color: $accent-green;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba($accent-green, 0.2);
+    }
+  }
+
+  .controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+}
+
+// --- SEARCH & ADD BUTTON ---
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .searchIcon {
+    position: absolute;
+    left: 12px;
+    color: $text-gray;
+    z-index: 1;
+  }
+
+  .searchInput {
+    padding: 10px 15px 10px 40px;
+    border: 1px solid $border-color;
+    border-radius: 10px;
+    width: 300px;
+    font-size: 14px;
+    outline: none;
+    background: $white;
+    transition: all 0.25s ease;
+
+    &:focus {
+      border-color: $accent-green;
+      box-shadow: 0 0 0 3px rgba($accent-green, 0.1);
+      width: 350px;
+    }
+  }
+}
+
+.addBtn {
+  background: $primary-gradient;
+  color: $white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+// --- TABLE ---
+.tableWrapper {
+  background: $white;
+  border-radius: 16px;
+  border: 1px solid $border-color;
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.03);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: #f9fafb;
+    padding: 16px 20px;
+    text-align: left;
+    color: $text-gray;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid $border-color;
+    font-weight: 700;
+  }
+
+  td {
+    padding: 16px 20px;
+    border-bottom: 1px solid $border-color;
+    color: $text-dark;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .studentId {
+    font-family: 'JetBrains Mono', monospace; // Или системный monospace
+    color: $text-gray;
+    font-size: 13px;
+  }
+
+  .studentName {
+    font-weight: 600;
+    color: $text-dark;
+  }
+}
+
+// --- BOT BADGES ---
+.botBadges {
+  display: flex;
+  gap: 8px;
+}
+
+.botBadge {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 16px;
+  background: $bg-main;
+  border: 1px solid $border-color;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &.telegram {
+    color: #0088cc;
+    background: #e0f2fe;
+    border-color: #bae6fd;
+  }
+
+  &.vk {
+    color: #4c75a3;
+    background: #ebf5ff;
+    border-color: #d1e9ff;
+  }
+
+  &.ok {
+    color: #ee8208;
+    background: #fff7ed;
+    border-color: #ffedd5;
+  }
+}
+
+.actions {
+  text-align: end;
+}
+
+// --- MODALS COMMON ---
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid $border-color;
+
+  button {
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+
+  .cancelBtn {
+    background: $white;
+    border: 1px solid $border-color;
+    color: $text-gray;
+
+    &:hover {
+      background: $bg-main;
+      color: $text-dark;
+    }
+  }
+
+  .dangerBtn {
+    background: #ef4444;
+    border: none;
+    color: $white;
+
+    &:hover {
+      background: #dc2626;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// --- STUDENT INFO MODAL (DETAILS) ---
+.studentInfoModal {
+  .modalHeaderSection {
+    text-align: center;
+    margin-bottom: 24px;
+
+    .modalAvatar {
+      width: 72px;
+      height: 72px;
+      background: $light-bg-green;
+      color: $accent-green;
+      border-radius: 20px; // Сделаем мягкий квадрат как в iOS
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 auto 16px;
+      border: 2px solid $white;
+      box-shadow: 0 4px 10px rgb(0, 0, 0, 0.05);
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 22px;
+      color: $text-dark;
+      font-weight: 700;
+    }
+
+    .studentIdBadge {
+      display: inline-block;
+      color: $text-gray;
+      font-size: 14px;
+      margin-top: 6px;
+      background: $bg-main;
+      padding: 2px 10px;
+      border-radius: 6px;
+    }
+  }
+
+  .infoGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 0 10px;
+
+    .infoItem {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      label {
+        font-size: 11px;
+        color: $text-gray;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+      }
+
+      span {
+        font-size: 15px;
+        color: $text-dark;
+        font-weight: 600;
+      }
+    }
+
+    .infoItemFull {
+      grid-column: span 2;
+    }
+  }
+
+  .divider {
+    grid-column: span 2;
+    height: 1px;
+    background: $border-color;
+    margin: 12px 0;
+  }
+
+  .platformsList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+
+    .platformItem {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: $bg-main;
+      border-radius: 10px;
+      font-size: 14px;
+      border: 1px solid $border-color;
+
+      font-weight: 500;
+
+      small {
+        color: $text-gray;
+        margin-left: auto;
+        font-family: monospace;
+      }
+    }
+  }
+}
+
+// --- DELETE CONFIRMATION ---
+.deleteConfirm {
+  text-align: center;
+  padding: 10px;
+
+  .warningIcon {
+    font-size: 54px;
+    color: #ef4444;
+    margin-bottom: 20px;
+    background: #fef2f2;
+    padding: 15px;
+    border-radius: 50%;
+  }
+
+  p {
+    font-size: 16px;
+    color: $text-dark;
+    line-height: 1.5;
+  }
+
+  .statsHint {
+    margin-top: 24px;
+    padding: 16px;
+    background-color: #fffaf0; // Чуть более теплый желтоватый для предупреждения
+    border-radius: 12px;
+    text-align: left;
+    color: #9a3412;
+    font-size: 14px;
+    border: 1px solid #ffedd5;
+
+    ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+
+      li {
+        margin-bottom: 6px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: 50px;
+  color: $accent-green;
+  font-weight: 600;
+}

@@ -13,10 +13,10 @@ export const isAdmin = (role: RoleStaff | null | undefined) => {
   return role === 'ADMIN'
 }
 
-export const isDeanery = (ctx: { me: { role: RoleStaff } }) => {
-  return ctx.me.role === 'DEANERY'
+export const isDeanery = (role: RoleStaff | null | undefined) => {
+  return role=== 'DEANERY'
 }
 
-export const isTeacher = (ctx: { me: { role: RoleStaff } }) => {
-  return ctx.me.role === 'TEACHER'
+export const isTeacher = (role: RoleStaff | null | undefined) => {
+  return role === 'TEACHER'
 }

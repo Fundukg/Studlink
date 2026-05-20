@@ -5,11 +5,19 @@ import { zCreateDirectMessageTrpcInput } from './input'
 export const createDirectMessageTrpcRoute = trpc.procedure
   .input(zCreateDirectMessageTrpcInput)
   .mutation(async ({ input, ctx }) => {
-    if (!ctx.me) {throw new Error('Необходима авторизация')}
-
+    if (!ctx.me) {
+      throw new Error('Необходима авторизация')
+    }
+    // if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
+    //     throw new Error('Доступ запрещен: недостаточно прав')
+    //   }
     // 1. Отправка через бота
-    const result = await sendToAnyPlatform(input.studentId, input.text, input.platform)
-    
+    const result = await sendToAnyPlatform(
+      input.studentId,
+      input.text,
+      input.platform
+    )
+
     if (!result.success) {
       throw new Error('Не удалось отправить сообщение')
     }

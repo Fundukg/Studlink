@@ -71,6 +71,7 @@ model Group {
   name         String     @unique
   departmentId String
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  course       String
   students     Student[]  
   messages     Message[]
   createdAt    DateTime   @default(now())

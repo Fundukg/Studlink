@@ -18,7 +18,7 @@ export const editMessageRouteParams = getRouteParams({ dialogueId: true })
 export type EditMessageRouteParams = typeof editMessageRouteParams
 export const getEditMessageRoute = ({ dialogueId }: EditMessageRouteParams) => `/dialogue/${dialogueId}/edit`
 
-export const getNewDistributionRoute = () => '/dialogue/new'
+export const getNewDistributionRoute = () => '/distribution/new'
 
 export const getSignUpRoute = () => '/sign-up'
 
@@ -26,15 +26,19 @@ export const getSignInRoute = () => '/sign-in'
 
 export const getSignOutRoute = () => '/sign-out'
 
-export const getNewStudentRoute = () => '/student/new'
+export const getViewStudentRoute = () => '/students' 
 
-export const getViewStudentRoute = () => '/student' 
+export const getViewFacultyRoute = () => '/facultys' 
 
-export const getNewFacultyRoute = () => '/faculty/new'
+export const getViewDepartmentRoute = () => '/departments'
 
-export const getNewDepartmentRoute = () => '/department/new'
+export const getViewGroupRoute = () => '/groups'
 
-export const getNewGroupRoute = () => '/group/new'
+export const getViewBotRoute = () => '/bots'
+
+export const getViewStaffRoute = () => '/staffs'
+
+export const importStudentsRoute = () => '/import-students'
 
 // export const DialoguesRouteParams = { workdesk: ':WorkDesk' }
 // export type DialoguesRouteParams =  { workdesk: string }

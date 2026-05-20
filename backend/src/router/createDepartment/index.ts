@@ -1,4 +1,5 @@
 import { trpc } from '../../lib/trpc'
+import { isAdmin, isDeanery } from '../../utils/role'
 import { zCreateDepartmentTrpcInput } from './input'
 
 export const createDepartmentTrpcRoute = trpc.procedure
@@ -7,6 +8,9 @@ export const createDepartmentTrpcRoute = trpc.procedure
     if (!ctx.me) {
       throw Error('Unauthorized')
     }
+    if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
+        throw new Error('Доступ запрещен: недостаточно прав')
+      }
     const exDepartment = await ctx.prisma.department.findUnique({
       where: {
         name: input.name,

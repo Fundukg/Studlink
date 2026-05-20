@@ -1,12 +1,14 @@
-import { z } from 'zod';    
 import { trpc } from '../../lib/trpc';
+import { isAdmin, isDeanery } from '../../utils/role';
 import { zUpdateDepartmentTrpcInput } from './input';
 
 export const updateDepartmentTrpcRoute = trpc.procedure
   .input(zUpdateDepartmentTrpcInput)
   .mutation(async ({ input, ctx }) => {
     if (!ctx.me) {throw Error('Unauthorized');}
-
+if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
+        throw new Error('Доступ запрещен: недостаточно прав')
+      }
     // Проверяем, существует ли кафедра
     const department = await ctx.prisma.department.findUnique({
       where: { id: input.id }

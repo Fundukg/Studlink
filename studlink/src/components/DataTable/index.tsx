@@ -16,7 +16,32 @@ export const DataTable = ({ type, data }: { type: TabType; data: any[] }) => {
       </div>
     )
   }
-
+//  output: {
+//         Student: {
+//             name: string;
+//             id: string;
+//             createdAt: Date;
+//             course: string;
+//             group: {
+//                 name: string;
+//                 id: string;
+//                 department: {
+//                     name: string;
+//                     id: string;
+//                     faculty: {
+//                         name: string;
+//                         id: string;
+//                     };
+//                 };
+//             } | null;
+//             student_id: string;
+//             botUsers: {
+//                 bot: {
+//                     name: string;
+//                     id: string;
+//                     platform: $Enums.BotPlatform;
+//                 };
+//                 externalId: string;
   switch (type) {
     case 'students':
       return (
@@ -34,6 +59,8 @@ export const DataTable = ({ type, data }: { type: TabType; data: any[] }) => {
                 <p><strong>Группа:</strong> {student.group?.name}</p>
                 <p><strong>Кафедра:</strong> {student.group?.department.name}</p>
                 <p><strong>Факультет:</strong> {student.group?.department.faculty.name}</p>
+                <p><strong>Телефон:</strong> {student.phone}</p>
+                <p><strong>Электронная почта:</strong> {student.pathname}</p>
               </div>
               <div className={css.cardFooter}>
                 <span>Создано: {format(student.createdAt, 'dd.MM.yyyy')}</span>

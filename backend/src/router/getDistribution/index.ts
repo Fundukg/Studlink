@@ -4,73 +4,102 @@ import { trpc } from '../../lib/trpc'
 export const getDistributionTrpcRoute = trpc.procedure
   .input(
     z.object({
-      distributionId: z.string(), // ID из таблицы Distribution
+      distributionId: z.string(),
     })
   )
   .query(async ({ ctx, input }) => {
-    // 1. Находим саму рассылку в новой таблице
+    // 1. Получаем основную информацию о рассылке
     const distribution = await ctx.prisma.distribution.findUnique({
       where: { id: input.distributionId },
       include: {
-        staff: { select: { id: true, nick: true } },
-        // Подгружаем сообщения, чтобы увидеть детализацию (опционально)
-        messages: {
-          include: {
-            recipientStudent: {
-              select: { name: true, student_id: true }
-            }
-          },
-          take: 5 // Можно взять несколько для превью или убрать, если не нужно
-        }
+        staff: {
+          select: { id: true, nick: true, lastName: true, firstName: true },
+        },
       },
     })
 
     if (!distribution) {
-      throw new Error('Рассылка не найдена')
+      throw new Error('Рассылка не была найдена')
     }
 
-    // 2. Формируем имя получателя (таргетинг)
-    let recipientName = ''
+    // Извлекаем массив ID (предполагаем, что они хранятся через запятую или как массив в JSON/String)
+    // Если у тебя в БД targetId это строка "id1,id2", превращаем в массив
+    const targetIds = distribution.targetId
+      ? distribution.targetId.split(',').filter(Boolean)
+      : []
+
+    let targetDetails: { id: string; name: string }[] = []
+
+    // 2. Логика получения понятных названий для разных типов целей
     switch (distribution.targetType) {
       case 'GROUP':
-        // Здесь можно сделать доп. запрос к Group, если в Distribution только targetId
-        recipientName = `Группа (ID: ${distribution.targetId})`
-        break
+        { const groups = await ctx.prisma.group.findMany({
+          where: { id: { in: targetIds } },
+          select: { id: true, name: true },
+        })
+        targetDetails = groups
+        break }
+
       case 'DEPARTMENT':
-        recipientName = `Кафедра (ID: ${distribution.targetId})`
-        break
+        { const depts = await ctx.prisma.department.findMany({
+          where: { id: { in: targetIds } },
+          select: { id: true, name: true },
+        })
+        targetDetails = depts
+        break }
+
       case 'FACULTY':
-        recipientName = `Факультет (ID: ${distribution.targetId})`
-        break
+        { const faculties = await ctx.prisma.faculty.findMany({
+          where: { id: { in: targetIds } },
+          select: { id: true, name: true },
+        })
+        targetDetails = faculties
+        break }
+
+      case 'STUDENT':
+        { const students = await ctx.prisma.student.findMany({
+          where: { id: { in: targetIds } },
+          select: { id: true, name: true },
+        })
+        targetDetails = students
+        break }
+
       case 'COURSE':
-        recipientName = `${distribution.course} курс`
+        // Для курсов просто выводим цифры, так как у них нет отдельных имен в БД
+        targetDetails = targetIds.map((c) => ({ id: c, name: `${c} курс` }))
         break
+
       case 'ALL':
-        recipientName = 'Все студенты'
+        targetDetails = [{ id: 'all', name: 'Все пользователи' }]
         break
-      default:
-        recipientName = 'Личная рассылка'
     }
 
-    // 3. Возвращаем данные для отображения "карточки" рассылки
+    // 3. Считаем реальную статистику по сообщениям
+    const totalMessages = await ctx.prisma.message.count({
+      where: { distributionId: distribution.id },
+    })
+
+    // 4. Формируем финальный объект
     return {
-      distribution: {
-        id: distribution.id,
-        text: distribution.text,
-        createdAt: distribution.createdAt,
-        platform: distribution.platform,
-        targetType: distribution.targetType,
-        recipient: {
-          name: recipientName,
-        },
-        sender: {
-          id: distribution.staff?.id,
-          name: distribution.staff?.nick || 'Система',
-        },
-        // Статистика: сколько сообщений было создано в рамках этой рассылки
-        stats: {
-          totalSent: distribution.messages.length,
-        }
+      id: distribution.id,
+      text: distribution.text,
+      createdAt: distribution.createdAt,
+      platform: distribution.platform,
+      targetType: distribution.targetType,
+
+      // Массив объектов с именами и ID (например, список выбранных групп)
+      targets: targetDetails,
+
+      sender: {
+        id: distribution.staff?.id,
+        nick: distribution.staff?.nick,
+        fullName: distribution.staff
+          ? `${distribution.staff.lastName} ${distribution.staff.firstName}`.trim()
+          : 'Система',
+      },
+
+      stats: {
+        totalSent: totalMessages,
       },
     }
   })

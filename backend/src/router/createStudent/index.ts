@@ -1,10 +1,14 @@
 import { trpc } from '../../lib/trpc'
+import { isAdmin, isDeanery } from '../../utils/role'
 import { zCreateStudentTrpcInput } from './input'
 
 export const createStudentTrpcRoute = trpc.procedure.input(zCreateStudentTrpcInput).mutation(async ({ input, ctx }) => {
   if (!ctx.me) {
     throw Error('Unauthorized')
   }
+  if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
+        throw new Error('Доступ запрещен: недостаточно прав')
+      }
   const exStudent = await ctx.prisma.student.findUnique({
     where: {
       student_id: input.student_id,

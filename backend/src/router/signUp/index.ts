@@ -10,6 +10,9 @@ export const signUpTrpcRoute = trpc.procedure.input(zSignUpTrpcInput).mutation(a
       nick: input.nick,
     },
   })
+  if (!ctx.me) {
+    throw Error('Unauthorized')
+  }
   if (!isAdmin(ctx.me?.role)) {
     throw new Error('Недостаточно прав')
   }

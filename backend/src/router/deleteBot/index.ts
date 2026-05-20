@@ -3,18 +3,20 @@ import { isAdmin } from '../../utils/role'
 import { zDeleteBotTrpcInput } from './input'
 
 // ПОЛУЧЕНИЕ СТАТИСТИКИ ПЕРЕД УДАЛЕНИЕМ
-export const getBotDeleteStats = trpc.procedure
+export const getBotDeleteStatsTrpcRoute = trpc.procedure
   .input(zDeleteBotTrpcInput)
   .query(async ({ input, ctx }) => {
     // Проверка прав (как в вашем примере с созданием бота)
-    isAdmin(ctx.me?.role)
+    if (!isAdmin(ctx.me?.role)) {
+      throw new Error('Доступ запрещен: недостаточно прав')
+    }
 
     const bot = await ctx.prisma.bot.findUnique({
       where: { id: input.id },
       select: {
         _count: {
           select: {
-            users: true,   // Сколько студентов привязано к боту
+            users: true, // Сколько студентов привязано к боту
             messages: true, // Сколько сообщений прошло через бота
           },
         },
@@ -32,13 +34,15 @@ export const getBotDeleteStats = trpc.procedure
 export const deleteBotTrpcRoute = trpc.procedure
   .input(zDeleteBotTrpcInput)
   .mutation(async ({ input, ctx }) => {
-    isAdmin(ctx.me?.role)
+    if (!isAdmin(ctx.me?.role)) {
+      throw new Error('Доступ запрещен: недостаточно прав')
+    }
 
     // Проверяем существование бота
     const bot = await ctx.prisma.bot.findUnique({
-      where: { id: input.id }
+      where: { id: input.id },
     })
-    
+
     if (!bot) {
       throw Error('Бот не найден')
     }

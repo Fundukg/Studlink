@@ -8,12 +8,12 @@ import { createDistributionTrpcRoute } from './createDistribution'
 import { createFacultyTrpcRoute } from './createFaculty'
 import { createGroupTrpcRoute } from './createGroup'
 import { createStudentTrpcRoute } from './createStudent'
-import { deleteBotTrpcRoute } from './deleteBot'
-import { deleteDepartmentTrpcRoute } from './deleteDepartment'
-import { deleteFacultyTrpcRoute } from './deleteFaculty'
-import { deleteGroupTrpcRoute } from './deleteGroup'
-import { deleteStaffTrpcRoute } from './deleteStaff'
-import { deleteStudentTrpcRoute } from './deleteStudent'
+import { deleteBotTrpcRoute, getBotDeleteStatsTrpcRoute } from './deleteBot'
+import { deleteDepartmentTrpcRoute, getDepartmentDeleteStatsTrpcRoute } from './deleteDepartment'
+import { deleteFacultyTrpcRoute, getFacultyDeleteStatsTrpcRoute } from './deleteFaculty'
+import { deleteGroupTrpcRoute, getGroupDeleteStatsTrpcRoute } from './deleteGroup'
+import { deleteStaffTrpcRoute, getStaffDeleteStatsTrpcRoute } from './deleteStaff'
+import { deleteStudentTrpcRoute, getStudentDeleteStats } from './deleteStudent'
 import { getBotsTrpcRoute } from './getBots'
 import { getDepartmentTrpcRoute } from './getDepartment'
 import { getDialogueTrpcRoute } from './getDialogue'
@@ -25,6 +25,7 @@ import { getGroupTrpcRoute } from './getGroup'
 import { getMeTrpcRoute } from './getMe'
 import { getOneStudentTrpcRoute } from './getOneStudent'
 import { getStaffTrpcRoute } from './getStaff'
+import { getStructureTrpcRoute } from './getStructure'
 import { getStudentTrpcRoute } from './getStudent'
 import { signInTrpcRoute } from './signIn'
 import { signUpTrpcRoute } from './signUp'
@@ -62,6 +63,7 @@ export const trpcRouter = trpc.router({
   getMe: getMeTrpcRoute,
   getOneStudent: getOneStudentTrpcRoute,
   getStaff: getStaffTrpcRoute,
+  getStructure: getStructureTrpcRoute,
   getStudent: getStudentTrpcRoute,
   signIn: signInTrpcRoute,
   signUp: signUpTrpcRoute,
@@ -73,6 +75,12 @@ export const trpcRouter = trpc.router({
   updateStaff: updateStaffTrpcRoute,
   updateStudent: updateStudentTrpcRoute,
   // @endindex
+  getStudentDeleteStats: getStudentDeleteStats,
+  getFacultyDeleteStats: getFacultyDeleteStatsTrpcRoute,
+  getDepartmentDeleteStats: getDepartmentDeleteStatsTrpcRoute,
+  getGroupDeleteStats: getGroupDeleteStatsTrpcRoute,
+  getBotDeleteStats: getBotDeleteStatsTrpcRoute,
+  getStaffDeleteStats: getStaffDeleteStatsTrpcRoute
 })
 
 export type TrpcRouter = typeof trpcRouter

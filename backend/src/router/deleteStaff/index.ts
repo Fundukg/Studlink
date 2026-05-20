@@ -3,7 +3,7 @@ import { isAdmin } from '../../utils/role'
 import { zDeleteStaffTrpcInput } from './input'
 
 // ПОЛУЧЕНИЕ СТАТИСТИКИ ПЕРЕД УДАЛЕНИЕМ
-export const getStaffDeleteStats = trpc.procedure
+export const getStaffDeleteStatsTrpcRoute = trpc.procedure
   .input(zDeleteStaffTrpcInput)
   .query(async ({ input, ctx }) => {
     // Проверка прав администратора

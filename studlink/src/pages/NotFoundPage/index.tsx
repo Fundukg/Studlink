@@ -9,7 +9,7 @@ export const NotFoundPage = ({ title = '404', message = 'ОКАК' }: { title?: 
     <div className={css.app}>
       <div className={css.error}>{title}</div>
       <div className={css.img}>
-        <Link to={getViewDialogueRoute({ dialogueId: recentChats!.distributions[0].id })}>
+        <Link to={getViewDialogueRoute({ dialogueId: recentChats!.dialogues[0].id })}>
           <img src={MyImage} alt="cat" />
           <h1 className={css.okak}>{message}</h1>
         </Link>

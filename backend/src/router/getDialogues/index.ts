@@ -1,6 +1,9 @@
 import { trpc } from '../../lib/trpc'
 
 export const getDialoguesTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
+  if (!ctx.me) {
+    throw Error('Unauthorized')
+  }
   // 1. Получаем сообщения
   const allMessages = await ctx.prisma.message.findMany({
     where: {

@@ -1,25 +1,37 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { Layout } from './components/Layout'
+import { BrowserRouter, Outlet, Route, Routes } from 'react-router-dom'
+import { DialogueSidebar } from './components/Layout/DialogueSideBar'
+import { Layout } from './components/Layout/SideBar'
 import { AppContextProvider } from './lib/ctx'
 import * as routes from './lib/routes'
 import { TrpcProvider } from './lib/trpc'
+import { BotPage } from './pages/BotPage'
+import { DepartmentPage } from './pages/DepartmentPage'
 import { EditMessagePage } from './pages/EditMessagePage'
-import { NewDepartmentPage } from './pages/NewDepartmentPage'
+import { FacultyPage } from './pages/FacultyPage'
+import { GroupPage } from './pages/GroupPage'
+import ImportStudentPage from './pages/ImportStudentPage/Index'
 import { NewDistributionPage } from './pages/NewDistributionPage'
-import { NewFacultyPage } from './pages/NewFacultyPage'
-import { NewGroupPage } from './pages/NewGroupPage'
-import { NewStudentsPage } from './pages/NewStudentPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { SignInPage } from './pages/SignInPage'
 import { SignOutPage } from './pages/SignOutPage'
 import { SignUpPage } from './pages/SignUpPage'
+import { StaffPage } from './pages/StaffPage'
+import { StudentPage } from './pages/StudentPage'
 import { ViewDialoguePage } from './pages/ViewDialoguePage'
-import { ViewDistributionPage } from './pages/ViewDistributionPage'
 import { ViewDistributionsPage } from './pages/ViewDistributionsPage'
-import * as ViewStudentPage from './pages/ViewStudentPage'
 import './styles/global.scss'
 
 export const App = () => {
+  const MessagesLayout = () => {
+    return (
+      <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+        <DialogueSidebar /> {/* Второй сайдбар */}
+        <div style={{ flex: 1, position: 'relative' }}>
+          <Outlet /> {/* Здесь будет само окно чата */}
+        </div>
+      </div>
+    )
+  }
   return (
     <TrpcProvider>
       <AppContextProvider>
@@ -28,24 +40,54 @@ export const App = () => {
             <Route path={routes.getSignOutRoute()} element={<SignOutPage />} />
 
             <Route path="/" element={<Layout />}>
+              <Route element={<MessagesLayout />}>
+                <Route
+                  path={routes.getViewDialogueRoute(
+                    routes.viewdialogueRouteParams
+                  )}
+                  element={<ViewDialoguePage />}
+                />
+              </Route>
               <Route
-                path={routes.getViewDialogueRoute(routes.viewdialogueRouteParams)}
-                element={<ViewDialoguePage />}
+                path={routes.getNewDistributionRoute()}
+                element={<NewDistributionPage />}
               />
-              <Route
-                path={routes.getViewDistributionRoute(routes.viewdistributionRouteParams)}
-                element={<ViewDistributionPage />}
-              />
-              <Route path={routes.getNewDistributionRoute()} element={<NewDistributionPage />} />
               <Route path={routes.getSignUpRoute()} element={<SignUpPage />} />
-              
-              <Route path={routes.getEditMessageRoute(routes.editMessageRouteParams)} element={<EditMessagePage />} />
-              <Route path={routes.getNewStudentRoute()} element={<NewStudentsPage />} />
-              <Route path={routes.getViewStudentRoute()} element={<ViewStudentPage.default />} />
-              <Route path={routes.getViewDistributionsRoute()} element={<ViewDistributionsPage />} />
-              <Route path={routes.getNewFacultyRoute()} element={<NewFacultyPage />} />
-              <Route path={routes.getNewDepartmentRoute()} element={<NewDepartmentPage />} />
-              <Route path={routes.getNewGroupRoute()} element={<NewGroupPage />} />
+              <Route
+                path={routes.getViewDepartmentRoute()}
+                element={<DepartmentPage />}
+              />
+              <Route
+                path={routes.getEditMessageRoute(
+                  routes.editMessageRouteParams
+                )}
+                element={<EditMessagePage />}
+              />
+              <Route
+                path={routes.getViewStudentRoute()}
+                element={<StudentPage />}
+              />
+              <Route
+                path={routes.getViewFacultyRoute()}
+                element={<FacultyPage />}
+              />
+              <Route path={routes.getViewBotRoute()} element={<BotPage />} />
+              <Route
+                path={routes.getViewStaffRoute()}
+                element={<StaffPage />}
+              />
+              <Route
+                path={routes.getViewDistributionsRoute()}
+                element={<ViewDistributionsPage />}
+              />
+              <Route
+                path={routes.getViewGroupRoute()}
+                element={<GroupPage />}
+              />
+              <Route
+                path={routes.importStudentsRoute()}
+                element={<ImportStudentPage />}
+              />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
             <Route path={routes.getSignInRoute()} element={<SignInPage />} />

@@ -1,4 +1,5 @@
 import { trpc } from '../../lib/trpc'
+import { isAdmin, isDeanery } from '../../utils/role'
 import { zUpdateStudentTrpcInput } from './input'
 
 export const updateStudentTrpcRoute = trpc.procedure
@@ -7,6 +8,9 @@ export const updateStudentTrpcRoute = trpc.procedure
     if (!ctx.me) {
       throw Error('Unauthorized')
     }
+    if (!isAdmin(ctx.me?.role) && !isDeanery(ctx.me?.role)) {
+          throw new Error('Доступ запрещен: недостаточно прав')
+        }
     const student = await ctx.prisma.student.findUnique({
       where: { id: input.id },
     })
