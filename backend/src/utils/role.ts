@@ -1,6 +1,6 @@
-import { RoleStaff } from '@prisma/client' // Если типы общие, или просто строку
+import { UserRole } from '@prisma/client' // Если типы общие, или просто строку
 
-export const getStaffPermissions = (role: RoleStaff | null | undefined) => {
+export const getStaffPermissions = (role: UserRole | null | undefined) => {
   return {
     isAdmin: role === 'ADMIN',
     isDeanery: role === 'DEANERY',
@@ -9,14 +9,18 @@ export const getStaffPermissions = (role: RoleStaff | null | undefined) => {
   }
 }
 
-export const isAdmin = (role: RoleStaff | null | undefined) => {
+export const isAdmin = (role: UserRole | null | undefined) => {
   return role === 'ADMIN'
 }
 
-export const isDeanery = (role: RoleStaff | null | undefined) => {
+export const isDeanery = (role: UserRole | null | undefined) => {
   return role=== 'DEANERY'
 }
 
-export const isTeacher = (role: RoleStaff | null | undefined) => {
+export const isTeacher = (role: UserRole | null | undefined) => {
   return role === 'TEACHER'
+}
+
+export const isStudent = (role: UserRole | null | undefined) => {
+  return role === 'STUDENT' 
 }

@@ -1,0 +1,87 @@
+@use '../../styles/vars' as *;
+
+.toastCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: $white;
+  padding: 14px 16px;
+  border-radius: 8px; // Используем фиксированное значение, если переменная $borderRadiusMedium еще не определена
+  min-width: 300px;
+  max-width: 420px;
+  border: 1px solid $border-color; // Добавляем легкую обводку
+
+  // Современная тень
+  box-shadow:
+    0 4px 6px -1px rgb(0, 0, 0, 0.05),
+    0 2px 4px -1px rgb(0, 0, 0, 0.03);
+
+  font-family: $defaultFontFamily;
+  font-size: $defaultFontSize;
+  line-height: $defaultLineHeight;
+
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  transition: all 0.25s cubic-bezier(0.21, 1.02, 0.43, 1.01);
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.message {
+  flex: 1;
+  color: $text-dark;
+  font-weight: 500;
+  padding-right: 4px;
+}
+
+.closeBtn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: $text-gray;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: $borderRadiusSmall;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: all 0.15s ease;
+
+  &:hover {
+    opacity: 1;
+    background: #f1f5f9; // Легкий серый ховер
+    color: $text-dark;
+  }
+}
+
+// --- Модификаторы типов на основе палитры StudLink ---
+
+.success {
+  border-left: 4px solid $accent-green;
+  background: $light-bg-green; // Фирменный светло-зеленый фон
+
+  .iconWrapper {
+    color: $accent-green;
+  }
+}
+
+.error {
+  border-left: 4px solid #ef4444; // Красный для ошибок
+  background: #fef2f2; // Нежный розовый фон
+
+  .iconWrapper {
+    color: #ef4444;
+  }
+}

@@ -12,14 +12,19 @@ import {
 import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
 import { GroupModal } from '../../components/Create-UpdateModal/GroupModal'
 import { UniversalModal } from '../../components/UniversalModal'
+import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
-export const GroupPage = () => {
+export const GroupPage = withPageWrapper({
+  useQuery: () => trpc.getGroup.useQuery(),
+  setProps: ({ queryResult }) => ({
+    data: queryResult.data,
+  }),
+})(({ data: groupsData }) => {
   const utils = trpc.useUtils()
 
   // Данные
-  const { data, isLoading } = trpc.getGroup.useQuery()
   const [searchQuery, setSearchQuery] = useState('')
 
   // Состояния модалок
@@ -32,15 +37,15 @@ export const GroupPage = () => {
 
   // Фильтрация (по названию группы, кафедры или факультета)
   const filteredGroups = useMemo(() => {
-    if (!data?.Group) {return []}
+    if (!groupsData?.Group) {return []}
     const query = searchQuery.toLowerCase()
-    return data.Group.filter(
+    return groupsData.Group.filter(
       (g) =>
         g.name.toLowerCase().includes(query) ||
         g.department.name.toLowerCase().includes(query) ||
         g.department.faculty.name.toLowerCase().includes(query)
     )
-  }, [data, searchQuery])
+  }, [groupsData, searchQuery])
 
   // Удаление
   const deleteMutation = trpc.deleteGroup.useMutation({
@@ -65,10 +70,6 @@ export const GroupPage = () => {
   const handleShowDetails = (group: any) => {
     setViewingGroup(group)
     setIsDetailsOpen(true)
-  }
-
-  if (isLoading) {
-    return <div className={css.loader}>Загрузка групп...</div>
   }
 
   return (
@@ -267,11 +268,10 @@ export const GroupPage = () => {
             Будет удалено каскадно:
             <ul>
               <li>Студентов: {deleteStats?.students || 0}</li>
-              <li>Сообщений чата: {deleteStats?.messages || 0}</li>
             </ul>
           </div>
         </div>
       </UniversalModal>
     </div>
   )
-}
+})

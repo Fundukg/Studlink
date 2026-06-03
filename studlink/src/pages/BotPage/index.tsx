@@ -14,14 +14,19 @@ import {
 import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
 import { BotModal } from '../../components/Create-UpdateModal/BotModal' // Нужно будет создать аналогично GroupModal
 import { UniversalModal } from '../../components/UniversalModal'
+import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
-export const BotPage = () => {
+export const BotPage = withPageWrapper({
+  useQuery: () => trpc.getBots.useQuery(),
+  setProps: ({ queryResult }) => ({
+    data: queryResult.data,
+  }),
+})(({ data: botsData }) => {
   const utils = trpc.useUtils()
 
   // Данные
-  const { data, isLoading } = trpc.getBots.useQuery()
   const [searchQuery, setSearchQuery] = useState('')
 
   // Состояния модалок
@@ -34,16 +39,16 @@ export const BotPage = () => {
 
   // Фильтрация по имени или username бота
   const filteredBots = useMemo(() => {
-    if (!data) {
+    if (!botsData) {
       return []
     }
     const query = searchQuery.toLowerCase()
-    return data.filter(
+    return botsData.filter(
       (b) =>
         b.name.toLowerCase().includes(query) ||
         b.platform?.toLowerCase().includes(query)
     )
-  }, [data, searchQuery])
+  }, [botsData, searchQuery])
 
   // Удаление
   const deleteMutation = trpc.deleteBot.useMutation({
@@ -68,10 +73,6 @@ export const BotPage = () => {
   const handleShowDetails = (bot: any) => {
     setViewingBot(bot)
     setIsDetailsOpen(true)
-  }
-
-  if (isLoading) {
-    return <div className={css.loader}>Загрузка ботов...</div>
   }
 
   return (
@@ -330,4 +331,4 @@ export const BotPage = () => {
       </UniversalModal>
     </div>
   )
-}
+})

@@ -1,9 +1,11 @@
 import { trpc } from '../../lib/trpc'
+import { hasPermission } from '../../middleware/auth'
 import { isAdmin } from '../../utils/role'
 import { zDeleteBotTrpcInput } from './input'
 
 // ПОЛУЧЕНИЕ СТАТИСТИКИ ПЕРЕД УДАЛЕНИЕМ
 export const getBotDeleteStatsTrpcRoute = trpc.procedure
+  .use(hasPermission('manage:bots'))
   .input(zDeleteBotTrpcInput)
   .query(async ({ input, ctx }) => {
     // Проверка прав (как в вашем примере с созданием бота)

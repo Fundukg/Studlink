@@ -1,0 +1,154 @@
+@use '../../styles/vars' as *;
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  font-family: $defaultFontFamily;
+  // }
+
+  // // Контейнер секции формы (аналог infoCardSection)
+  // .cardSection {
+  //   background: $white;
+  //   // border: 1px solid $gray-light;
+  //   // border-radius: $borderRadiusLarge;
+  //   padding: 28px;
+  //   margin: 0;
+  //   box-shadow:
+  //     0 4px 12px rgba($slate-dark, 0.02),
+  //     0 1px 2px rgba($slate-dark, 0.01);
+  //   display: flex;
+  //   flex-direction: column;
+  //   gap: 24px;
+  // }
+
+  // .sectionHeader {
+  //   display: flex;
+  //   flex-direction: column;
+  //   gap: 6px;
+  //   border-bottom: 1px solid $gray-light;
+  //   padding-bottom: 14px;
+  //   margin-bottom: 4px;
+  // }
+
+  // .sectionTitle {
+  //   font-size: 18px;
+  //   font-weight: 600;
+  //   color: $slate-dark;
+  //   margin: 0;
+  // }
+
+  // .sectionSubtitle {
+  //   font-size: 13px;
+  //   color: $slate-gray;
+  //   line-height: $defaultLineHeight;
+  // }
+
+  // Адаптивная сетка для полей
+  // .gridFields {
+  //   display: grid;
+  //   grid-template-columns: 1fr;
+  //   gap: 20px;
+
+  //   @media (min-width: 640px) {
+  //     grid-template-columns: repeat(2, 1fr);
+  //   }
+
+  //   @media (min-width: 768px) {
+  //     &:global(.fio-grid) {
+  //       grid-template-columns: repeat(3, 1fr);
+  //     }
+  //   }
+  // }
+
+  // // Стилизованная обертка инпута — один в один как infoItem из профиля
+  // .inputWrapper {
+  //   background-color: $bg-main;
+  //   padding: 12px 16px;
+  //   border-radius: $borderRadiusMedium;
+  //   border-left: 3px solid $sli-green-accent;
+  //   transition:
+  //     border-color 0.2s ease,
+  //     box-shadow 0.2s ease;
+
+  //   // Динамические акценты бордера под разные роли пользователей
+  //   &[data-role='student'] {
+  //     border-left-color: $sli-green-primary;
+  //   }
+  //   &[data-role='teacher'] {
+  //     border-left-color: $info-blue;
+  //   }
+  //   &[data-role='client'] {
+  //     border-left-color: $sport-fitness;
+  //   }
+
+  //   // Мягкий подсвечивающий эффект при фокусе на инпуте внутри контейнера
+  //   &:focus-within {
+  //     box-shadow: 0 0 0 1px rgba($slate-gray, 0.1);
+  //     background-color: $white;
+  //   }
+  // }
+
+  // .fullWidthField {
+  //   grid-column: 1 / -1;
+  // }
+
+  // .divider {
+  //   border: 0;
+  //   border-top: 1px dashed $gray-light-hover;
+  //   margin: 4px 0;
+  //   width: 100%;
+  // }
+
+  // .errorBanner {
+  //   background-color: $error-red-light;
+  //   border: 1px solid rgba($error-red, 0.2);
+  //   border-radius: $borderRadiusMedium;
+  //   padding: 14px 18px;
+  //   color: $error-red;
+  //   font-size: $defaultFontSize;
+  //   font-weight: 500;
+  //   display: flex;
+  //   align-items: center;
+  //   gap: 10px;
+  //   animation: slideIn 0.25s ease-out;
+  // }
+
+  // .actionsContainer {
+  //   display: flex;
+  //   justify-content: flex-end;
+  //   margin-top: 4px;
+
+  //   button {
+  //     min-width: 200px;
+  //     padding: 12px 28px;
+  //     font-size: 14px;
+  //     font-weight: 500;
+  //     border-radius: $borderRadiusMedium;
+  //     background-color: $sli-green-primary;
+  //     color: $white;
+  //     border: none;
+  //     cursor: pointer;
+  //     transition: all 0.2s ease;
+
+  //     &:hover {
+  //       background-color: $sli-green-primary-hover;
+  //     }
+
+  //     &:active {
+  //       background-color: $sli-green-primary-active;
+  //     }
+  //   }
+  // }
+
+  // @keyframes slideIn {
+  //   from {
+  //     opacity: 0;
+  //     transform: translateY(-6px);
+  //   }
+  //   to {
+  //     opacity: 1;
+  //     transform: translateY(0);
+  //   }
+}

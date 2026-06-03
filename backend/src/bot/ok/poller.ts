@@ -34,11 +34,19 @@ export class OkBotPoller {
 
   async start() {
     if (this.isRunning) {
+      console.log('⚠️ OK бот уже запущен')
       return
     }
+
     this.isRunning = true
-    console.log('🚀 OK Polling Service запущен через /me/updates...')
-    this.poll()
+
+    // Запускаем цикл в фоне
+    this.poll().catch((err) => {
+      console.error('❌ Критическая ошибка в цикле OK бота:', err)
+      this.isRunning = false
+    })
+
+    console.log('✅ OK бот успешно запущен и слушает сообщения')
   }
 
   private async poll() {
@@ -49,13 +57,10 @@ export class OkBotPoller {
           throw new Error('Токен ОК не найден')
         }
 
-        // Подписываемся один раз при первом проходе
         if (!this.isSubscribed) {
           await this.subscribe(token)
         }
 
-        // Получаем ВСЕ новые события во всех чатах сразу
-        // Метод /me/updates автоматически НЕ возвращает сообщения, отправленные самим ботом
         const response = await axios.get(`${BASE_URL}/me/updates`, {
           params: { access_token: token },
         })
@@ -64,30 +69,28 @@ export class OkBotPoller {
 
         for (const update of updates) {
           if (update.webhookType === 'MESSAGE_CREATED') {
-            // Передаем данные в обработчик в нужном формате
             await handleOkWebhook({
               sender: update.sender,
               recipient: update.recipient,
               message: update.message,
               timestamp: update.timestamp,
-            })
+            }).catch((e) => console.error('Ошибка в handleOkWebhook:', e))
           }
         }
       } catch (error: any) {
-        // Если ошибка "Subscription not found", сбрасываем флаг для переподписки
         if (error.response?.data?.error_code === 5000) {
           this.isSubscribed = false
         }
         console.error('Ошибка Polling ОК:', error.message)
       }
 
-      // Задержка между запросами
       await new Promise((resolve) => setTimeout(resolve, 3000))
     }
   }
 
   stop() {
     this.isRunning = false
+    console.log('🛑 OK бот остановлен')
   }
 }
 

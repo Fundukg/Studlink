@@ -136,7 +136,7 @@ const platformLabels: Record<string, string> = {
                   </label>
                   <div className={css.valGroup}>
                     <span className={css.mainVal}>
-                      {details.sender.fullName}
+                      {details.sender.name}
                     </span>
                     <span className={css.subVal}>@{details.sender.nick}</span>
                   </div>

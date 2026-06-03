@@ -13,12 +13,17 @@ import {
 import { ActionMenu, type ActionOption } from '../../components/ActionMenu' // Наш новый компонент
 import { FacultyModal } from '../../components/Create-UpdateModal/FacultyModal'
 import { UniversalModal } from '../../components/UniversalModal'
+import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
-export const FacultyPage = () => {
+export const FacultyPage = withPageWrapper({
+  useQuery: () => trpc.getFaculty.useQuery(),
+  setProps: ({ queryResult }) => ({
+    data: queryResult.data,
+  }),
+})(({ data: facultiesData }) => {
   const utils = trpc.useUtils()
-  const { data, isLoading } = trpc.getFaculty.useQuery()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -30,13 +35,13 @@ export const FacultyPage = () => {
   const [viewingFaculty, setViewingFaculty] = useState<any>(null)
 
   const filteredFaculties = useMemo(() => {
-    if (!data?.Faculty) {
+    if (!facultiesData?.Faculty) {
       return []
     }
-    return data.Faculty.filter((f) =>
+    return facultiesData.Faculty.filter((f) =>
       f.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
-  }, [data, searchQuery])
+  }, [facultiesData, searchQuery])
 
   const deleteMutation = trpc.deleteFaculty.useMutation({
     onSuccess: () => {
@@ -59,10 +64,6 @@ export const FacultyPage = () => {
   const handleShowDetails = (faculty: any) => {
     setViewingFaculty(faculty)
     setIsDetailsOpen(true)
-  }
-
-  if (isLoading) {
-    return <div className={css.loader}>Загрузка...</div>
   }
 
   return (
@@ -259,4 +260,4 @@ export const FacultyPage = () => {
       </UniversalModal>
     </div>
   )
-}
+})

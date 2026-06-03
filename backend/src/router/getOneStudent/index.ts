@@ -1,47 +1,52 @@
+// backend/src/router/student/getOne.ts
+import { TRPCError } from '@trpc/server'
 import { trpc } from '../../lib/trpc'
+import { hasPermission } from '../../middleware/auth'
 import { zGetOneStudentTrpcInput } from './input'
 
 export const getOneStudentTrpcRoute = trpc.procedure
+  .use(hasPermission('view:students',)) // Доступ только с правами чтения
   .input(zGetOneStudentTrpcInput)
   .query(async ({ input, ctx }) => {
-    if (!ctx.me) {
-      throw Error('Unauthorized')
-    }
-    const student = await ctx.prisma.student.findUnique({
+    // Ищем пользователя, принудительно проверяя, что это студент
+    const student = await ctx.prisma.user.findUnique({
       where: {
         id: input.id,
+        role: 'STUDENT',
       },
       include: {
-        // 1. Идем в группу
-        group: {
+        studentProfile: {
           include: {
-            // 2. Из группы идем в кафедру (department)
-            department: {
+            group: {
               include: {
-                // 3. Из кафедры идем на факультет (faculty)
-                faculty: true 
-              }
-            }
-          }
+                department: {
+                  include: {
+                    faculty: true, // Иерархия: Студент -> Группа -> Кафедра -> Факультет
+                  },
+                },
+              },
+            },
+          },
         },
-        // Информация об авторизациях в ботах
         botUsers: {
           include: {
-            bot: true
-          }
+            bot: true, // Авторизации в ботах
+          },
         },
-        // Если хочешь подтянуть последние сообщения студента (опционально)
         _count: {
           select: {
             sentMessages: true,
-            receivedMessages: true
-          }
-        }
-      }
+            receivedMessages: true,
+          },
+        },
+      },
     })
 
     if (!student) {
-      throw new Error('Студент не найден')
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Студент не найден в системе',
+      })
     }
 
     return student

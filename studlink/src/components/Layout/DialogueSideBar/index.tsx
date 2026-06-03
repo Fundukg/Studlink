@@ -20,12 +20,14 @@ export const DialogueSidebar = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isNewMessageOpen, setIsNewMessageOpen] = useState(false)
 
-  const studentQuery = trpc.getStudent.useQuery()
+  // Запрос списка студентов для селекта
+  const { data: studentsData } = trpc.getStudent.useQuery()
   const createMessage = trpc.createDirectMessage.useMutation()
+  const { data: dialoguesData, isLoading } = trpc.getDialogues.useQuery()
 
   const { formik, buttonProps, alertProps } = useForm({
     initialValues: {
-      studentId: '', // Убедись, что в схеме Zod именно studentId
+      userId: '', // Имя поля должно совпадать с ожидаемым в zCreateDirectMessageTrpcInput
       text: '',
       platform: (localStorage.getItem('platform') as PlatformType) || 'ALL',
     },
@@ -33,22 +35,26 @@ export const DialogueSidebar = () => {
     onSubmit: async (values) => {
       await createMessage.mutateAsync(values)
       formik.resetForm()
-      // Закрываем модалку через небольшую паузу после успеха
       setTimeout(() => setIsNewMessageOpen(false), 1500)
     },
     successMessage: 'Сообщение отправлено!',
     showValidationAlert: true,
   })
 
-  // Функция для смены платформы и в стейте, и в форнике
   const handlePlatformChange = (p: PlatformType) => {
     formik.setFieldValue('platform', p)
     localStorage.setItem('platform', p)
   }
 
-  const { data, isLoading } = trpc.getDialogues.useQuery()
+  // Подготовка списка студентов для компонента <List />
+  // Компонент List ожидает массив объектов с id и name
+  const studentOptions =
+    studentsData?.students.map((s) => ({
+      id: s.id,
+      name: `${s.lastName} ${s.firstName} ${s.middleName || ''}`.trim(),
+    })) || []
 
-  const filteredDialogues = data?.dialogues.filter((d) =>
+  const filteredDialogues = dialoguesData?.dialogues.filter((d) =>
     d.student.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
@@ -103,9 +109,7 @@ export const DialogueSidebar = () => {
                 </span>
               </div>
               <div className={css.lastMessageRow}>
-                <div className={css.messageBody}>
-                  <p className={css.messagePreview}>{chat.lastMessage.text}</p>
-                </div>
+                <p className={css.messagePreview}>{chat.lastMessage.text}</p>
                 <FiCheck className={css.statusIcon} size={14} />
               </div>
             </div>
@@ -135,37 +139,37 @@ export const DialogueSidebar = () => {
               >
                 Отмена
               </button>
-              <ButtonSend form="new-message-form" {...buttonProps}>Отправить</ButtonSend>
-
+              <ButtonSend form="new-message-form" {...buttonProps}>
+                Отправить
+              </ButtonSend>
             </div>
           </div>
         }
       >
-        <form id="new-message-form" onSubmit={formik.handleSubmit} className={css.form}>
+        <form
+          id="new-message-form"
+          onSubmit={formik.handleSubmit}
+          className={css.form}
+        >
           <div className={css.field}>
-            <div style={{ marginTop: '8px' }}>
-              <PlatformSelector
-                value={formik.values.platform}
-                dialogue={true}
-                onChange={handlePlatformChange}
-              />
-            </div>
+            <PlatformSelector
+              value={formik.values.platform}
+              dialogue={true}
+              onChange={handlePlatformChange}
+            />
           </div>
           <div className={css.field}>
             <List
-              name="studentId"
+              name="userId"
               listlabel="Выберите студента"
               formik={formik}
-              groups={studentQuery.data?.Student || []}
+              groups={studentOptions}
               label="Получатель"
             />
           </div>
-
           <div className={css.field}>
             <Textarea name="text" formik={formik} label="Текст сообщения" />
           </div>
-          <button type="submit" style={{ display: 'none' }} />
-          
         </form>
       </UniversalModal>
     </aside>

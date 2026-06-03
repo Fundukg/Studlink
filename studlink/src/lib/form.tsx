@@ -3,7 +3,7 @@ import { withZodSchema } from 'formik-validator-zod'
 import { useMemo, useState } from 'react'
 import { type z } from 'zod'
 import { type AlertProps } from '../components/Alert'
-import { type ButtonProps } from '../components/Button'
+import { type ButtonProps1 } from '../components/Button'
 
 export const useForm = <TZodSchema extends z.ZodTypeAny>({
   successMessage = false,
@@ -72,7 +72,7 @@ export const useForm = <TZodSchema extends z.ZodTypeAny>({
     }
   }, [submittingError, formik.isValid, formik.submitCount, successMessageVisible, successMessage, showValidationAlert])
 
-  const buttonProps = useMemo<Omit<ButtonProps, 'children'>>(() => {
+  const buttonProps = useMemo<Omit<ButtonProps1, 'children'>>(() => {
     return {
       loading: formik.isSubmitting,
     }

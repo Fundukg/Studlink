@@ -1,0 +1,55 @@
+// src/pages/ProfileSetupPage/index.module.scss
+@use '../../styles/vars' as *;
+
+.setupContainer {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 12px;
+  color: $text-dark;
+}
+
+.subtitle {
+  text-align: center;
+  color: $text-gray;
+  margin-bottom: 32px;
+}
+
+.alertWrapper {
+  margin-bottom: 20px;
+}
+
+.formCard {
+  background: $white;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.05);
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid $border-color;
+  color: $text-dark;
+}
+
+.loader {
+  text-align: center;
+  padding: 60px;
+  color: $text-gray;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}

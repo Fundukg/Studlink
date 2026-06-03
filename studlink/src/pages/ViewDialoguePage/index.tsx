@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { useState, useRef, useEffect } from 'react'
+import toast from 'react-hot-toast'
 import { useParams } from 'react-router-dom'
 import { PlatformBadge } from '../../components/PlatformBadge'
 import { PlatformSelector } from '../../components/PlatformSelector'
@@ -26,10 +27,12 @@ export const ViewDialoguePage = withPageWrapper({
   const { dialogueId } = useParams() as ViewDialogueRouteParams
   const trpcUtils = trpc.useContext()
 
-  // Получаем расширенные данные студента
   const { data: studentQuery } = trpc.getOneStudent.useQuery({
     id: dialogueId,
   })
+
+  // Вспомогательная константа для обращения к профилю (учитывая ошибки TS)
+  const profile = studentQuery?.studentProfile
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -43,12 +46,8 @@ export const ViewDialoguePage = withPageWrapper({
     return ['TELEGRAM', 'VK', 'OK', 'ALL'].includes(saved) ? saved : 'ALL'
   })
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   useEffect(() => {
-    scrollToBottom()
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [dialogue.messages])
 
   useEffect(() => {
@@ -60,13 +59,21 @@ export const ViewDialoguePage = withPageWrapper({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!messageText.trim()) {return}
+    if (!messageText.trim()) {
+      return
+    }
+
+    const sendPromise = createDirectMessage.mutateAsync({
+      userId: dialogue.recipient.id,
+      text: messageText,
+      platform: platform,
+    })
 
     try {
-      await createDirectMessage.mutateAsync({
-        studentId: dialogue.recipient.id,
-        text: messageText,
-        platform: platform,
+      await toast.promise(sendPromise, {
+        loading: 'Отправка...',
+        success: 'Сообщение отправлено',
+        error: 'Ошибка при отправке',
       })
       await trpcUtils.getDialogue.invalidate({ studentId: dialogueId })
       setMessageText('')
@@ -84,7 +91,6 @@ export const ViewDialoguePage = withPageWrapper({
 
   return (
     <div className={css.dialogueContainer}>
-      {/* HEADER */}
       <div className={css.dialogueHeader}>
         <div className={css.userInfo}>
           <div
@@ -101,10 +107,9 @@ export const ViewDialoguePage = withPageWrapper({
             >
               {dialogue.recipient.name}
             </h2>
-            <p>Онлайн • {studentQuery?.group?.name || 'Загрузка...'}</p>
+            <p>Онлайн • {profile?.group?.name || 'Загрузка...'}</p>
           </div>
         </div>
-
         <div className={css.headerActions}>
           <PlatformSelector
             value={platform}
@@ -114,11 +119,14 @@ export const ViewDialoguePage = withPageWrapper({
         </div>
       </div>
 
-      {/* MESSAGES AREA */}
       <div className={css.messagesWrapper}>
         <div className={css.messages}>
           {dialogue.messages.map((message) => {
-            const isStaff = message.sender.type === 'STAFF'
+            // Исправлено: используем sender.role (или как определено в вашей схеме), так как 'type' отсутствует
+            const isStaff =
+              message.sender.role === 'ADMIN' ||
+              message.sender.role === 'DEANERY' ||
+              message.sender.role === 'TEACHER'
             return (
               <div
                 key={message.id}
@@ -151,7 +159,6 @@ export const ViewDialoguePage = withPageWrapper({
         </div>
       </div>
 
-      {/* INPUT AREA */}
       <div className={css.messageInputContainer}>
         <form onSubmit={handleSubmit} className={css.messageForm}>
           <div className={css.inputWrapper}>
@@ -183,7 +190,6 @@ export const ViewDialoguePage = withPageWrapper({
         </form>
       </div>
 
-      {/* MODAL WITH FULL STUDENT INFO */}
       <UniversalModal
         isOpen={isStudentModalOpen}
         onClose={() => setIsStudentModalOpen(false)}
@@ -195,33 +201,29 @@ export const ViewDialoguePage = withPageWrapper({
             {dialogue.recipient.name.charAt(0).toUpperCase()}
           </div>
           <h3>{dialogue.recipient.name}</h3>
-
           <div className={css.infoGrid}>
             <div className={css.infoItem}>
               <label>ID Студента</label>
-              <span>{dialogue.recipient.studentId}</span>
+              {/* Исправлено: доступ к ID через studentProfile или напрямую */}
+              <span>{profile?.student_id || '—'}</span>
             </div>
             <div className={css.infoItem}>
               <label>Факультет</label>
-              <span>
-                {studentQuery?.group?.department?.faculty?.name || '—'}
-              </span>
+              <span>{profile?.group?.department?.faculty?.name || '—'}</span>
             </div>
             <div className={css.infoItem}>
               <label>Кафедра</label>
-              <span>{studentQuery?.group?.department?.name || '—'}</span>
+              <span>{profile?.group?.department?.name || '—'}</span>
             </div>
             <div className={css.infoItem}>
               <label>Группа</label>
-              <span>{studentQuery?.group?.name || '—'}</span>
+              <span>{profile?.group?.name || '—'}</span>
             </div>
             <div className={css.infoItem}>
               <label>Курс</label>
-              <span>{studentQuery?.course || '—'} курс</span>
+              <span>{profile?.course || '—'} курс</span>
             </div>
-
             <div className={css.divider} />
-
             <div className={css.infoItem}>
               <label>Платформы</label>
               <div className={css.platformsList}>
@@ -232,12 +234,8 @@ export const ViewDialoguePage = withPageWrapper({
                     size="sm"
                   />
                 ))}
-                {studentQuery?.botUsers.length === 0 && (
-                  <span>Не зарегистрирован</span>
-                )}
               </div>
             </div>
-
             <div className={css.infoItem}>
               <label>Сообщений</label>
               <div className={css.stats}>

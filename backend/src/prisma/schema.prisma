@@ -6,78 +6,126 @@ datasource db {
   provider = "postgresql"
 }
 
-// Основные учебные сущности
-model Staff {
-  id               String    @id @default(uuid())
-  nick             String    @unique
-  password         String
+// ==========================================
+// СИСТЕМА ПОЛЬЗОВАТЕЛЕЙ И РОЛЕЙ
+// ==========================================
+
+model User {
+  id               String           @id @default(uuid())
+  nick             String?          @unique
+  password         String?
   
-  // Раздельное ФИО для удобной сортировки и фильтрации
-  lastName         String    // Фамилия
-  firstName        String    // Имя
-  middleName       String?   // Отчество (опционально)
+  lastName         String
+  firstName        String
+  middleName       String?
+  email            String?          @unique
+  phone            String?
   
-  role             RoleStaff @default(TEACHER)
-  createdAt        DateTime  @default(now())
-  
-  sentMessages     Message[] @relation("SentByStaff")
-  receivedMessages Message[] @relation("StaffRecipient")
-  sentDistribution Distribution[] @relation("SentByStaffForDistribution")
-  @@index([role]) // Быстрая фильтрация по ролям
-  @@index([lastName, firstName]) // Оптимизация поиска по ФИО
+  role             UserRole         @default(STUDENT)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  studentProfile   StudentProfile?
+  teacherProfile   TeacherProfile?
+  deaneryProfile   DeaneryProfile?
+  botUsers         BotUser[]
+
+  sentMessages     Message[]        @relation("SentByUser")
+  receivedMessages Message[]        @relation("UserRecipient")
+  sentDistributions Distribution[]  @relation("SentByUserForDistribution")
+
+  @@index([role])
+  @@index([lastName, firstName])
 }
 
-model Student {
-  id               String    @id @default(uuid())
-  student_id       String    @unique // Номер зачетки/билета
-  name             String    // Здесь можно оставить одной строкой, если нет нужды в сложной сортировке
-  course           String
-    
-  groupId          String?
-  group            Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
+model StudentProfile {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  createdAt        DateTime  @default(now())
-  
-  sentMessages     Message[] @relation("SentByStudent")
-  receivedMessages Message[] @relation("StudentRecipient")
-  botUsers         BotUser[]
+  student_id   String   @unique
+  course       Int
+  isLeader     Boolean  @default(false)
+
+  groupId      String?
+  group        Group?   @relation(fields: [groupId], references: [id], onDelete: SetNull)
 
   @@index([groupId])
   @@index([course])
 }
 
+model DeaneryProfile {
+  id        String  @id @default(uuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  facultyId String
+  faculty   Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@index([facultyId])
+}
+
+model TeacherProfile {
+  id          String              @id @default(uuid())
+  userId      String              @unique
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignments TeacherAssignment[] // Исправлено: связь один-ко-многим
+  subjects    Json?        
+}
+
+model TeacherAssignment {
+  id               String         @id @default(uuid())
+  teacherProfileId String
+  teacherProfile   TeacherProfile @relation(fields: [teacherProfileId], references: [id], onDelete: Cascade)
+
+  groupId          String
+  group            Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  
+  roleInGroup      String?        // Например: "Лектор", "Лаборант"
+
+  @@unique([teacherProfileId, groupId])
+  @@index([groupId])
+}
+
+// ==========================================
+// УЧЕБНАЯ СТРУКТУРА
+// ==========================================
+
 model Faculty {
-  id          String       @id @default(uuid())
-  name        String       @unique
-  createdAt   DateTime     @default(now())
-  departments Department[]
-  messages    Message[]
+  id           String       @id @default(uuid())
+  name         String       @unique
+  createdAt    DateTime     @default(now())
+  departments  Department[]
+  deaneries    DeaneryProfile[]
 }
 
 model Department {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  facultyId String
-  faculty   Faculty   @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  groups    Group[]
-  messages  Message[]
-  createdAt DateTime  @default(now())
+  id           String           @id @default(uuid())
+  name         String           @unique
+  facultyId    String
+  faculty      Faculty          @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  groups       Group[]
+  createdAt    DateTime         @default(now())
 
   @@index([facultyId])
 }
 
 model Group {
-  id           String     @id @default(uuid())
-  name         String     @unique
+  id           String              @id @default(uuid())
+  name         String              @unique
   departmentId String
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  course       String
-  students     Student[]  
-  messages     Message[]
-  createdAt    DateTime   @default(now())
+  department   Department          @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  course       Int
+  students     StudentProfile[]  
+  teachers     TeacherAssignment[] // Преподаватели этой группы
+  createdAt    DateTime            @default(now())
 
   @@index([departmentId])
 }
+
+// ==========================================
+// ИНТЕГРАЦИЯ С БОТАМИ
+// ==========================================
 
 model Bot {
   id        String      @id @default(uuid())
@@ -96,102 +144,89 @@ model Bot {
 
 model BotUser {
   id         String   @id @default(uuid())
-  studentId  String
-  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  userId     String   
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   botId      String
   bot        Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
-  externalId String // ID пользователя в мессенджереq
+  externalId String
   createdAt  DateTime @default(now())
   isActive   Boolean  @default(true)
 
-  @@unique([studentId, botId])
+  @@unique([userId, botId])
   @@index([externalId])
   @@map("bot_users")
 }
+
+// ==========================================
+// КОММУНИКАЦИИ
+// ==========================================
+
 model Distribution {
   id           String      @id @default(uuid())
   text         String
   createdAt    DateTime    @default(now())
   
-  // Кто инициировал
-  staffId      String
-  staff      Staff?     @relation("SentByStaffForDistribution", fields: [staffId], references: [id], onDelete: Cascade)
+  senderId     String
+  sender       User        @relation("SentByUserForDistribution", fields: [senderId], references: [id], onDelete: Cascade)
 
-  // Параметры таргетинга (чтобы знать, кому отправляли)
   targetType   TargetType
-  targetId     String?     // UUID группы, кафедры или факультета
-  course       Int?        // Если рассылка по курсу
-  platform     BotPlatform // ALL, VK, TG, OK
+  targetId     String?
+  course       Int?        
+  platform     BotPlatform
 
-  // Связь с конкретными сообщениями
   messages     Message[]
 
   @@index([createdAt])
+  @@index([senderId])
 }
+
 model Message {
-  id        String   @id @default(uuid())
-  text      String
-  createdAt DateTime @default(now())
-
-  senderType SenderType
+  id             String        @id @default(uuid())
+  text           String
+  createdAt      DateTime      @default(now())
+  senderType     SenderType    
   
-  // Кто отправил
-  staffId    String?
-  staff      Staff?     @relation("SentByStaff", fields: [staffId], references: [id], onDelete: SetNull)
-  studentId  String?
-  student    Student?   @relation("SentByStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  senderId       String?
+  sender         User?         @relation("SentByUser", fields: [senderId], references: [id], onDelete: SetNull)
 
-  targetType TargetType
+  recipientId    String?
+  recipient      User?         @relation("UserRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
   distributionId String?
   distribution   Distribution? @relation(fields: [distributionId], references: [id], onDelete: Cascade)
-  // Получатели (Личные)
-  recipientStudentId String?
-  recipientStudent   Student? @relation("StudentRecipient", fields: [recipientStudentId], references: [id], onDelete: Cascade)
-  recipientStaffId   String?
-  recipientStaff     Staff?   @relation("StaffRecipient", fields: [recipientStaffId], references: [id], onDelete: Cascade)
+  
+  parentId       String?
+  parent         Message?      @relation("MessageReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies        Message[]     @relation("MessageReplies")
 
-  // Получатели (Групповые/Структурные)
-  course       Int?
-  groupId      String?
-  group        Group?      @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  departmentId String?
-  department   Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  facultyId    String?
-  faculty      Faculty?    @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  botId          String?
+  bot            Bot?          @relation(fields: [botId], references: [id], onDelete: SetNull)
+  platform       BotPlatform   
+  externalId     String?       
 
-  // Иерархия ответов
-  parentId String?
-  parent   Message?  @relation("MessageReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies  Message[] @relation("MessageReplies")
-
-  // Интеграция с ботами
-  botId      String?
-  bot        Bot?    @relation(fields: [botId], references: [id], onDelete: SetNull)
-  platform   BotPlatform
-  externalId String? 
-
-  @@index([createdAt]) // Важно для быстрой подгрузки истории сообщений
-  @@index([groupId])
-  @@index([staffId])
-  @@index([studentId])
+  @@index([createdAt])
+  @@index([senderId])
+  @@index([recipientId])
   @@index([distributionId])
 }
 
-// Обновленные enums
 enum SenderType {
-  STAFF
-  STUDENT
   SYSTEM
+  ADMIN
+  DEANERY
+  TEACHER
+  STUDENT
 }
 
+
+
 enum TargetType {
-  STUDENT // Личное сообщение студенту
-  STAFF // Личное сообщение сотруднику
-  GROUP // Группе
-  DEPARTMENT // Кафедре
-  FACULTY // Факультету
-  COURSE // Курсу
-  ALL // Всем студентам
+  USER
+  GROUP
+  DEPARTMENT
+  FACULTY
+  COURSE
+  ALL
 }
 
 enum BotPlatform {
@@ -201,8 +236,9 @@ enum BotPlatform {
   ALL
 }
 
-enum RoleStaff {
+enum UserRole {
   ADMIN
-  DEANERY     // Сотрудник деканата (управление студентами/группами)
-  TEACHER     // Преподаватель (только сообщения и свои курсы)
+  DEANERY
+  TEACHER
+  STUDENT
 }

@@ -126,6 +126,14 @@
   }
 }
 
+.infoBox {
+  background: $bg-main;
+  padding: 10px;
+  border-radius: 8px;
+  color: $text-gray;
+  border-left: 3px solid $accent-green;
+  font-style: italic;
+}
 // Глобальные переопределения для чистоты фокуса
 .global {
   input,

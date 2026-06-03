@@ -1,5 +1,6 @@
 import { zCreateStudentTrpcInput } from '@parkstick/backend/src/router/createStudent/input'
 import { useFormik } from 'formik'
+import toast from 'react-hot-toast'
 import { trpc } from '../../../lib/trpc'
 import { Input } from '../../Input'
 import { List } from '../../List'
@@ -18,7 +19,6 @@ export const StudentModal = ({
   student,
 }: StudentFormModalProps) => {
   const utils = trpc.useUtils() // Используем актуальный useUtils
-
   const { data: groups } = trpc.getGroup.useQuery()
   const groupsData = groups?.Group || []
   const isEdit = !!student
@@ -30,9 +30,10 @@ export const StudentModal = ({
     initialValues: {
       id: student?.id || '',
       student_id: student?.student_id || '',
-      name: student?.name || '',
-      course: student?.course,
-      groupId: student?.groupId || student?.group?.id || '',
+      firstName: student?.firstName || '',
+      lastName: student?.lastName || '',
+      middleName: student?.middleName || '',
+      groupId: groupsData.find((g) => g.name === student?.group)?.id || '',
     },
     enableReinitialize: true,
     // ИСПРАВЛЕНИЕ: Валидация Zod для Formik
@@ -54,17 +55,18 @@ export const StudentModal = ({
         if (isEdit) {
           await updateMutation.mutateAsync({
             id: student.id,
-            // Передаем данные в соответствии с твоей схемой input
             student_id: values.student_id,
-            name: values.name,
-            course: values.course,
+            firstName: values.firstName,
+            lastName: values.lastName,
+            middleName: values.middleName,
             groupId: values.groupId,
           })
+          toast.success('Данные студента успешно обновлены')
         } else {
           await createMutation.mutateAsync({
             ...values,
-            course: values.course, // Гарантируем число
           })
+          toast.success('Студент успешно добавлен в систему')
         }
 
         await utils.getStudent.invalidate()
@@ -72,7 +74,8 @@ export const StudentModal = ({
         formik.resetForm()
       } catch (e: any) {
         console.error('Mutation error:', e)
-        alert(e.message || 'Ошибка при сохранении')
+        // Выводим ошибку через кастомный тост
+        toast.error(e.message || 'Произошла ошибка при сохранении')
       }
     },
   })
@@ -88,6 +91,7 @@ export const StudentModal = ({
           <button className={css.cancelBtn} onClick={onClose} type="button">
             Отмена
           </button>
+
           <button
             className={css.submitBtn}
             form="student-editor-form"
@@ -108,34 +112,24 @@ export const StudentModal = ({
         onSubmit={formik.handleSubmit}
         className={css.form}
       >
-        <Input
-          name="student_id"
-          label="Номер зачетки / ID"
-          placeholder="Например: 21-БИТ-05"
+        <div className={css.row} style={{ display: 'flex', gap: '10px' }}>
+          <Input name="lastName" label="Фамилия" formik={formik} />
+          <Input name="firstName" label="Имя" formik={formik} />
+        </div>
+        <Input name="middleName" label="Отчество" formik={formik} />
+
+        <Input name="student_id" label="Номер зачетки" formik={formik} />
+
+        <List
+          name="groupId"
+          label="Группа"
+          listlabel="Выберите группу"
           formik={formik}
+          groups={groupsData}
         />
 
-        <Input
-          name="name"
-          label="Полное имя"
-          placeholder="Иванов Иван Иванович"
-          formik={formik}
-        />
-
-        <div className={css.row} style={{ display: 'flex', gap: '15px' }}>
-          <div style={{ flex: 1 }}>
-            <Input name="course" label="Курс" type="number" formik={formik} />
-          </div>
-
-          <div style={{ flex: 2 }}>
-            <List
-              name="groupId"
-              label="Группа"
-              listlabel="Выберите группу"
-              formik={formik}
-              groups={groupsData}
-            />
-          </div>
+        <div className={css.infoBox}>
+          <small>* Курс определяется автоматически по номеру группы</small>
         </div>
       </form>
     </UniversalModal>

@@ -1,49 +1,71 @@
+// backend/src/router/student/delete.ts
+import { TRPCError } from '@trpc/server'
 import { trpc } from '../../lib/trpc'
-import { isAdmin, isDeanery } from '../../utils/role'
+import { hasPermission } from '../../middleware/auth'
 import { zDeleteStudentTrpcInput } from './input'
 
-export const getStudentDeleteStats = trpc.procedure
+// Роут доступен администраторам и деканату
+const studentManageProcedure = trpc.procedure.use(
+  hasPermission('manage:students')
+)
+
+// 1. СТАТИСТИКА ПЕРЕД УДАЛЕНИЕМ
+export const getStudentDeleteStatsTrpcRoute = studentManageProcedure
   .input(zDeleteStudentTrpcInput)
   .query(async ({ input, ctx }) => {
-    if (!ctx.me) {
-      throw Error('Unauthorized')
-    }
-    if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
-        throw new Error('Доступ запрещен: недостаточно прав')
-      }
-    const counts = await ctx.prisma.student.findUnique({
-      where: { id: input.id },
+    const student = await ctx.prisma.user.findUnique({
+      where: {
+        id: input.id,
+        role: 'STUDENT', // Убеждаемся, что работаем именно со студентом
+      },
       select: {
         _count: {
           select: {
-            sentMessages: true,
-            receivedMessages: true,
-            botUsers: true,
+            sentMessages: true, // Сообщения, отправленные студентом
+            receivedMessages: true, // Сообщения, полученные студентом
+            botUsers: true, // Сколько аккаунтов в ботах привязано
           },
         },
       },
     })
 
-    if (!counts) {
-      throw Error('Студент не найден')
+    if (!student) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Студент не найден в системе',
+      })
     }
-    return counts._count
+
+    return student._count
   })
 
-// УДАЛЕНИЕ
-export const deleteStudentTrpcRoute = trpc.procedure
+// 2. УДАЛЕНИЕ СТУДЕНТА
+export const deleteStudentTrpcRoute = studentManageProcedure
   .input(zDeleteStudentTrpcInput)
   .mutation(async ({ input, ctx }) => {
-    if (!ctx.me) {
-      throw Error('Unauthorized')
+    // Проверяем существование
+    const student = await ctx.prisma.user.findUnique({
+      where: {
+        id: input.id,
+        role: 'STUDENT',
+      },
+    })
+
+    if (!student) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Студент не найден',
+      })
     }
-    if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
-        throw new Error('Доступ запрещен: недостаточно прав')
-      }
-    // Благодаря Cascade в Prisma, удалятся и сообщения, и привязки к ботам
-    await ctx.prisma.student.delete({
+
+    // Удаляем пользователя.
+    // Prisma Cascade автоматически удалит StudentProfile и BotUser.
+    // История сообщений:
+    // - Если студент отправил сообщение: оно останется в БД (senderId станет null)
+    // - Если сообщение пришло студенту: оно удалится (т.к. recipientId в Cascade)
+    await ctx.prisma.user.delete({
       where: { id: input.id },
     })
 
-    return true
+    return { success: true }
   })

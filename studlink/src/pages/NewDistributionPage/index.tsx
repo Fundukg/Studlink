@@ -1,8 +1,10 @@
 import { zCreateDistributionTrpcInput } from '@parkstick/backend/src/router/createDistribution/input'
 import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'react-hot-toast'
 import { FiSend } from 'react-icons/fi'
 import { Alert } from '../../components/Alert'
 import { Checkbox } from '../../components/CheckBox'
+import { CustomToaster } from '../../components/CustomToaster'
 import { List, ListSelect } from '../../components/List'
 import { MailingHeader } from '../../components/MailingHeader'
 import type { PlatformType } from '../../components/PlatformSelector'
@@ -42,9 +44,7 @@ export const NewDistributionPage = withPageWrapper({
 
   // --- 2. ОПЦИИ ДЛЯ ЧЕКБОКСОВ ---
   const courseOptions = useMemo(() => {
-    if (!groups.data) {
-      return []
-    }
+    if (!groups.data) {return []}
     const uniqueCourses = Array.from(
       new Set(groups.data.map((g) => g.course))
     ).sort()
@@ -52,9 +52,7 @@ export const NewDistributionPage = withPageWrapper({
   }, [groups.data])
 
   const groupOptions = useMemo(() => {
-    if (!groups.data) {
-      return []
-    }
+    if (!groups.data) {return []}
     return groups.data
       .filter(
         (g) =>
@@ -100,6 +98,8 @@ export const NewDistributionPage = withPageWrapper({
                 ? selectedGroups
                 : groupOptions.map((o) => o.value)
             break
+          default:
+            ids = []
         }
 
         await createDistribution.mutateAsync({
@@ -107,27 +107,63 @@ export const NewDistributionPage = withPageWrapper({
           targetIds: ids,
         })
 
+        toast.success('Рассылка успешно выполнена')
         formik.resetForm()
         setFacultyId('')
         setDeptId('')
         setSelectedCourses([])
         setSelectedGroups([])
-      } catch (error) {
+      } catch (error: any) {
         console.error('Ошибка при рассылке:', error)
-        throw error
+        toast.error(error.message || 'Не удалось отправить рассылку')
       }
     },
-    successMessage: 'Рассылка успешно выполнена',
+    successMessage: '', // убираем встроенный Alert, используем toast
     showValidationAlert: true,
   })
 
-  // --- 4. ХЕЛПЕР ДЛЯ ЧЕКБОКСОВ (ИСПРАВЛЕННЫЙ) ---
+  // --- 4. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ УСЛОВНОГО ОТОБРАЖЕНИЯ ---
+  const showFaculty = () => {
+    const { targetType } = formik.values
+    return (
+      targetType === 'FACULTY' ||
+      targetType === 'DEPARTMENT' ||
+      targetType === 'COURSE' ||
+      targetType === 'GROUP'
+    )
+  }
+
+  const showDepartment = () => {
+    const { targetType } = formik.values
+    return (
+      targetType === 'DEPARTMENT' ||
+      targetType === 'COURSE' ||
+      targetType === 'GROUP'
+    )
+  }
+
+  // const showCoursesAndGroups = () => {
+  //   const { targetType } = formik.values
+  //   return (targetType === 'COURSE' || targetType === 'GROUP') && !!deptId
+  // }
+
+  const showCoursesOnly = () => {
+    const { targetType } = formik.values
+    return targetType === 'COURSE' && !!deptId
+  }
+
+  const showGroupsOnly = () => {
+    const { targetType } = formik.values
+    return targetType === 'GROUP' && !!deptId
+  }
+
+  // --- 5. ХЕЛПЕР ДЛЯ ЧЕКБОКСОВ (без изменений) ---
   const createCheckboxProps = (
     name: string,
     state: string[],
     setState: (v: string[]) => void
   ) => ({
-    values: { [name]: state }, // Теперь ключ совпадает с name компонента
+    values: { [name]: state },
     setFieldValue: (_: string, val: string[]) => setState(val),
     errors: {},
     touched: {},
@@ -158,7 +194,7 @@ export const NewDistributionPage = withPageWrapper({
             <div className={css.card}>
               <h2 className={css.sectionTitle}>Аудитория</h2>
 
-              {/* Выбор типа всегда активен */}
+              {/* Выбор типа */}
               <div className={css.formSection}>
                 <ListSelect
                   formik={formik}
@@ -181,83 +217,100 @@ export const NewDistributionPage = withPageWrapper({
                 />
               </div>
 
-              {/* Блок Факультет/Кафедра */}
-              <div
-                className={`${css.groupWrapper} ${formik.values.targetType === 'ALL' ? css.disabled : ''}`}
-              >
-                <List
-                  name="faculty"
-                  label=""
-                  listlabel="Факультет"
-                  formik={formik}
-                  groups={faculties.data || []}
-                  value={facultyId}
-                  disabled={formik.values.targetType === 'ALL'} // Передаем и в пропс и в класс выше
-                  onChange={(e: any) => {
-                    setFacultyId(e.target.value)
-                    setDeptId('')
-                  }}
-                />
-
-                <List
-                  name="dept"
-                  label=""
-                  listlabel="Кафедра"
-                  formik={formik}
-                  groups={departments.data || []}
-                  value={deptId}
-                  disabled={
-                    formik.values.targetType === 'FACULTY' ||
-                    formik.values.targetType === 'ALL' ||
-                    !facultyId
-                  }
-                  onChange={(e: any) => {
-                    setDeptId(e.target.value)
-                  }}
-                />
-              </div>
-
-              {/* Блок Курсы/Группы с защитой от прыжков */}
-              <div
-                className={`${css.groupWrapper} ${
-                  !['COURSE', 'GROUP'].includes(formik.values.targetType) ||
-                  !deptId
-                    ? css.disabled
-                    : ''
-                }`}
-              >
-                <div className={css.checkboxScrollArea}>
-                  <Checkbox
-                    name="filter"
-                    label="Курс:"
-                    options={courseOptions}
-                    formik={
-                      createCheckboxProps(
-                        'filter',
-                        selectedCourses,
-                        setSelectedCourses
-                      ) as any
-                    }
-                    layout="grid"
+              {/* Блок Факультет */}
+              {showFaculty() && (
+                <div className={css.groupWrapper}>
+                  <List
+                    name="faculty"
+                    label=""
+                    listlabel="Факультет"
+                    formik={formik}
+                    groups={faculties.data || []}
+                    value={facultyId}
+                    onChange={(e: any) => {
+                      setFacultyId(e.target.value)
+                      setDeptId('')
+                    }}
                   />
                 </div>
+              )}
 
-                <div className={css.checkboxScrollArea}>
-                  <Checkbox
-                    name="groups"
-                    label="Группы:"
-                    options={groupOptions}
-                    formik={
-                      createCheckboxProps(
-                        'groups',
-                        selectedGroups,
-                        setSelectedGroups
-                      ) as any
-                    }
-                    layout="grid"
+              {/* Блок Кафедра */}
+              {showDepartment() && (
+                <div className={css.groupWrapper}>
+                  <List
+                    name="dept"
+                    label=""
+                    listlabel="Кафедра"
+                    formik={formik}
+                    groups={departments.data || []}
+                    value={deptId}
+                    disabled={!facultyId}
+                    onChange={(e: any) => setDeptId(e.target.value)}
                   />
                 </div>
-              </div>
+              )}
+
+              {/* Блок Курсы (только для COURSE) */}
+              {showCoursesOnly() && (
+                <div className={css.groupWrapper}>
+                  <div className={css.checkboxScrollArea}>
+                    <Checkbox
+                      name="filter"
+                      label="Курс:"
+                      options={courseOptions}
+                      formik={
+                        createCheckboxProps(
+                          'filter',
+                          selectedCourses,
+                          setSelectedCourses
+                        ) as any
+                      }
+                      layout="grid"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Блок Курсы + Группы (только для GROUP) */}
+              {showGroupsOnly() && (
+                <>
+                  <div className={css.groupWrapper}>
+                    <div className={css.checkboxScrollArea}>
+                      <Checkbox
+                        name="filter"
+                        label="Курс:"
+                        options={courseOptions}
+                        formik={
+                          createCheckboxProps(
+                            'filter',
+                            selectedCourses,
+                            setSelectedCourses
+                          ) as any
+                        }
+                        layout="grid"
+                      />
+                    </div>
+                  </div>
+                  <div className={css.groupWrapper}>
+                    <div className={css.checkboxScrollArea}>
+                      <Checkbox
+                        name="groups"
+                        label="Группы:"
+                        options={groupOptions}
+                        formik={
+                          createCheckboxProps(
+                            'groups',
+                            selectedGroups,
+                            setSelectedGroups
+                          ) as any
+                        }
+                        layout="grid"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Блок Платформы */}
@@ -272,6 +325,7 @@ export const NewDistributionPage = withPageWrapper({
                 }}
               />
             </div>
+
             <div className={css.footer}>
               <Alert {...alertProps} />
               <div className={css.buttonGroup}>
@@ -290,6 +344,7 @@ export const NewDistributionPage = withPageWrapper({
           </div>
         </div>
       </form>
+      <CustomToaster />
     </div>
   )
 })

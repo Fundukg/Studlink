@@ -29,6 +29,7 @@ import {
   getViewGroupRoute,
 } from '../../../lib/routes'
 import { trpc } from '../../../lib/trpc'
+import { CustomToaster } from '../../CustomToaster'
 import css from './index.module.scss'
 
 export const Layout = () => {
@@ -99,9 +100,13 @@ export const Layout = () => {
 
           <nav className={css.nav}>
             <Link
-              to={getViewDialogueRoute({
-                dialogueId: recentChats.data?.dialogues[0]?.id,
-              })}
+              to={
+                recentChats.data?.dialogues[0]
+                  ? getViewDialogueRoute({
+                      dialogueId: recentChats.data.dialogues[0].id,
+                    })
+                  : '/dialogues' // или любой fallback роут
+              }
               className={`${css.navLink} ${location.pathname.startsWith('/dialogue') ? css.active : ''}`}
             >
               <FiMessageSquare className={css.icon} />
@@ -168,10 +173,22 @@ export const Layout = () => {
                           <FiCpu size={14} /> Боты
                         </Link>
                         <Link
-                          to="/staffs"
-                          className={`${css.subLink} ${location.pathname.includes('/staffs') ? css.active : ''}`}
+                          to="/deanerys"
+                          className={`${css.subLink} ${location.pathname.includes('/deanerys') ? css.active : ''}`}
                         >
-                          <FiBriefcase size={14} /> Сотрудники
+                          <FiBriefcase size={14} /> Сотр. деканата
+                        </Link>
+                        <Link
+                          to="/admins"
+                          className={`${css.subLink} ${location.pathname.includes('/admins') ? css.active : ''}`}
+                        >
+                          <FiBriefcase size={14} /> Администраторы
+                        </Link>
+                        <Link 
+                          to="/teachers"
+                          className={`${css.subLink} ${location.pathname.includes('/teachers') ? css.active : ''}`}
+                        >
+                          <FiBriefcase size={14} /> Преподаватели
                         </Link>
                       </>
                     )}
@@ -235,6 +252,7 @@ export const Layout = () => {
       <main className={css.mainContent}>
         <Outlet />
       </main>
+      <CustomToaster />
     </div>
   )
 }

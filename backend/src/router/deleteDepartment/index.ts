@@ -1,18 +1,32 @@
+// backend/src/router/department/delete.ts
+import { TRPCError } from '@trpc/server'
 import { trpc } from '../../lib/trpc'
-import { isAdmin, isDeanery } from '../../utils/role'
+import { hasPermission } from '../../middleware/auth'
 import { zDeleteDepartmentTrpcInput } from './input'
 
-export const deleteDepartmentTrpcRoute = trpc.procedure
+// Задаем общую процедуру с проверкой прав на управление учебной структурой
+const structureManageProcedure = trpc.procedure.use(hasPermission('manage:structure'))
+
+// 1. Роут удаления кафедры
+export const deleteDepartmentTrpcRoute = structureManageProcedure
   .input(zDeleteDepartmentTrpcInput)
   .mutation(async ({ input, ctx }) => {
-    if (!ctx.me) {
-      throw Error('Unauthorized')
+    // Гарантировано мидлварой: ctx.me существует и обладает правами ADMIN или DEANERY
+
+    // Проверяем существование кафедры перед удалением
+    const departmentExists = await ctx.prisma.department.findUnique({
+      where: { id: input.id },
+    })
+
+    if (!departmentExists) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Указанная кафедра не найдена в системе',
+      })
     }
-    if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
-        throw new Error('Доступ запрещен: недостаточно прав')
-      }
-    // Благодаря onDelete: Cascade в Prisma, удаление кафедры
-    // автоматически удалит все связанные группы и сообщения.
+
+    // Благодаря onDelete: Cascade в Prisma, удаление кафедры автоматически 
+    // удалит все связанные группы и профили преподавателей (выставит им null).
     await ctx.prisma.department.delete({
       where: { id: input.id },
     })
@@ -20,25 +34,29 @@ export const deleteDepartmentTrpcRoute = trpc.procedure
     return { success: true }
   })
 
-export const getDepartmentDeleteStatsTrpcRoute = trpc.procedure
+// 2. Роут получения статистики перед удалением (сколько групп будет затронуто)
+export const getDepartmentDeleteStatsTrpcRoute = structureManageProcedure
   .input(zDeleteDepartmentTrpcInput)
   .query(async ({ input, ctx }) => {
-    if (!ctx.me) {
-      throw Error('Unauthorized')
-    }
-    if (!isAdmin(ctx.me?.role)  && !isDeanery(ctx.me?.role)) {
-        throw new Error('Доступ запрещен: недостаточно прав')
-      }
+    // Здесь также теперь работает автоматическая мидлвара контроля доступа
+
     const stats = await ctx.prisma.department.findUnique({
       where: { id: input.id },
       select: {
         _count: {
           select: {
             groups: true,
-            messages: true,
           },
         },
       },
     })
+
+    if (!stats) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Кафедра не найдена',
+      })
+    }
+
     return stats
   })

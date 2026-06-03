@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import toast from 'react-hot-toast'
 import { FaOdnoklassniki, FaTelegramPlane, FaVk } from 'react-icons/fa'
 import {
   FiEdit2,
@@ -11,44 +12,54 @@ import {
 import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
 import { StudentModal } from '../../components/Create-UpdateModal/StudentModal'
 import { UniversalModal } from '../../components/UniversalModal'
+import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
-export const StudentPage = () => {
+export const StudentPage = withPageWrapper({
+  useQuery: () => trpc.getStudent.useQuery(),
+  setProps: ({ queryResult }) => ({
+    data: queryResult.data,
+  }),
+})(({ data: studentsData }) => {
   const utils = trpc.useUtils()
-  const { data, isLoading } = trpc.getStudent.useQuery()
-  // Состояния
+
   const [searchQuery, setSearchQuery] = useState('')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState<any>(null)
   const [studentToDelete, setStudentToDelete] = useState<any>(null)
-  // 1. Добавляем состояние для модалки профиля
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const [selectedStudentForProfile, setSelectedStudentForProfile] =
     useState<any>(null)
+
+  // Вспомогательная функция для склейки ФИО
+  const getFullName = (s: any) =>
+    `${s.lastName} ${s.firstName} ${s.middleName || ''}`.trim()
 
   const handleOpenProfile = (student: any) => {
     setSelectedStudentForProfile(student)
     setIsProfileModalOpen(true)
   }
+
   const filteredStudents = useMemo(() => {
-    if (!data?.Student) {
-      return []
-    }
+    if (!studentsData?.students) {return []}
     const query = searchQuery.toLowerCase()
-    return data.Student.filter(
+    return studentsData.students.filter(
       (s) =>
-        s.name.toLowerCase().includes(query) ||
-        s.student_id.toLowerCase().includes(query)
+        getFullName(s).toLowerCase().includes(query) ||
+        s.student_id?.toLowerCase().includes(query)
     )
-  }, [data, searchQuery])
+  }, [studentsData, searchQuery])
 
   const deleteMutation = trpc.deleteStudent.useMutation({
     onSuccess: () => {
       utils.getStudent.invalidate()
       setStudentToDelete(null)
+      toast.success('Студент успешно удален')
     },
-    onError: (err) => alert(err.message),
+    onError: (err) => {
+      toast.error(err.message || 'Ошибка при удалении студента')
+    },
   })
 
   const { data: deleteStats } = trpc.getStudentDeleteStats.useQuery(
@@ -67,12 +78,22 @@ export const StudentPage = () => {
     }
   }
 
-  if (isLoading) {
-    return <div className={css.loader}>Загрузка...</div>
+  // Получить иконку платформы по названию
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case 'TELEGRAM':
+        return <FaTelegramPlane color="#0088cc" />
+      case 'VK':
+        return <FaVk color="#4c75a3" />
+      case 'OK':
+        return <FaOdnoklassniki color="#ee8208" />
+      default:
+        return null
+    }
   }
+
   return (
     <div className={css.container}>
-      {/* --- НОВЫЙ ХЕДЕР С ПОИСКОМ --- */}
       <div className={css.header}>
         <div className={css.titleBlock}>
           <h1>Студенты</h1>
@@ -92,7 +113,6 @@ export const StudentPage = () => {
               className={css.searchInput}
             />
           </div>
-
           <button
             className={css.addBtn}
             onClick={() => {
@@ -120,7 +140,6 @@ export const StudentPage = () => {
           <tbody>
             {filteredStudents.length > 0 ? (
               filteredStudents.map((student) => {
-                // ФОРМИРУЕМ МЕНЮ ДЛЯ КАЖДОГО СТУДЕНТА
                 const studentActions: ActionOption[] = [
                   {
                     label: 'Редактировать',
@@ -143,51 +162,42 @@ export const StudentPage = () => {
                 return (
                   <tr key={student.id}>
                     <td
-                      className={css.studentId}
                       onClick={() => handleOpenProfile(student)}
                       style={{ cursor: 'pointer' }}
                     >
-                      {student.student_id}
-                    </td>
-                    <td
-                      className={css.studentName}
-                      onClick={() => handleOpenProfile(student)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {student.name}
+                      {student.student_id || '—'}
                     </td>
                     <td
                       onClick={() => handleOpenProfile(student)}
                       style={{ cursor: 'pointer' }}
                     >
-                      {student.group?.name || '—'}
+                      {getFullName(student)}
                     </td>
                     <td
                       onClick={() => handleOpenProfile(student)}
                       style={{ cursor: 'pointer' }}
                     >
-                      {student.course} курс
+                      {student.group || '—'}
+                    </td>
+                    <td
+                      onClick={() => handleOpenProfile(student)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {student.course || '—'} курс
                     </td>
                     <td>
                       <div className={css.botBadges}>
-                        {student.botUsers.map((bu) => {
-                          const platform = bu.bot.platform.toUpperCase()
-                          return (
-                            <span
-                              key={bu.bot.id}
-                              className={`${css.botBadge} ${css[platform.toLowerCase()]}`}
-                              title={`${bu.bot.name} (${bu.externalId})`}
-                            >
-                              {platform === 'TELEGRAM' && <FaTelegramPlane />}
-                              {platform === 'VK' && <FaVk />}
-                              {platform === 'OK' && <FaOdnoklassniki />}
-                            </span>
-                          )
-                        })}
+                        {student.bots.map((platform: string) => (
+                          <span
+                            key={platform}
+                            className={`${css.botBadge} ${css[platform.toLowerCase()]}`}
+                          >
+                            {getPlatformIcon(platform)}
+                          </span>
+                        ))}
                       </div>
                     </td>
                     <td className={css.actions}>
-                      {/* ЗАМЕНЯЕМ СТАРЫЕ КНОПКИ НА НОВЫЙ КОМПОНЕНТ */}
                       <ActionMenu options={studentActions} />
                     </td>
                   </tr>
@@ -197,11 +207,7 @@ export const StudentPage = () => {
               <tr>
                 <td
                   colSpan={6}
-                  style={{
-                    textAlign: 'center',
-                    padding: '40px',
-                    color: '#718096',
-                  }}
+                  style={{ textAlign: 'center', padding: '40px' }}
                 >
                   Студенты не найдены
                 </td>
@@ -210,12 +216,14 @@ export const StudentPage = () => {
           </tbody>
         </table>
       </div>
-      {/* Модалки остаются без изменений... */}
+
       <StudentModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         student={selectedStudent}
       />
+
+      {/* Модалка профиля студента */}
       <UniversalModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
@@ -226,54 +234,38 @@ export const StudentPage = () => {
           <div className={css.studentInfoModal}>
             <div className={css.modalHeaderSection}>
               <div className={css.modalAvatar}>
-                {selectedStudentForProfile.name.charAt(0).toUpperCase()}
+                {selectedStudentForProfile.firstName?.charAt(0) || '?'}
               </div>
-              <h3>{selectedStudentForProfile.name}</h3>
+              <h3>{getFullName(selectedStudentForProfile)}</h3>
               <p className={css.studentIdBadge}>
-                № {selectedStudentForProfile.student_id}
+                № {selectedStudentForProfile.student_id || '—'}
               </p>
             </div>
-
             <div className={css.infoGrid}>
               <div className={css.infoItem}>
                 <label>Факультет</label>
-                <span>
-                  {selectedStudentForProfile.group?.department?.faculty
-                    ?.name || '—'}
-                </span>
+                <span>{selectedStudentForProfile.faculty || '—'}</span>
               </div>
               <div className={css.infoItem}>
                 <label>Кафедра</label>
-                <span>
-                  {selectedStudentForProfile.group?.department?.name || '—'}
-                </span>
+                <span>{selectedStudentForProfile.department || '—'}</span>
               </div>
               <div className={css.infoItem}>
                 <label>Группа</label>
-                <span>{selectedStudentForProfile.group?.name || '—'}</span>
+                <span>{selectedStudentForProfile.group || '—'}</span>
               </div>
               <div className={css.infoItem}>
                 <label>Курс</label>
-                <span>{selectedStudentForProfile.course} курс</span>
+                <span>{selectedStudentForProfile.course || '—'} курс</span>
               </div>
-
-              <div className={css.divider} />
-
               <div className={css.infoItemFull}>
                 <label>Подключенные боты</label>
                 <div className={css.platformsList}>
-                  {selectedStudentForProfile.botUsers.length > 0 ? (
-                    selectedStudentForProfile.botUsers.map((bu: any) => (
-                      <div key={bu.bot.id} className={css.platformItem}>
-                        {bu.bot.platform === 'TELEGRAM' && (
-                          <FaTelegramPlane color="#0088cc" />
-                        )}
-                        {bu.bot.platform === 'VK' && <FaVk color="#4c75a3" />}
-                        {bu.bot.platform === 'OK' && (
-                          <FaOdnoklassniki color="#ee8208" />
-                        )}
-                        <span>{bu.bot.name}</span>
-                        <small>({bu.externalId})</small>
+                  {selectedStudentForProfile.bots?.length > 0 ? (
+                    selectedStudentForProfile.bots.map((platform: string) => (
+                      <div key={platform} className={css.platformItem}>
+                        {getPlatformIcon(platform)}
+                        <span>{platform}</span>
                       </div>
                     ))
                   ) : (
@@ -283,7 +275,6 @@ export const StudentPage = () => {
                   )}
                 </div>
               </div>
-
               <div className={css.infoItem}>
                 <label>Дата регистрации</label>
                 <span>
@@ -296,6 +287,8 @@ export const StudentPage = () => {
           </div>
         )}
       </UniversalModal>
+
+      {/* Модалка удаления */}
       <UniversalModal
         isOpen={!!studentToDelete}
         onClose={() => setStudentToDelete(null)}
@@ -308,12 +301,8 @@ export const StudentPage = () => {
             >
               Отмена
             </button>
-            <button
-              className={css.dangerBtn}
-              onClick={confirmDelete}
-              // disabled={deleteMutation.isLoading}
-            >
-              {'Да, удалить'}
+            <button className={css.dangerBtn} onClick={confirmDelete}>
+              Да, удалить
             </button>
           </div>
         }
@@ -321,7 +310,8 @@ export const StudentPage = () => {
         <div className={css.deleteConfirm}>
           <FiAlertTriangle className={css.warningIcon} />
           <p>
-            Вы уверены, что хотите удалить <b>{studentToDelete?.name}</b>?
+            Вы уверены, что хотите удалить{' '}
+            <b>{studentToDelete && getFullName(studentToDelete)}</b>?
           </p>
           {deleteStats && (
             <>
@@ -329,7 +319,12 @@ export const StudentPage = () => {
                 Студент привязан к {deleteStats.botUsers} ботам.
               </div>
               <div className={css.statsHint}>
-                Студент привязан к {deleteStats.receivedMessages} сообщениям.
+                Студент привязан к {deleteStats.sentMessages} отправленным
+                сообщениям.
+              </div>
+              <div className={css.statsHint}>
+                Студент привязан к {deleteStats.receivedMessages} полученным
+                сообщениям.
               </div>
             </>
           )}
@@ -337,4 +332,4 @@ export const StudentPage = () => {
       </UniversalModal>
     </div>
   )
-}
+})

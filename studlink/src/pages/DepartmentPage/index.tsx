@@ -12,14 +12,19 @@ import {
 import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
 import { DepartmentModal } from '../../components/Create-UpdateModal/DepartmentModal' // Предполагается наличие этого компонента
 import { UniversalModal } from '../../components/UniversalModal'
+import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
 
-export const DepartmentPage = () => {
+export const DepartmentPage = withPageWrapper({
+  useQuery: () => trpc.getDepartment.useQuery(),
+  setProps: ({ queryResult }) => ({
+    data: queryResult.data,
+  }),
+})(({ data: departmentsData }) => {
   const utils = trpc.useUtils()
 
   // Данные
-  const { data, isLoading } = trpc.getDepartment.useQuery()
   const [searchQuery, setSearchQuery] = useState('')
 
   // Состояния модалок
@@ -32,15 +37,15 @@ export const DepartmentPage = () => {
 
   // Фильтрация
   const filteredDepartments = useMemo(() => {
-    if (!data?.Department) {
+    if (!departmentsData?.Department) {
       return []
     }
-    return data.Department.filter(
+    return departmentsData.Department.filter(
       (d) =>
         d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         d.faculty.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
-  }, [data, searchQuery])
+  }, [departmentsData, searchQuery])
 
   // Удаление
   const deleteMutation = trpc.deleteDepartment.useMutation({
@@ -64,10 +69,6 @@ export const DepartmentPage = () => {
   const handleShowDetails = (dept: any) => {
     setViewingDept(dept)
     setIsDetailsOpen(true)
-  }
-
-  if (isLoading) {
-    return <div className={css.loader}>Загрузка кафедр...</div>
   }
 
   return (
@@ -248,11 +249,10 @@ export const DepartmentPage = () => {
             Удаление приведет к каскадному удалению:
             <ul>
               <li>Групп: {deleteStats?._count.groups || 0}</li>
-              <li>Сообщений: {deleteStats?._count.messages || 0}</li>
             </ul>
           </div>
         </div>
       </UniversalModal>
     </div>
   )
-}
+})

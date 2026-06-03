@@ -1,11 +1,15 @@
-import { type UseTRPCQueryResult, type UseTRPCQuerySuccessResult } from '@trpc/react-query/shared'
+import {
+  type UseTRPCQueryResult,
+  type UseTRPCQuerySuccessResult,
+} from '@trpc/react-query/shared'
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ErrorPageComponent } from '../components/ErrorPageComponent'
+import { Loader } from '../components/Loader'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { useAppContext, type AppContext } from './ctx'
-import { getViewDialogueRoute } from './routes'
-import { trpc } from './trpc'
+// import { getViewDialogueRoute } from './routes'
+// import { trpc } from './trpc'
 
 class CheckExistsError extends Error {}
 const checkExistsFn = <T,>(value: T, message?: string): NonNullable<T> => {
@@ -23,19 +27,23 @@ const checkAccessFn = <T,>(value: T, message?: string): void => {
 
 type Props = Record<string, any>
 type QueryResult = UseTRPCQueryResult<any, any>
-type QuerySuccessResult<TQueryResult extends QueryResult> = UseTRPCQuerySuccessResult<
-  NonNullable<TQueryResult['data']>,
-  null
->
+type QuerySuccessResult<TQueryResult extends QueryResult> =
+  UseTRPCQuerySuccessResult<NonNullable<TQueryResult['data']>, null>
 type HelperProps<TQueryResult extends QueryResult | undefined> = {
   ctx: AppContext
-  queryResult: TQueryResult extends QueryResult ? QuerySuccessResult<TQueryResult> : undefined
+  queryResult: TQueryResult extends QueryResult
+    ? QuerySuccessResult<TQueryResult>
+    : undefined
 }
-type setPropsProps<TQueryResult extends QueryResult | undefined> = HelperProps<TQueryResult> & {
-  checkExists: typeof checkExistsFn
-  checkAccess: typeof checkAccessFn
-}
-type PageWrapperProps<TProps extends Props, TQueryResult extends QueryResult | undefined> = {
+type setPropsProps<TQueryResult extends QueryResult | undefined> =
+  HelperProps<TQueryResult> & {
+    checkExists: typeof checkExistsFn
+    checkAccess: typeof checkAccessFn
+  }
+type PageWrapperProps<
+  TProps extends Props,
+  TQueryResult extends QueryResult | undefined,
+> = {
   redirectAuthorized?: boolean
 
   authorizedOnly?: boolean
@@ -55,7 +63,10 @@ type PageWrapperProps<TProps extends Props, TQueryResult extends QueryResult | u
   Page: React.FC<TProps>
 }
 
-const PageWrapper = <TProps extends Props = object, TQueryResult extends QueryResult | undefined = undefined>({
+const PageWrapper = <
+  TProps extends Props = object,
+  TQueryResult extends QueryResult | undefined = undefined,
+>({
   authorizedOnly,
   authorizedOnlyTitle = 'Please, Authorize',
   authorizedOnlyMessage = 'This page is available only for authorized users',
@@ -75,16 +86,22 @@ const PageWrapper = <TProps extends Props = object, TQueryResult extends QueryRe
   const queryResult = useQuery?.()
 
   const redirectNeeded = redirectAuthorized && ctx.me
-  const recentChats = trpc.getDialogues.useQuery()
+  // const recentChats = trpc.getDialogues.useQuery()
 
   useEffect(() => {
     if (redirectNeeded) {
-      navigate(getViewDialogueRoute({ dialogueId: recentChats.data?.dialogues[0].id }), { replace: true })
+      // navigate(getViewDialogueRoute({ dialogueId: recentChats.data?.dialogues[0].id}), { replace: true })
+      navigate('/')
     }
   }, [redirectNeeded, navigate])
 
   if (queryResult?.isLoading || queryResult?.isFetching || redirectNeeded) {
-    return <p>Loading...</p>
+    return (
+      <Loader
+        variant="block"
+        text="Секунду, пожалуйста..."
+      />
+    )
   }
 
   if (queryResult?.isError) {
@@ -92,7 +109,12 @@ const PageWrapper = <TProps extends Props = object, TQueryResult extends QueryRe
   }
 
   if (authorizedOnly && !ctx.me) {
-    return <ErrorPageComponent title={authorizedOnlyTitle} message={authorizedOnlyMessage} />
+    return (
+      <ErrorPageComponent
+        title={authorizedOnlyTitle}
+        message={authorizedOnlyMessage}
+      />
+    )
   }
 
   const helperProps = { ctx, queryResult: queryResult as never }
@@ -100,25 +122,46 @@ const PageWrapper = <TProps extends Props = object, TQueryResult extends QueryRe
   if (checkAccess) {
     const accessDenied = !checkAccess(helperProps)
     if (accessDenied) {
-      return <ErrorPageComponent title={checkAccessTitle} message={checkAccessMessage} />
+      return (
+        <ErrorPageComponent
+          title={checkAccessTitle}
+          message={checkAccessMessage}
+        />
+      )
     }
   }
 
   if (checkExists) {
     const notExists = !checkExists(helperProps)
     if (notExists) {
-      return <NotFoundPage title={checkExistsTitle} message={checkExistsMessage} />
+      return (
+        <NotFoundPage title={checkExistsTitle} message={checkExistsMessage} />
+      )
     }
   }
   try {
-    const props = setProps?.({ ...helperProps, checkExists: checkExistsFn, checkAccess: checkAccessFn }) as TProps
+    const props = setProps?.({
+      ...helperProps,
+      checkExists: checkExistsFn,
+      checkAccess: checkAccessFn,
+    }) as TProps
     return <Page {...props} />
   } catch (error) {
     if (error instanceof CheckExistsError) {
-      return <ErrorPageComponent title={checkExistsTitle} message={error.message || checkExistsMessage} />
+      return (
+        <ErrorPageComponent
+          title={checkExistsTitle}
+          message={error.message || checkExistsMessage}
+        />
+      )
     }
     if (error instanceof CheckAccessError) {
-      return <ErrorPageComponent title={checkAccessTitle} message={error.message || checkAccessMessage} />
+      return (
+        <ErrorPageComponent
+          title={checkAccessTitle}
+          message={error.message || checkAccessMessage}
+        />
+      )
     }
     throw error
   }

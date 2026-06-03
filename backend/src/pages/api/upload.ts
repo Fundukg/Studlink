@@ -67,49 +67,89 @@ export default async function handler(
   }
 }
 
+// Вспомогательная функция для определения курса
+function getCourseFromGroupName(groupName: string): number {
+  const digits = groupName.replace(/\D/g, '')
+  // Берем вторую цифру, если она есть, иначе по умолчанию 1 курс
+  return digits.length >= 2 ? parseInt(digits[1]) : 1
+}
+
 export async function processStudents(data: any[], prismaInstance: any) {
   const errors: { row: number; message: string }[] = []
-  const validStudents: any[] = []
+  let importedCount = 0
 
-  // Используем переданный экземпляр prismaInstance
   const groups = await prismaInstance.group.findMany()
   const groupMap = new Map(groups.map((g: any) => [g.name, g.id]))
 
   for (const [index, row] of data.entries()) {
-    const { fullName, studentCard, groupName, course } = row
+    const { lastName, firstName, middleName, studentCard, groupName } = row
+    const rowNumber = index + 1
 
-    if (!fullName || !studentCard || !groupName) {
-      errors.push({ row: index + 1, message: 'Отсутствуют обязательные поля' })
+    // 1. Валидация полей
+    if (!lastName || !firstName || !studentCard || !groupName) {
+      errors.push({ row: rowNumber, message: 'Отсутствуют обязательные поля' })
       continue
     }
 
+    // 2. Валидация группы
     const groupId = groupMap.get(groupName)
     if (!groupId) {
       errors.push({
-        row: index + 1,
+        row: rowNumber,
         message: `Группа ${groupName} не найдена`,
       })
       continue
     }
 
-    validStudents.push({
-      name: fullName,
-      student_id: studentCard,
-      groupId: groupId,
-      course: String(course), // Убедись, что это строка
+    // 3. Проверка уникальности ДО транзакции (избегаем системных ошибок)
+    const existing = await prismaInstance.studentProfile.findUnique({
+      where: { student_id: studentCard },
     })
+    if (existing) {
+      errors.push({
+        row: rowNumber,
+        message: `Студент с зачеткой ${studentCard} уже существует`,
+      })
+      continue
+    }
+
+    // 4. Импорт
+    const autoCourse = getCourseFromGroupName(groupName)
+
+    try {
+      await prismaInstance.$transaction(async (tx: any) => {
+        const user = await tx.user.create({
+          data: {
+            lastName,
+            firstName,
+            middleName: middleName || null,
+            role: 'STUDENT',
+          },
+        })
+
+        await tx.studentProfile.create({
+          data: {
+            userId: user.id,
+            student_id: studentCard,
+            course: autoCourse,
+            groupId: groupId,
+          },
+        })
+      })
+      importedCount++
+    } catch (e: any) {
+      // Изящная обработка ошибок:
+      // Если это ошибка Prisma, берем только код или короткое сообщение
+      let msg = 'Ошибка при сохранении'
+      if (e.code === 'P2002') {
+        msg = 'Данные уже существуют (конфликт уникальных полей)'
+      } else if (e.message) {
+        msg = e.message.split('\n')[0] // Берем только первую строку сообщения
+      }
+
+      errors.push({ row: rowNumber, message: msg })
+    }
   }
 
-  if (validStudents.length > 0) {
-    await prismaInstance.student.createMany({
-      data: validStudents,
-      skipDuplicates: true,
-    })
-  }
-
-  return {
-    imported: validStudents.length,
-    failed: errors.length,
-    errors,
-  }
+  return { imported: importedCount, failed: errors.length, errors }
 }

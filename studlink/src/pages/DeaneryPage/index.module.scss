@@ -1,0 +1,368 @@
+@use '../../styles/_vars.scss' as *;
+
+.container {
+  padding: 30px;
+  // max-width: 1400px;
+  margin: 0 auto;
+  background-color: $bg-main;
+  min-height: 100vh;
+}
+
+// Шапка страницы
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+
+  .titleBlock {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: $text-dark;
+      margin: 0;
+    }
+
+    .countBadge {
+      background: $bg-main;
+      color: $accent-green;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1px solid rgba($accent-green, 0.2);
+    }
+  }
+}
+
+// Поиск и кнопка добавления
+.controls {
+  display: flex;
+  gap: 15px;
+
+  .searchWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .searchIcon {
+      position: absolute;
+      left: 12px;
+      color: $text-gray;
+      pointer-events: none;
+    }
+
+    .searchInput {
+      padding: 10px 15px 10px 38px;
+      background: $white;
+      border: 1px solid $border-color;
+      border-radius: 10px;
+      width: 280px;
+      font-size: 14px;
+      transition: all 0.2s;
+
+      &:focus {
+        border-color: $accent-green;
+        box-shadow: 0 0 0 3px rgba($accent-green, 0.1);
+        width: 320px;
+      }
+    }
+  }
+
+  .addBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: $primary-gradient;
+    color: $white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba($accent-green, 0.2);
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: translateY(-1px);
+      opacity: 0.9;
+    }
+  }
+}
+
+// Таблица
+.tableWrapper {
+  background: $white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgb(0, 0, 0, 0.05);
+  border: 1px solid $border-color;
+}
+
+.actions {
+  text-align: end;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: $bg-main;
+    padding: 15px 20px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $text-gray;
+    font-weight: 700;
+  }
+
+  td {
+    padding: 16px 20px;
+    border-bottom: 1px solid $bg-main;
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+// Инфо о сотруднике (Колонка 1)
+.staffCell {
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba($bg-main, 0.5);
+  }
+}
+
+.staffInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .avatarSmall {
+    width: 36px;
+    height: 36px;
+    background: $bg-main;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-gray;
+  }
+
+  .nameBlock {
+    .nickName {
+      font-weight: 700;
+      color: $text-dark;
+      font-size: 14px;
+    }
+
+    .fullName {
+      font-size: 12px;
+      color: $text-gray;
+    }
+  }
+}
+
+// Бейджи Ролей
+.roleBadge {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+
+  &.ADMIN {
+    background: #fee2e2;
+    color: #ef4444;
+  }
+
+  &.DEANERY {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  &.TEACHER {
+    background: #ecfdf5;
+    color: #10b981;
+  }
+}
+
+// Активность
+.activityBadges {
+  .badgeSent {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #eff6ff;
+    color: #3b82f6;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+// Модалка Деталей
+.detailsContent {
+  .detailsHeader {
+    text-align: center;
+    margin-bottom: 25px;
+
+    .bigAvatar {
+      width: 70px;
+      height: 70px;
+      background: $bg-main;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 15px;
+      color: $accent-green;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: $text-dark;
+    }
+  }
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  background: $bg-main;
+  padding: 20px;
+  border-radius: 12px;
+
+  .detailItem {
+    label {
+      font-size: 11px;
+      color: $text-gray;
+      text-transform: uppercase;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    span {
+      font-weight: 600;
+      color: $text-dark;
+    }
+  }
+}
+
+.passwordBox {
+  margin-top: 20px;
+  padding: 15px;
+  background: #1e293b; // Темно-синий "код" стиль
+  border-radius: 12px;
+  color: white;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 10px;
+  }
+
+  code {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #38bdf8;
+    background: rgb(0, 0, 0, 0.2);
+    padding: 8px;
+    border-radius: 6px;
+    word-break: break-all;
+  }
+}
+
+// Удаление
+.deleteConfirm {
+  text-align: center;
+  padding: 10px 0;
+
+  .warningIcon {
+    font-size: 48px;
+    color: #ef4444;
+    margin-bottom: 15px;
+  }
+
+  p {
+    font-size: 16px;
+    color: $text-dark;
+    margin-bottom: 20px;
+  }
+
+  .statsHint {
+    text-align: left;
+    background: #fff5f5;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #fed7d7;
+    font-size: 13px;
+    color: #c53030;
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+  }
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 20px;
+
+  button {
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .cancelBtn {
+    background: $white;
+    border: 1px solid $border-color;
+    color: $text-gray;
+  }
+
+  .dangerBtn {
+    background: #ef4444;
+    color: white;
+    border: none;
+
+    &:hover {
+      background: #dc2626;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: 100px;
+  color: $text-gray;
+  font-weight: 500;
+}

@@ -1,83 +1,98 @@
+// backend/src/router/dialogues/index.ts
+import { UserRole } from '@prisma/client'
 import { trpc } from '../../lib/trpc'
+import { hasPermission, isDeanery, isTeacher } from '../../middleware/auth'
 
-export const getDialoguesTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
-  if (!ctx.me) {
-    throw Error('Unauthorized')
-  }
-  // 1. Получаем сообщения
-  const allMessages = await ctx.prisma.message.findMany({
-    where: {
-      OR: [
-        { recipientStudentId: { not: null } },
-        { studentId: { not: null } },
-      ],
-    },
-    include: {
-      recipientStudent: {
-        select: { id: true, name: true, student_id: true },
-      },
-      student: {
-        select: { id: true, name: true, student_id: true },
-      },
-      staff: {
-        select: { nick: true },
-      },
-      // Убедитесь, что в схеме Prisma поле называется platform
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  })
-  const dialoguesMap = new Map<string, any>()
+export const getDialoguesTrpcRoute = trpc.procedure
+  .use(hasPermission('view:messages'))
+  .query(async ({ ctx }) => {
+    const me = ctx.me!
 
-  for (const msg of allMessages) {
-    const studentInfo = msg.recipientStudent || msg.student
-    if (!studentInfo) {continue}
+    // Определяем фильтр доступа для студентов
+    let studentWhere: any = {}
 
-    const studentId = studentInfo.id
-
-    if (!dialoguesMap.has(studentId)) {
-      dialoguesMap.set(studentId, {
-        student: {
-          id: studentId,
-          name: studentInfo.name,
-          student_id: studentInfo.student_id,
+    if (isDeanery(me.role)) {
+      // Деканат видит только студентов своего факультета
+      studentWhere = {
+        studentProfile: {
+          group: {
+            department: {
+              faculty: { deaneries: { some: { userId: me.id } } },
+            },
+          },
         },
-        lastMessage: msg,
-        count: 0,
-      })
+      }
+    } else if (isTeacher(me.role)) {
+      // Преподаватель видит студентов только тех групп, к которым он привязан
+      studentWhere = {
+        studentProfile: {
+          group: {
+            teachers: { some: { teacherProfile: { userId: me.id } } },
+          },
+        },
+      }
     }
-    dialoguesMap.get(studentId).count++
-  }
+    // Если ADMIN — оставляем пустой объект (видит всех)
 
-  const formattedDialogues = Array.from(dialoguesMap.values()).map((item) => {
-    const lastMsg = item.lastMessage
+    // Запрашиваем пользователей-студентов, у которых есть сообщения
+    const students = await ctx.prisma.user.findMany({
+      where: {
+        role: UserRole.STUDENT,
+        ...studentWhere,
+        OR: [
+          { sentMessages: { some: {} } },
+          { receivedMessages: { some: {} } },
+        ],
+      },
+      include: {
+        studentProfile: { include: { group: true } },
+        sentMessages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          include: { sender: true },
+        },
+        receivedMessages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          include: { sender: true },
+        },
+        _count: { select: { sentMessages: true, receivedMessages: true } },
+      },
+    })
+
+    // Форматируем для фронтенда
+    const formattedDialogues = students.map((s) => {
+      // Берем последнее сообщение из двух массивов
+      const sent = s.sentMessages[0]
+      const received = s.receivedMessages[0]
+      const lastMsg =
+        sent?.createdAt > (received?.createdAt || 0) ? sent : received
+
+      return {
+        id: s.id,
+        student: {
+          name: `${s.firstName} ${s.lastName}`,
+          studentId: s.studentProfile?.student_id,
+        },
+        lastMessage: {
+          text: lastMsg?.text || '',
+          senderType: lastMsg?.senderType,
+          platform: lastMsg?.platform,
+          senderName: lastMsg?.sender
+            ? `${lastMsg.sender.firstName} ${lastMsg.sender.lastName}`
+            : 'Студент',
+          createdAt: lastMsg?.createdAt,
+        },
+        messageCount: s._count.sentMessages + s._count.receivedMessages,
+        isLastFromDistribution: !!lastMsg?.distributionId,
+      }
+    })
+
     return {
-      id: item.student.id,
-      student: {
-        name: item.student.name,
-        studentId: item.student.student_id,
-      },
-      lastMessage: {
-        text: lastMsg.text,
-        senderType: lastMsg.senderType,
-        // Исправлена опечатка: platform вместо palatform
-        platform: lastMsg.platform,
-        senderName:
-          lastMsg.senderType === 'STAFF'
-            ? lastMsg.staff?.nick || 'Сотрудник'
-            : item.student.name,
-        createdAt: lastMsg.createdAt,
-      },
-      messageCount: item.count,
-      isLastFromDistribution: !!lastMsg.distributionId,
+      dialogues: formattedDialogues.sort(
+        (a, b) =>
+          (b.lastMessage.createdAt?.getTime() || 0) -
+          (a.lastMessage.createdAt?.getTime() || 0)
+      ),
     }
   })
-
-  return {
-    dialogues: formattedDialogues.sort(
-      (a, b) =>
-        b.lastMessage.createdAt.getTime() - a.lastMessage.createdAt.getTime()
-    ),
-  }
-})

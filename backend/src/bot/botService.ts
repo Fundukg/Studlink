@@ -6,13 +6,12 @@ import { prisma } from '../lib/prisma'
 type BotConfig = {
   platform: BotPlatform
   token: string | undefined
-  enabled: boolean // Здесь строго boolean
+  enabled: boolean
   name: string
 }
 
 export const botService = {
   syncBotsWithEnv: async () => {
-    // Вспомогательная функция для превращения строки "true" в true
     const toBool = (val: string | undefined) => val === 'true'
 
     const botConfigs: BotConfig[] = [
@@ -37,7 +36,6 @@ export const botService = {
     ]
 
     for (const config of botConfigs) {
-      // Если токена нет, или это стандартная заглушка из .env, пропускаем
       if (!config.token || config.token.includes('your_')) {
         continue
       }
@@ -46,7 +44,7 @@ export const botService = {
         where: { platform: config.platform },
         update: {
           token: config.token,
-          isActive: config.enabled, // Теперь сюда летит чистый boolean
+          isActive: config.enabled,
           name: config.name,
         },
         create: {
@@ -59,6 +57,7 @@ export const botService = {
     }
     console.log('✅ Конфигурация ботов синхронизирована с БД')
   },
+
   // Получение токена бота по платформе
   getBotToken: async (platform: BotPlatform): Promise<string> => {
     const bot = await prisma.bot.findUnique({
@@ -73,14 +72,19 @@ export const botService = {
     return bot.token
   },
 
-  // Получение информации о боте
+  // Получение информации о боте и его пользователях (с их профилями)
   getBotInfo: async (platform: BotPlatform) => {
     const bot = await prisma.bot.findUnique({
       where: { platform },
       include: {
         users: {
           include: {
-            student: true,
+            user: {
+              include: {
+                studentProfile: true,
+                teacherProfile: true,
+              },
+            },
           },
         },
       },
@@ -93,8 +97,12 @@ export const botService = {
     return bot
   },
 
-  // Регистрация пользователя бота
-  registerBotUser: async (studentId: string, platform: BotPlatform, externalId: string) => {
+  // Регистрация/привязка пользователя бота (работает и для студентов, и для преподов)
+  registerBotUser: async (
+    userId: string,
+    platform: BotPlatform,
+    externalId: string
+  ) => {
     const bot = await prisma.bot.findUnique({
       where: { platform },
     })
@@ -105,8 +113,8 @@ export const botService = {
 
     const botUser = await prisma.botUser.upsert({
       where: {
-        studentId_botId: {
-          studentId,
+        userId_botId: {
+          userId,
           botId: bot.id,
         },
       },
@@ -115,7 +123,7 @@ export const botService = {
         isActive: true,
       },
       create: {
-        studentId,
+        userId,
         botId: bot.id,
         externalId,
         isActive: true,
@@ -125,8 +133,11 @@ export const botService = {
     return botUser
   },
 
-  // Получение chat_id по student_id
-  getChatIdByStudentId: async (studentId: string, platform: BotPlatform): Promise<string | null> => {
+  // Получение externalId (chat_id) по id пользователя системы
+  getChatIdByUserId: async (
+    userId: string,
+    platform: BotPlatform
+  ): Promise<string | null> => {
     const bot = await prisma.bot.findUnique({
       where: { platform },
     })
@@ -137,7 +148,7 @@ export const botService = {
 
     const botUser = await prisma.botUser.findFirst({
       where: {
-        studentId,
+        userId,
         botId: bot.id,
         isActive: true,
       },

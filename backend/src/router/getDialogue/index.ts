@@ -1,78 +1,92 @@
+// backend/src/router/getDialogue/index.ts
+import { UserRole } from '@prisma/client'
+import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { trpc } from '../../lib/trpc'
+import { hasPermission, isDeanery, isTeacher  } from '../../middleware/auth'
 
 export const getDialogueTrpcRoute = trpc.procedure
-  .input(
-    z.object({
-      studentId: z.string(), // Теперь запрашиваем диалог по ID студента
-    })
-  )
+  .use(hasPermission('view:messages'))
+  .input(z.object({ studentId: z.string() }))
   .query(async ({ ctx, input }) => {
-    if (!ctx.me) {
-      throw Error('Unauthorized')
-    }
-    // 1. Получаем данные студента для заголовка чата
-    const student = await ctx.prisma.student.findUnique({
+    const me = ctx.me!
+
+    // 1. Получаем данные студента с иерархией факультета
+    const student = await ctx.prisma.user.findUnique({
       where: { id: input.studentId },
-      select: { id: true, name: true, student_id: true },
+      include: {
+        studentProfile: {
+          include: {
+            group: { include: { department: { include: { faculty: true } } } },
+          },
+        },
+      },
     })
 
-    if (!student) {
-      throw new Error('Студент не найден')
+    if (!student || student.role !== UserRole.STUDENT) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Студент не найден' })
     }
 
-    // 2. Получаем все сообщения:
-    // - Где студент является отправителем (STUDENT -> STAFF)
-    // - Где студент является получателем (STAFF -> STUDENT), включая рассылки
+    // 2. ПРОВЕРКА ПРАВ
+    if (isDeanery(me.role)) {
+      const deanery = await ctx.prisma.deaneryProfile.findUnique({
+        where: { userId: me.id },
+      })
+      if (
+        !deanery ||
+        deanery.facultyId !==
+          student.studentProfile?.group?.department.facultyId
+      ) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Нет доступа к студентам этого факультета',
+        })
+      }
+    }
+
+    // 3. Получаем сообщения с фильтрацией по роли
     const allMessages = await ctx.prisma.message.findMany({
       where: {
-        OR: [
-          { studentId: input.studentId },          // Сообщения ОТ студента
-          { recipientStudentId: input.studentId }, // Сообщения К студенту (личные и рассылки)
-        ],
+        OR: [{ senderId: input.studentId }, { recipientId: input.studentId }],
+        // Фильтр для учителя: он видит только те диалоги, где ОН является участником (отправитель или получатель)
+        ...(isTeacher(me.role)
+          ? {
+              OR: [
+                { senderId: me.id, recipientId: input.studentId },
+                { senderId: input.studentId, recipientId: me.id },
+              ],
+            }
+          : {}),
       },
       include: {
-        staff: { select: { id: true, nick: true } },
-        student: { select: { id: true, name: true, student_id: true } },
-        distribution: { select: { id: true } }, // Чтобы пометить, что это было частью рассылки
+        sender: {
+          select: { id: true, firstName: true, lastName: true },
+        },
       },
       orderBy: { createdAt: 'asc' },
     })
 
-    const formattedMessages = allMessages.map((message) => {
-      let sender
-      if (message.senderType === 'STAFF') {
-        sender = {
-          type: 'STAFF' as const,
-          id: message.staffId || 'system',
-          name: message.staff?.nick || 'Сотрудник',
-        }
-      } else {
-        sender = {
-          type: 'STUDENT' as const,
-          id: student.id,
-          name: student.name,
-          studentId: student.student_id,
-        }
-      }
-
-      return {
-        id: message.id,
-        text: message.text,
-        createdAt: message.createdAt,
-        sender,
-        platform: message.platform,
-        // Помечаем сообщение, если оно пришло из массовой рассылки
-        isDistribution: !!message.distributionId, 
-      }
-    })
+    // 4. Форматирование
+    const formattedMessages = allMessages.map((m) => ({
+      id: m.id,
+      text: m.text,
+      createdAt: m.createdAt,
+      platform: m.platform,
+      isDistribution: !!m.distributionId,
+      sender: {
+        id: m.senderId,
+        name: m.sender
+          ? `${m.sender.firstName} ${m.sender.lastName}`
+          : 'Система',
+        role: m.senderType,
+      },
+    }))
 
     return {
       dialogue: {
         recipient: {
           id: student.id,
-          name: student.name,
-          studentId: student.student_id,
+          name: `${student.firstName} ${student.lastName}`,
         },
         messages: formattedMessages,
       },

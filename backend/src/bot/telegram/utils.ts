@@ -1,20 +1,19 @@
-// utils.ts
-import { PrismaClient, BotPlatform } from '@prisma/client'
+import { PrismaClient, BotPlatform, SenderType } from '@prisma/client'
 import { botService } from '../botService'
 import { getBot, sendMessageToStudent } from './index'
 
 const prisma = new PrismaClient()
 
-// Функция для массовой отправки сообщений
-export const sendBulkMessages = async (studentIds: string[], message: string) => {
+export const sendBulkMessages = async (
+  studentIds: string[],
+  message: string
+) => {
   const results = await Promise.allSettled(
     studentIds.map((id) => sendMessageToStudent(id, message))
   )
-
   return results
 }
 
-// Функция для отправки сообщения с кнопкой "Ответить"
 export const sendDistributionWithReply = async (
   studentId: string,
   message: string,
@@ -22,43 +21,46 @@ export const sendDistributionWithReply = async (
   staffId?: string
 ) => {
   const bot = getBot()
-  
+
   try {
-    // Получаем chat_id из базы данных
-    const chatId = await botService.getChatIdByStudentId(studentId, BotPlatform.TELEGRAM)
-    
+    // Получаем chat_id из базы
+    const chatId = await botService.getChatIdByUserId(
+      studentId,
+      BotPlatform.TELEGRAM
+    )
     if (!chatId) {
       throw new Error('Студент не найден или не авторизован в боте')
     }
 
-    // Создаем клавиатуру с кнопкой "Ответить"
+    // Получаем ID записи бота Telegram
+    const botRecord = await prisma.bot.findUnique({
+      where: { platform: BotPlatform.TELEGRAM },
+      select: { id: true },
+    })
+    if (!botRecord) {
+      throw new Error('Бот Telegram не зарегистрирован в системе')
+    }
+
     const replyMarkup = {
       inline_keyboard: [
-        [
-          {
-            text: 'Ответить',
-            callback_data: `reply_${distributionId}`,
-          },
-        ],
+        [{ text: 'Ответить', callback_data: `reply_${distributionId}` }],
       ],
     }
 
-    // Отправляем сообщение с кнопкой
     const telegramMessage = await bot.telegram.sendMessage(chatId, message, {
       reply_markup: replyMarkup,
     })
 
-    // Сохраняем сообщение в базу
+    // Сохраняем сообщение в БД
     await prisma.message.create({
       data: {
         text: message,
-        senderType: 'STAFF',
-        staffId: staffId,
-        targetType: 'STUDENT',
-        recipientStudentId: studentId,
+        senderType: staffId ? SenderType.DEANERY : SenderType.ADMIN,
+        senderId: staffId || null,
+        recipientId: studentId,
+        distributionId: distributionId,
         externalId: telegramMessage.message_id.toString(),
-        parentId: distributionId,
-        botId: BotPlatform.TELEGRAM,
+        botId: botRecord.id,
         platform: BotPlatform.TELEGRAM,
       },
     })

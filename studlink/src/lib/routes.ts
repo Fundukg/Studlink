@@ -2,7 +2,7 @@ const getRouteParams = <T extends Record<string, boolean>>(object: T) => {
   return Object.keys(object).reduce((acc, key) => ({ ...acc, [key]: `:${key}` }), {}) as Record<keyof T, string>
 }
 
-export const getViewDialoguesRoute = () => '/'
+export const getStartRoute = () => '/'
 
 export  const getViewDistributionsRoute = () => '/distributions'
 
@@ -36,9 +36,17 @@ export const getViewGroupRoute = () => '/groups'
 
 export const getViewBotRoute = () => '/bots'
 
-export const getViewStaffRoute = () => '/staffs'
+export const getViewDeaneryRoute = () => '/deanerys'
+
+export const getViewAdminRoute = () => '/admins'
+
+export const getViewTeacherRoute = () => '/teachers'
 
 export const importStudentsRoute = () => '/import-students'
+
+export const getProfileSetupRoute = () => '/profile-setup'
+
+export const getProfileRoute = () => '/profile'
 
 // export const DialoguesRouteParams = { workdesk: ':WorkDesk' }
 // export type DialoguesRouteParams =  { workdesk: string }

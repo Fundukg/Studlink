@@ -1,0 +1,80 @@
+@use '../../styles/vars' as *;
+
+.tabsContainer {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: $bg-main; // вместо $gray-light
+  padding: 4px;
+  border-radius: 8px; // вместо $borderRadiusMedium
+  border: 1px solid rgba($text-gray, 0.1);
+  width: 100%;
+  max-width: max-content;
+  overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.tabButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 6px; // (8px - 2px)
+  cursor: pointer;
+  font-family: $defaultFontFamily;
+  font-size: $defaultFontSize;
+  font-weight: 500;
+  line-height: $defaultLineHeight;
+  color: $text-gray; // вместо $slate-gray
+  white-space: nowrap;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    color: $text-dark; // вместо $slate-dark
+    background-color: rgba($white, 0.5);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent-green;
+    outline-offset: -2px;
+  }
+
+  &.active {
+    background-color: $white;
+    color: $dark-green; // вместо $sli-green-dark
+    box-shadow:
+      0 2px 6px rgba($text-dark, 0.06),
+      0 1px 2px rgba($text-dark, 0.04);
+  }
+}
+
+.label {
+  transition: color 0.2s ease-in-out;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px;
+  background-color: rgba($text-gray, 0.15);
+  color: $text-gray;
+  transition: all 0.2s ease-in-out;
+
+  &.activeBadge {
+    background-color: $light-bg-green; // вместо $sli-green-accent
+    color: $dark-green;
+  }
+}

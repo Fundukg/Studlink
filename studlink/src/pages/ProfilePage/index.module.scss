@@ -1,0 +1,186 @@
+// src/pages/ProfilePage/index.module.scss
+@use '../../styles/_vars.scss' as *;
+
+.profilePageWrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.actionsHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+
+.menuTriggerButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid $border-color;
+  border-radius: 30px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-dark;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: $bg-main;
+    border-color: $accent-green;
+  }
+}
+
+.alertWrapper {
+  margin-bottom: 20px;
+}
+
+.profileLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fullWidthForm {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.05);
+}
+
+.verticalStack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.infoCardSection {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.05);
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid $border-color;
+  }
+
+  .cardTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0;
+  }
+
+  .cardIcon {
+    color: $accent-green;
+  }
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px 24px;
+}
+
+.infoItem,
+.infoItemFull {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoItemFull {
+  grid-column: span 2;
+}
+
+.infoLabel {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: $text-gray;
+  letter-spacing: 0.03em;
+}
+
+.infoValue {
+  font-size: 15px;
+  color: $text-dark;
+  word-break: word-break;
+
+  &[data-role='student'] {
+    color: #2c7a4d;
+    font-weight: 500;
+  }
+
+  &[data-role='teacher'] {
+    color: #2b6cb0;
+    font-weight: 500;
+  }
+
+  &[data-role='deanery'] {
+    color: #9b2c2c;
+    font-weight: 500;
+  }
+
+  &[data-role='admin'] {
+    color: #c53030;
+    font-weight: 500;
+  }
+}
+
+.groupList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.groupBadge {
+  background: #edf2f7;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: $text-dark;
+}
+
+.bottomFormWrapper {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.05);
+}
+
+.loader {
+  text-align: center;
+  padding: 60px;
+  color: $text-gray;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

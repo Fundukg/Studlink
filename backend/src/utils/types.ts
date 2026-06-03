@@ -1,6 +1,6 @@
-import { type Staff } from '@prisma/client'
+import { type User } from '@prisma/client'
 import { type Request } from 'express'
 
 export type ExpressRequest = Request & { 
-    user: Staff | undefined 
+    user: User | undefined 
 }

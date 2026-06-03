@@ -1,5 +1,6 @@
-import Cookies from 'js-cookie';
+import Cookies from 'js-cookie'
 import { useState, useRef } from 'react'
+import toast from 'react-hot-toast'
 import { env } from '../../lib/env'
 import styles from './index.module.scss'
 
@@ -13,8 +14,11 @@ export default function ImportStudentPage() {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {setIsDragging(true)}
-    else if (e.type === 'dragleave') {setIsDragging(false)}
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setIsDragging(true)
+    } else if (e.type === 'dragleave') {
+      setIsDragging(false)
+    }
   }
 
   const handleDrop = (e: React.DragEvent) => {
@@ -27,46 +31,69 @@ export default function ImportStudentPage() {
   }
 
   const handleUpload = async () => {
-    if (!file) {return;}
-    setLoading(true);
+    if (!file) {return}
 
-    const formData = new FormData();
-    formData.append('file', file);
+    const formData = new FormData()
+    formData.append('file', file)
 
-    // Берем базовый URL из твоего env, заменяя /trpc на /api/upload
-    const baseUrl = env.VITE_BACKEND_TRPC_URL.replace('/trpc', '');
-    const uploadUrl = `${baseUrl}/api/upload`; 
+    const baseUrl = env.VITE_BACKEND_TRPC_URL.replace('/trpc', '')
+    const uploadUrl = `${baseUrl}/api/upload`
 
-    try {
-      const token = Cookies.get('token-studlink'); // Берем твой куки
+    // Создаем функцию, которая выполняет запрос и возвращает Promise
+    const uploadPromise = async () => {
+      const token = Cookies.get('token-studlink')
 
       const res = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
         headers: {
-          // Важно: для FormData заголовок Content-Type ставить НЕ НУЖНО, 
-          // браузер сам выставит boundary. Только авторизация:
-          ...(token && { 'Authorization': `Bearer ${token}` }),
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
-      });
+      })
 
-      if (res.status === 404) {
-        throw new Error(`Маршрут не найден по адресу: ${uploadUrl}`);
+      if (!res.ok) {
+        if (res.status === 404) {throw new Error('Маршрут загрузки не найден')}
+        const errorData = await res
+          .json()
+          .catch(() => ({ message: 'Ошибка сервера' }))
+        throw new Error(errorData.message || `Ошибка: ${res.statusText}`)
       }
 
-      const data = await res.json();
-      setReport(data);
-    } catch (error: any) {
-      console.error(error);
-      alert(error.message);
-    } finally {
-      setLoading(false);
+      return await res.json()
     }
-  };
+
+    // Применяем toast.promise
+    try {
+      setLoading(true)
+      const data = await toast.promise(uploadPromise(), {
+        loading: 'Загрузка файла...',
+        success: 'Файл успешно загружен и обработан! ✅',
+        error: (err: any) => err.message || 'Ошибка при загрузке файла',
+      })
+
+      setReport(data)
+    } catch (error) {
+      console.error('Upload error:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className={styles.importContainer}>
       <h1>Массовый импорт студентов</h1>
+
+      {/* Добавляем памятку для пользователя */}
+      <div className={styles.instructionBox}>
+        <h3>Формат CSV файла:</h3>
+        <p>
+          Файл должен содержать заголовки:{' '}
+          <code>
+            lastName, firstName, middleName, studentCard, groupName, course
+          </code>
+        </p>
+        <small>middleName - опционально</small>
+      </div>
 
       <div
         className={`${styles.dropZone} ${isDragging ? styles.active : ''}`}
@@ -77,8 +104,10 @@ export default function ImportStudentPage() {
         onClick={() => fileInputRef.current?.click()}
       >
         <div className={styles.icon}>📁</div>
-        <p>Перетащите CSV файл сюда или нажмите для выбора</p>
-        <span>Поддерживаются только .csv файлы</span>
+        <p>
+          {file ? file.name : 'Перетащите CSV файл или нажмите для выбора'}
+        </p>
+        <span>Только .csv файлы</span>
         <input
           type="file"
           ref={fileInputRef}
