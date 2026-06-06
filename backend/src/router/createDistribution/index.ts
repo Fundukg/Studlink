@@ -7,7 +7,9 @@ import { hasPermission } from '../../middleware/auth'
 import { zCreateDistributionTrpcInput } from './input'
 
 // Используем готовую процедуру с каскадной проверкой прав
-const distributionProcedure = trpc.procedure.use(hasPermission('create:distribution'))
+const distributionProcedure = trpc.procedure.use(
+  hasPermission('create:distribution')
+)
 
 export const createDistributionTrpcRoute = distributionProcedure
   .input(zCreateDistributionTrpcInput)
@@ -21,7 +23,7 @@ export const createDistributionTrpcRoute = distributionProcedure
 
     // 1. Поиск пользователей (студентов) по новой схеме связи через studentProfile
     switch (targetType) {
-      case 'STUDENT': // Конкретные User.id, переданные массивом
+      case 'USER': // Конкретные User.id, переданные массивом
         recipients = await ctx.prisma.user.findMany({
           where: {
             id: { in: targetIds },
@@ -81,7 +83,16 @@ export const createDistributionTrpcRoute = distributionProcedure
 
       case 'ALL':
         recipients = await ctx.prisma.user.findMany({
-          where: { role: UserRole.STUDENT },
+          where: { role: UserRole.STUDENT && UserRole.TEACHER },
+          select: { id: true },
+        })
+        break
+      case 'TEACHER':
+        recipients = await ctx.prisma.user.findMany({
+          where: {
+            id: { in: targetIds },
+            role: UserRole.TEACHER,
+          },
           select: { id: true },
         })
         break
@@ -127,7 +138,7 @@ export const createDistributionTrpcRoute = distributionProcedure
         if (result.success) {
           totalSuccessCount++
 
-          // Создаем запись в Message. 
+          // Создаем запись в Message.
           // Внимание: поля targetType здесь БОЛЬШЕ НЕТ, связь идет строго через recipientId и distributionId
           await ctx.prisma.message.create({
             data: {

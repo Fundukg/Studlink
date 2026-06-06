@@ -38,6 +38,7 @@ export const createStudentTrpcRoute = trpc.procedure
         firstName: input.firstName,
         middleName: input.middleName || null,
         role: UserRole.STUDENT,
+        firstLogin: false,
         studentProfile: {
           create: {
             student_id: input.student_id,

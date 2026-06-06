@@ -1,17 +1,15 @@
 import fs from 'fs'
-import parse from 'csv-parser' // Исправлен импорт
+import parse from 'csv-parser'
 import multer from 'multer'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '../../lib/prisma'
 
-// Настройка multer
 const upload = multer({ dest: '/tmp' })
 
 export const config = {
   api: { bodyParser: false },
 }
 
-// Хелпер для запуска middleware multer в API Route
 function runMiddleware(req: any, res: any, fn: any) {
   return new Promise((resolve, reject) => {
     fn(req, res, (result: any) => {
@@ -23,11 +21,43 @@ function runMiddleware(req: any, res: any, fn: any) {
   })
 }
 
+/**
+ * Определяет разделитель CSV по первым строкам текста.
+ * Поддерживает запятую, точку с запятой и табуляцию.
+ * Возвращает строку-разделитель или выбрасывает ошибку.
+ */
+function detectDelimiter(text: string): string {
+  const delimiters = [',', ';', '\t']
+  const lines = text.split(/\r?\n/).filter((line) => line.trim() !== '')
+
+  // Считаем максимальное количество колонок для каждого разделителя
+  const columnCounts = delimiters.map((d) => {
+    let maxCols = 0
+    for (const line of lines) {
+      // Простое разбиение, без учёта экранированных кавычек
+      const cols = line.split(d).length
+      if (cols > maxCols) {maxCols = cols}
+    }
+    return maxCols
+  })
+
+  const maxColumns = Math.max(...columnCounts)
+  if (maxColumns <= 1) {
+    throw new Error(
+      'Не удалось определить разделитель CSV. Убедитесь, что файл имеет правильный формат (разделители: запятая, точка с запятой, табуляция).'
+    )
+  }
+
+  // Выбираем разделитель с наибольшим количеством колонок
+  const bestIndex = columnCounts.indexOf(maxColumns)
+  return delimiters[bestIndex]
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  res.setHeader('Access-Control-Allow-Origin', '*') // В продакшене лучше указать домен
+  res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
 
@@ -38,8 +68,9 @@ export default async function handler(
     return res.status(405).end()
   }
 
+  let filePath: string | undefined
+
   try {
-    // Выполняем загрузку файла
     await runMiddleware(req, res, upload.single('file'))
 
     const extendedReq = req as NextApiRequest & { file: Express.Multer.File }
@@ -47,30 +78,72 @@ export default async function handler(
       return res.status(400).json({ error: 'Файл не найден' })
     }
 
-    const results: any[] = []
-    const filePath = extendedReq.file.path
+    filePath = extendedReq.file.path
 
-    // Читаем CSV
+    // 1. Определяем разделитель по первым строкам файла
+    const sampleBuffer = fs.readFileSync(filePath, { encoding: 'utf-8' })
+    const separator = detectDelimiter(sampleBuffer)
+
+    // 2. Парсим CSV с выбранным разделителем
+    const results: any[] = []
     await new Promise((resolve, reject) => {
-      fs.createReadStream(filePath)
-        .pipe(parse({ separator: ',' } as any))
+      fs.createReadStream(filePath!)
+        .pipe(parse({ separator }))
         .on('data', (data) => results.push(data))
         .on('error', reject)
         .on('end', resolve)
     })
 
-    // const report = await processStudents(results)
-    fs.unlinkSync(filePath) // Очистка
-    // res.status(200).json(report)
+    // 3. Проверяем наличие данных и обязательных колонок
+    if (results.length === 0) {
+      fs.unlinkSync(filePath)
+      return res
+        .status(400)
+        .json({ error: 'CSV файл пуст или не содержит строк данных.' })
+    }
+
+    const requiredFields = [
+      'lastName',
+      'firstName',
+      'studentCard',
+      'groupName',
+    ]
+    const firstRowKeys = Object.keys(results[0])
+    const missingFields = requiredFields.filter(
+      (f) => !firstRowKeys.includes(f)
+    )
+
+    if (missingFields.length > 0) {
+      fs.unlinkSync(filePath)
+      return res.status(400).json({
+        error: `Отсутствуют обязательные колонки в CSV: ${missingFields.join(', ')}. Проверьте заголовки файла.`,
+      })
+    }
+
+    // 4. Обрабатываем студентов
+    const report = await processStudents(results, prisma)
+    fs.unlinkSync(filePath) // очистка
+    return res.status(200).json(report)
   } catch (e: any) {
-    res.status(500).json({ error: e.message || 'Ошибка сервера' })
+    // Если файл еще не удален, удаляем
+    if (filePath) {
+      try {
+        fs.unlinkSync(filePath)
+      } catch (_) { /* empty */ }
+    }
+
+    // Определяем код ошибки: если это наша ошибка формата – 400, иначе 500
+    const statusCode = e.message?.includes('разделитель') ? 400 : 500
+    return res
+      .status(statusCode)
+      .json({ error: e.message || 'Ошибка сервера' })
   }
 }
 
-// Вспомогательная функция для определения курса
-function getCourseFromGroupName(groupName: string): number {
+// Функция getCourseFromGroupName и processStudents остаются без изменений
+// (приведены ниже для полноты)
+export function getCourseFromGroupName(groupName: string): number {
   const digits = groupName.replace(/\D/g, '')
-  // Берем вторую цифру, если она есть, иначе по умолчанию 1 курс
   return digits.length >= 2 ? parseInt(digits[1]) : 1
 }
 
@@ -85,13 +158,11 @@ export async function processStudents(data: any[], prismaInstance: any) {
     const { lastName, firstName, middleName, studentCard, groupName } = row
     const rowNumber = index + 1
 
-    // 1. Валидация полей
     if (!lastName || !firstName || !studentCard || !groupName) {
       errors.push({ row: rowNumber, message: 'Отсутствуют обязательные поля' })
       continue
     }
 
-    // 2. Валидация группы
     const groupId = groupMap.get(groupName)
     if (!groupId) {
       errors.push({
@@ -101,7 +172,6 @@ export async function processStudents(data: any[], prismaInstance: any) {
       continue
     }
 
-    // 3. Проверка уникальности ДО транзакции (избегаем системных ошибок)
     const existing = await prismaInstance.studentProfile.findUnique({
       where: { student_id: studentCard },
     })
@@ -113,7 +183,6 @@ export async function processStudents(data: any[], prismaInstance: any) {
       continue
     }
 
-    // 4. Импорт
     const autoCourse = getCourseFromGroupName(groupName)
 
     try {
@@ -124,9 +193,9 @@ export async function processStudents(data: any[], prismaInstance: any) {
             firstName,
             middleName: middleName || null,
             role: 'STUDENT',
+            firstLogin: true,
           },
         })
-
         await tx.studentProfile.create({
           data: {
             userId: user.id,
@@ -138,15 +207,12 @@ export async function processStudents(data: any[], prismaInstance: any) {
       })
       importedCount++
     } catch (e: any) {
-      // Изящная обработка ошибок:
-      // Если это ошибка Prisma, берем только код или короткое сообщение
       let msg = 'Ошибка при сохранении'
       if (e.code === 'P2002') {
         msg = 'Данные уже существуют (конфликт уникальных полей)'
       } else if (e.message) {
-        msg = e.message.split('\n')[0] // Берем только первую строку сообщения
+        msg = e.message.split('\n')[0]
       }
-
       errors.push({ row: rowNumber, message: msg })
     }
   }

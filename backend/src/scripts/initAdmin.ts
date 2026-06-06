@@ -27,6 +27,7 @@ async function createInitialAdmin() {
         firstName: 'System',
         lastName: 'Administrator',
         role: UserRole.ADMIN,
+        firstLogin: false,
       },
     })
 

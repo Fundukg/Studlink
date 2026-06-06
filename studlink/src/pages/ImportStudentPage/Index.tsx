@@ -89,7 +89,7 @@ export default function ImportStudentPage() {
         <p>
           Файл должен содержать заголовки:{' '}
           <code>
-            lastName, firstName, middleName, studentCard, groupName, course
+            lastName, firstName, middleName, studentCard, groupName
           </code>
         </p>
         <small>middleName - опционально</small>

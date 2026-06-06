@@ -17,6 +17,7 @@ export const createAdminTrpcRoute = trpc.procedure
         lastName: input.lastName,
         middleName: input.middleName,
         role: UserRole.ADMIN,
+        firstLogin: true,
       },
     })
     return { userId: user.id }

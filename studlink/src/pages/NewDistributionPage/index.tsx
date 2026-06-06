@@ -25,6 +25,7 @@ export const NewDistributionPage = withPageWrapper({
   const [deptId, setDeptId] = useState<string>('')
   const [selectedCourses, setSelectedCourses] = useState<string[]>([])
   const [selectedGroups, setSelectedGroups] = useState<string[]>([])
+  const [selectedTeachers, setSelectedTeachers] = useState<string[]>([])
 
   const faculties = trpc.getStructure.getFaculties.useQuery()
   const departments = trpc.getStructure.getDepartmentsByFaculty.useQuery(
@@ -36,6 +37,9 @@ export const NewDistributionPage = withPageWrapper({
     { enabled: !!deptId }
   )
 
+  // Получаем список преподавателей (требует права view:staff)
+  const teachers = trpc.getTeacherList.useQuery()
+
   useEffect(() => {
     if (departments.data?.length === 1) {
       setDeptId(departments.data[0].id)
@@ -44,7 +48,9 @@ export const NewDistributionPage = withPageWrapper({
 
   // --- 2. ОПЦИИ ДЛЯ ЧЕКБОКСОВ ---
   const courseOptions = useMemo(() => {
-    if (!groups.data) {return []}
+    if (!groups.data) {
+      return []
+    }
     const uniqueCourses = Array.from(
       new Set(groups.data.map((g) => g.course))
     ).sort()
@@ -52,7 +58,9 @@ export const NewDistributionPage = withPageWrapper({
   }, [groups.data])
 
   const groupOptions = useMemo(() => {
-    if (!groups.data) {return []}
+    if (!groups.data) {
+      return []
+    }
     return groups.data
       .filter(
         (g) =>
@@ -62,6 +70,18 @@ export const NewDistributionPage = withPageWrapper({
       .map((g) => ({ label: g.name, value: g.id }))
   }, [groups.data, selectedCourses])
 
+  // Опции для списка преподавателей
+  const teacherOptions = useMemo(() => {
+    if (!teachers.data?.staff) {
+      return []
+    }
+    return teachers.data.staff.map((t) => ({
+      label:
+        `${t.lastName} ${t.firstName} ${t.middleName || ''} (${t.nick})`.trim(),
+      value: t.id,
+    }))
+  }, [teachers.data])
+
   // --- 3. ФОРМА ---
   const { formik, alertProps } = useForm({
     initialValues: {
@@ -70,7 +90,8 @@ export const NewDistributionPage = withPageWrapper({
         | 'FACULTY'
         | 'DEPARTMENT'
         | 'GROUP'
-        | 'COURSE',
+        | 'COURSE'
+        | 'TEACHER',
       text: '',
       platform:
         (localStorage.getItem('platform_distribution') as PlatformType) ||
@@ -98,6 +119,9 @@ export const NewDistributionPage = withPageWrapper({
                 ? selectedGroups
                 : groupOptions.map((o) => o.value)
             break
+          case 'TEACHER':
+            ids = selectedTeachers
+            break
           default:
             ids = []
         }
@@ -113,12 +137,13 @@ export const NewDistributionPage = withPageWrapper({
         setDeptId('')
         setSelectedCourses([])
         setSelectedGroups([])
+        setSelectedTeachers([])
       } catch (error: any) {
         console.error('Ошибка при рассылке:', error)
         toast.error(error.message || 'Не удалось отправить рассылку')
       }
     },
-    successMessage: '', // убираем встроенный Alert, используем toast
+    successMessage: '',
     showValidationAlert: true,
   })
 
@@ -142,11 +167,6 @@ export const NewDistributionPage = withPageWrapper({
     )
   }
 
-  // const showCoursesAndGroups = () => {
-  //   const { targetType } = formik.values
-  //   return (targetType === 'COURSE' || targetType === 'GROUP') && !!deptId
-  // }
-
   const showCoursesOnly = () => {
     const { targetType } = formik.values
     return targetType === 'COURSE' && !!deptId
@@ -157,7 +177,11 @@ export const NewDistributionPage = withPageWrapper({
     return targetType === 'GROUP' && !!deptId
   }
 
-  // --- 5. ХЕЛПЕР ДЛЯ ЧЕКБОКСОВ (без изменений) ---
+  const showTeachersOnly = () => {
+    return formik.values.targetType === 'TEACHER'
+  }
+
+  // --- 5. ХЕЛПЕР ДЛЯ ЧЕКБОКСОВ ---
   const createCheckboxProps = (
     name: string,
     state: string[],
@@ -168,7 +192,6 @@ export const NewDistributionPage = withPageWrapper({
     errors: {},
     touched: {},
   })
-
   return (
     <div className={css.container}>
       <MailingHeader />
@@ -206,6 +229,7 @@ export const NewDistributionPage = withPageWrapper({
                     { value: 'DEPARTMENT', label: 'По Кафедре' },
                     { value: 'COURSE', label: 'По Курсам' },
                     { value: 'GROUP', label: 'По Группам' },
+                    { value: 'TEACHER', label: 'Преподаватели' },
                   ]}
                   onChange={(e: any) => {
                     formik.handleChange(e)
@@ -213,6 +237,7 @@ export const NewDistributionPage = withPageWrapper({
                     setDeptId('')
                     setSelectedCourses([])
                     setSelectedGroups([])
+                    setSelectedTeachers([])
                   }}
                 />
               </div>
@@ -310,6 +335,27 @@ export const NewDistributionPage = withPageWrapper({
                     </div>
                   </div>
                 </>
+              )}
+
+              {/* Блок Преподаватели (только для TEACHER) */}
+              {showTeachersOnly() && (
+                <div className={css.groupWrapper}>
+                  <div className={css.checkboxScrollArea}>
+                    <Checkbox
+                      name="TEACHER"
+                      label="Преподаватели:"
+                      options={teacherOptions}
+                      formik={
+                        createCheckboxProps(
+                          'TEACHER',
+                          selectedTeachers,
+                          setSelectedTeachers
+                        ) as any
+                      }
+                      layout="grid"
+                    />
+                  </div>
+                </div>
               )}
             </div>
 

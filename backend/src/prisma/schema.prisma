@@ -24,6 +24,7 @@ model User {
   role             UserRole         @default(STUDENT)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
+  firstLogin       Boolean
 
   studentProfile   StudentProfile?
   teacherProfile   TeacherProfile?
@@ -226,6 +227,7 @@ enum TargetType {
   DEPARTMENT
   FACULTY
   COURSE
+  TEACHER
   ALL
 }
 

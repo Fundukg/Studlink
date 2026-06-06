@@ -1,19 +1,16 @@
-$sidebar-bg: #ffffff;
-$item-hover: #f3f4f6;
-$item-active: #ecfdf5; // Светло-зеленый фон как на фото
-$accent-green: #10b981;
-$text-dark: #111827;
-$text-muted: #6b7280;
-$border-color: #f1f5f9;
+// Импорт глобальных переменных (путь уточните под свой проект)
+@use '../../../styles/vars' as *;
 
 .secondarySidebar {
   width: 320px;
   height: 100%;
-  background: $sidebar-bg;
+  background: $white;
   border-right: 1px solid $border-color;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  font-family: $defaultFontFamily;
+  font-size: $defaultFontSize;
 }
 
 .sidebarHeader {
@@ -38,6 +35,7 @@ $border-color: #f1f5f9;
       border: none;
       color: $text-muted;
       cursor: pointer;
+      transition: color 0.2s;
 
       &:hover {
         color: $accent-green;
@@ -64,9 +62,14 @@ $border-color: #f1f5f9;
       border-radius: 10px;
       font-size: 0.9rem;
       outline: none;
+      color: $text-dark;
 
       &:focus {
         border-color: $accent-green;
+      }
+
+      &::placeholder {
+        color: $text-muted;
       }
     }
   }
@@ -84,8 +87,70 @@ $border-color: #f1f5f9;
     background: #e5e7eb;
     border-radius: 4px;
   }
+
+  // Загрузка
+  .loading {
+    padding: 2rem;
+    text-align: center;
+    color: $text-muted;
+  }
+
+  // Нет результатов поиска
+  .noResults {
+    padding: 2rem;
+    text-align: center;
+    color: $text-muted;
+  }
+
+  // Пустое состояние (нет диалогов)
+  .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    height: 100%;
+
+    .emptyIcon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+
+    .emptyTitle {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $text-dark;
+      margin: 0 0 0.5rem;
+    }
+
+    .emptyHint {
+      font-size: 0.9rem;
+      color: $text-muted;
+      margin: 0 0 1.5rem;
+      line-height: 1.4;
+    }
+
+    .startButton {
+      background: $primary-gradient;
+      color: $white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+  }
 }
 
+// Элемент списка диалогов
 .dialogueItem {
   display: flex;
   padding: 14px 16px;
@@ -117,93 +182,21 @@ $border-color: #f1f5f9;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    color: #64748b;
     flex-shrink: 0;
-    font-size: 1.1rem;
 
-    .avatar {
-      position: relative; // Чтобы абсолютный бейдж позиционировался относительно аватара
-      width: 48px;
-      height: 48px;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-
-      .initials {
-        font-weight: 600;
-        color: #64748b;
-        font-size: 1.1rem;
-      }
+    .initials {
+      font-weight: 600;
+      color: #64748b;
+      font-size: 1.1rem;
     }
 
-    // Позиционирование нашего переиспользуемого компонента в углу аватара
+    // Платформенный бейдж в углу аватара
     .platformPosition {
       position: absolute;
       bottom: -2px;
       right: -2px;
       z-index: 2;
-    }
-
-    .lastMessageRow {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-
-      .messageBody {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .messagePreview {
-        font-size: 0.85rem;
-        color: $text-muted;
-        margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .statusIcon {
-        color: $accent-green;
-        flex-shrink: 0;
-      }
-    }
-    // Бейдж платформы поверх аватара
-    .platformBadge {
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      border: 2px solid #ffffff;
-      z-index: 2;
-
-      &.tg {
-        background-color: #229ed9;
-      }
-
-      &.vk {
-        background-color: #0077ff;
-      }
-
-      &.ok {
-        background-color: #f93;
-      }
-
-      &.all {
-        background-color: #10b981;
-      }
+      // Здесь ожидается, что компонент PlatformBadge уже имеет свои размеры/стили
     }
   }
 
@@ -228,6 +221,7 @@ $border-color: #f1f5f9;
       .time {
         font-size: 0.75rem;
         color: $text-muted;
+        flex-shrink: 0;
       }
     }
 
@@ -236,15 +230,6 @@ $border-color: #f1f5f9;
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      margin-top: 2px;
-
-      .messageBody {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex: 1;
-        min-width: 0;
-      }
 
       .messagePreview {
         font-size: 0.85rem;
@@ -253,37 +238,7 @@ $border-color: #f1f5f9;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-      }
-
-      // Текстовая метка платформы (если нужна в строке)
-      .platformLabel {
-        font-size: 0.65rem;
-        font-weight: 800;
-        padding: 1px 4px;
-        border-radius: 4px;
-        flex-shrink: 0;
-        line-height: 1;
-        text-transform: uppercase;
-
-        &.tg {
-          background-color: #e0f2fe;
-          color: #0ea5e9;
-        }
-
-        &.vk {
-          background-color: #ebf5ff;
-          color: #0077ff;
-        }
-
-        &.ok {
-          background-color: #fff7ed;
-          color: #ea580c;
-        }
-
-        &.all {
-          background-color: #f1f5f9;
-          color: #ee00ff;
-        }
+        flex: 1;
       }
 
       .statusIcon {

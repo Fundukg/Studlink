@@ -18,6 +18,7 @@ export const createTeacherTrpcRoute = trpc.procedure
           lastName: input.lastName,
           middleName: input.middleName,
           role: UserRole.TEACHER,
+          firstLogin: true,
           teacherProfile: {
             create: {
               // Если есть группы, создаем массив связей

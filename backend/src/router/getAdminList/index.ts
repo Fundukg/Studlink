@@ -15,6 +15,7 @@ export const getAdminListTrpcRoute = trpc.procedure
         middleName: true,
         email: true,
         createdAt: true,
+        firstLogin: true,
         _count: {
           select: {
             sentMessages: true,

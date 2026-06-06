@@ -20,14 +20,13 @@ export const DialogueSidebar = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isNewMessageOpen, setIsNewMessageOpen] = useState(false)
 
-  // Запрос списка студентов для селекта
   const { data: studentsData } = trpc.getStudent.useQuery()
   const createMessage = trpc.createDirectMessage.useMutation()
   const { data: dialoguesData, isLoading } = trpc.getDialogues.useQuery()
 
   const { formik, buttonProps, alertProps } = useForm({
     initialValues: {
-      userId: '', // Имя поля должно совпадать с ожидаемым в zCreateDirectMessageTrpcInput
+      userId: '',
       text: '',
       platform: (localStorage.getItem('platform') as PlatformType) || 'ALL',
     },
@@ -46,8 +45,6 @@ export const DialogueSidebar = () => {
     localStorage.setItem('platform', p)
   }
 
-  // Подготовка списка студентов для компонента <List />
-  // Компонент List ожидает массив объектов с id и name
   const studentOptions =
     studentsData?.students.map((s) => ({
       id: s.id,
@@ -57,6 +54,10 @@ export const DialogueSidebar = () => {
   const filteredDialogues = dialoguesData?.dialogues.filter((d) =>
     d.student.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  // Определяем, есть ли вообще диалоги
+  const hasDialogues =
+    dialoguesData?.dialogues && dialoguesData.dialogues.length > 0
 
   return (
     <aside className={css.secondarySidebar}>
@@ -71,50 +72,75 @@ export const DialogueSidebar = () => {
           </button>
         </div>
 
-        <div className={css.searchWrapper}>
-          <FiSearch className={css.searchIcon} />
-          <input
-            type="text"
-            placeholder="Поиск..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        {/* Поле поиска отображаем всегда, если диалоги есть; иначе скрываем, но можно оставить – поиск всё равно не найдёт ничего */}
+        {hasDialogues && (
+          <div className={css.searchWrapper}>
+            <FiSearch className={css.searchIcon} />
+            <input
+              type="text"
+              placeholder="Поиск..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        )}
       </div>
 
       <div className={css.dialogueList}>
-        {isLoading && <div className={css.loading}>Загрузка...</div>}
-        {filteredDialogues?.map((chat) => (
-          <Link
-            key={chat.id}
-            to={getViewDialogueRoute({ dialogueId: chat.id })}
-            className={`${css.dialogueItem} ${activeId === chat.id ? css.active : ''}`}
-          >
-            <div className={css.avatar}>
-              <div className={css.initials}>
-                {chat.student.name[0].toUpperCase()}
+        {isLoading ? (
+          <div className={css.loading}>Загрузка...</div>
+        ) : !hasDialogues ? (
+          // Пустое состояние: диалогов нет вообще
+          <div className={css.emptyState}>
+            <div className={css.emptyIcon}>💬</div>
+            <p className={css.emptyTitle}>Сообщений пока нет</p>
+            <p className={css.emptyHint}>
+              Напишите первое сообщение студенту, чтобы начать диалог
+            </p>
+            <button
+              className={css.startButton}
+              onClick={() => setIsNewMessageOpen(true)}
+            >
+              Написать сообщение
+            </button>
+          </div>
+        ) : filteredDialogues?.length === 0 ? (
+          // Поиск не дал результатов
+          <div className={css.noResults}>Ничего не найдено</div>
+        ) : (
+          // Список диалогов
+          filteredDialogues?.map((chat) => (
+            <Link
+              key={chat.id}
+              to={getViewDialogueRoute({ dialogueId: chat.id })}
+              className={`${css.dialogueItem} ${activeId === chat.id ? css.active : ''}`}
+            >
+              <div className={css.avatar}>
+                <div className={css.initials}>
+                  {chat.student.name[0].toUpperCase()}
+                </div>
+                <PlatformBadge
+                  platform={chat.lastMessage.platform}
+                  className={css.platformPosition}
+                />
               </div>
-              <PlatformBadge
-                platform={chat.lastMessage.platform}
-                className={css.platformPosition}
-              />
-            </div>
-            <div className={css.chatContent}>
-              <div className={css.chatHeader}>
-                <span className={css.studentName}>{chat.student.name}</span>
-                <span className={css.time}>
-                  {isToday(new Date(chat.lastMessage.createdAt))
-                    ? format(new Date(chat.lastMessage.createdAt), 'HH:mm')
-                    : format(new Date(chat.lastMessage.createdAt), 'dd.MM')}
-                </span>
+              <div className={css.chatContent}>
+                <div className={css.chatHeader}>
+                  <span className={css.studentName}>{chat.student.name}</span>
+                  <span className={css.time}>
+                    {isToday(new Date(chat.lastMessage.createdAt))
+                      ? format(new Date(chat.lastMessage.createdAt), 'HH:mm')
+                      : format(new Date(chat.lastMessage.createdAt), 'dd.MM')}
+                  </span>
+                </div>
+                <div className={css.lastMessageRow}>
+                  <p className={css.messagePreview}>{chat.lastMessage.text}</p>
+                  <FiCheck className={css.statusIcon} size={14} />
+                </div>
               </div>
-              <div className={css.lastMessageRow}>
-                <p className={css.messagePreview}>{chat.lastMessage.text}</p>
-                <FiCheck className={css.statusIcon} size={14} />
-              </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))
+        )}
       </div>
 
       <UniversalModal

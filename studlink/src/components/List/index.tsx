@@ -93,7 +93,7 @@ export const ListSelect = ({
   const touched = formik.touched[name]
   const invalid = !!touched && !!errors
   const isSubmitting = formik.isSubmitting
-
+  console.log(errors)
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     formik.setFieldValue(name, e.target.value)
   }

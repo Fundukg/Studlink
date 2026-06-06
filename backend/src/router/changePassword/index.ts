@@ -12,15 +12,16 @@ export const changePasswordTrpcRoute = trpc.procedure
     const user = await ctx.prisma.user.findUnique({
       where: { id: ctx.me!.id },
     })
-    if (!user)
-      {throw new TRPCError({
+    if (!user) {
+      throw new TRPCError({
         code: 'NOT_FOUND',
         message: 'Пользователь не найден',
-      })}
+      })
+    }
 
     await ctx.prisma.user.update({
       where: { id: ctx.me!.id },
-      data: { password: getPasswordHash(input.password) },
+      data: { password: getPasswordHash(input.password), firstLogin: true },
     })
     return { success: true }
   })

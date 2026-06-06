@@ -15,6 +15,7 @@ export const getTeacherListTrpcRoute = trpc.procedure
         lastName: true,
         middleName: true,
         createdAt: true,
+        firstLogin: true,
         teacherProfile: {
           select: {
             assignments: {

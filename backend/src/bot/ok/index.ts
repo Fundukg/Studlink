@@ -10,6 +10,7 @@ export const sendOkMessage = async (userId: string, text: string) => {
     userId,
     BotPlatform.OK
   )
+  console.log('recipientId', recipientId)
   if (!recipientId) {
     throw new Error('Пользователь не авторизован в боте')
   }

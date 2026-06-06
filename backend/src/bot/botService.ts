@@ -145,7 +145,7 @@ export const botService = {
     if (!bot) {
       return null
     }
-
+    console.log(userId)
     const botUser = await prisma.botUser.findFirst({
       where: {
         userId,
@@ -156,7 +156,7 @@ export const botService = {
         externalId: true,
       },
     })
-
+    console.log('botUser',userId, botUser)
     return botUser?.externalId || null
   },
 }

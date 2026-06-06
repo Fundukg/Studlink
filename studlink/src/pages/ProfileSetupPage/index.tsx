@@ -3,35 +3,38 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Alert } from '../../components/Alert'
 import { ProfileForm } from '../../components/ProfileForm'
-import { trpc } from '../../lib/trpc'
+import { useMe } from '../../lib/ctx'
 import css from './index.module.scss'
 
 export const ProfileSetupPage = () => {
   const navigate = useNavigate()
-  const { data: userData, isLoading, refetch } = trpc.getMe.useQuery()
-  const profile = userData?.me as any
+  const { user, isLoading } = useMe()  // теперь хук возвращает { user, isLoading }
+
   const [message, setMessage] = useState<{
     type: 'success' | 'error'
     text: string
   } | null>(null)
 
+  // Если профиль загрузился и пользователь админ – уходим (на всякий случай)
   useEffect(() => {
-    if (isLoading || !profile) {return}
-
-    // Админов перенаправляем, им не нужна настройка
-    if (profile.role === 'ADMIN') {
-      navigate('/')
+    if (!isLoading && user?.role === 'ADMIN') {
+      navigate('/', { replace: true })
     }
-  }, [profile, isLoading, navigate])
+  }, [isLoading, user, navigate])
 
-  if (isLoading || !profile) {
+  // Пока загружается – индикатор
+  if (isLoading) {
     return <div className={css.loader}>Загрузка...</div>
   }
 
-  const handleSuccess = async () => {
-    await refetch()
+  // Если по какой-то причине пользователь не определён – заглушка
+  if (!user) {
+    return <div className={css.loader}>Пожалуйста, авторизуйтесь...</div>
+  }
+
+  const handleSuccess = () => {
     setMessage({ type: 'success', text: 'Данные успешно сохранены!' })
-    setTimeout(() => navigate('/'), 1500)
+    setTimeout(() => navigate('/', { replace: true }), 1500)
   }
 
   return (
@@ -54,12 +57,12 @@ export const ProfileSetupPage = () => {
         <ProfileForm
           mode="edit"
           initialValues={{
-            nick: profile.nick || '',
-            lastName: profile.lastName || '',
-            firstName: profile.firstName || '',
-            middleName: profile.middleName || '',
-            email: profile.email || '',
-            phone: profile.phone || '',
+            nick: user.nick || '',
+            lastName: user.lastName || '',
+            firstName: user.firstName || '',
+            middleName: user.middleName || '',
+            email: user.email || '',
+            phone: user.phone || '',
           }}
           onSuccess={handleSuccess}
         />

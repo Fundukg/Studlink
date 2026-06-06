@@ -21,6 +21,7 @@ export const getDeaneryListTrpcRoute = trpc.procedure
         middleName: true,
         createdAt: true,
         role: true,
+        firstLogin: true,
         // Подтягиваем факультет, за который отвечает декан
         deaneryProfile: {
           select: {

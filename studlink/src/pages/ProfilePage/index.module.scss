@@ -1,7 +1,6 @@
-// src/pages/ProfilePage/index.module.scss
 @use '../../styles/_vars.scss' as *;
 
-.profilePageWrapper {
+.userDataPageWrapper {
   max-width: 1000px;
   margin: 0 auto;
 }
@@ -36,7 +35,7 @@
   margin-bottom: 20px;
 }
 
-.profileLayout {
+.userDataLayout {
   display: flex;
   flex-direction: column;
   gap: 24px;

@@ -19,6 +19,7 @@ export const getMeTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
       createdAt: true,
       email: true,
       phone: true,
+      firstLogin: true,
       studentProfile: {
         select: {
           student_id: true,
@@ -87,6 +88,7 @@ export const getMeTrpcRoute = trpc.procedure.query(async ({ ctx }) => {
     firstName: userWithProfile?.firstName,
     middleName: userWithProfile?.middleName,
     role: userWithProfile?.role,
+    firstLogin: userWithProfile?.firstLogin,
     createdAt: userWithProfile?.createdAt,
     email: userWithProfile?.email,
     phone: userWithProfile?.phone,

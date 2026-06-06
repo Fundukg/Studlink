@@ -1,83 +1,24 @@
 // components/ProtectedRoute.tsx
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { trpc } from '../../lib/trpc'
+import { useEffect, useRef } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useProfileCheck } from '../../hooks/useProfileCheck'
 
-type Props = {
-  children: React.ReactNode
-}
-
-export const ProtectedRoute = ({ children }: Props) => {
+export const ProtectedRoute = () => {
   const navigate = useNavigate()
-
-  const { data: userData, isLoading } = trpc.getMe.useQuery()
+  const location = useLocation()
+  const { user, isLoading, isProfileFilled } = useProfileCheck()
+  const redirectInProgress = useRef(false)
 
   useEffect(() => {
-    if (isLoading || !userData?.me) {
-      return
+    if (isLoading || !user) {return}
+    if (location.pathname === '/profile-setup') {return}
+    if (!isProfileFilled && !redirectInProgress.current) {
+      redirectInProgress.current = true
+      navigate('/profile-setup', { replace: true })
     }
+  }, [isLoading, user, isProfileFilled, navigate, location.pathname])
 
-    const { title } = userData.me
-
-    if (title === 'Admin') {
-      return
-    }
-
-    const roleKey = title.toLowerCase() as 'ADMIN' | 'TEACHER' | 'DEANERY'
-
-    // Явно приводим userData.me к Record<string, any>, чтобы TS разрешил динамический поиск по ключу
-    const userWithProfile = userData.me as Record<string, any>
-    const hasProfile = !!userWithProfile[roleKey]
-
-    if (!hasProfile) {
-      navigate('/profile-setup')
-    }
-  }, [userData, isLoading, navigate])
-
-  if (isLoading) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        Загрузка...
-      </div>
-    )
-  }
-
-  if (!userData?.me) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        Пожалуйста, авторизуйтесь...
-      </div>
-    )
-  }
-
-  const { title } = userData.me
-
-  if (title === 'Admin') {
-    return <>{children}</>
-  }
-
-  const roleKey = title.toLowerCase() as 'ADMIN' | 'TEACHER' | 'DEANERY'
-
-  // Аналогично приводим тип здесь для безопасного финального рендера
-  const userWithProfile = userData.me as Record<string, any>
-
-  if (userWithProfile[roleKey]) {
-    return <>{children}</>
-  }
-
-  return null
+  if (isLoading) {return <div>Загрузка...</div>}
+  if (!user) {return <div>Пожалуйста, авторизуйтесь...</div>}
+  return <Outlet />
 }

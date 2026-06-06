@@ -34,6 +34,7 @@ export const createDeaneryTrpcRoute = trpc.procedure
           lastName: input.lastName,
           middleName: input.middleName,
           role: UserRole.DEANERY,
+          firstLogin: true,
           deaneryProfile: {
             create: {
               facultyId: input.facultyId, // Теперь TS знает, что это string

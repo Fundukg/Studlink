@@ -15,6 +15,7 @@ import {
   FiLogOut,
   FiMenu,
   FiX,
+  FiShield,
 } from 'react-icons/fi'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useMe } from '../../../lib/ctx'
@@ -33,13 +34,13 @@ import { CustomToaster } from '../../CustomToaster'
 import css from './index.module.scss'
 
 export const Layout = () => {
-  const me = useMe()
+  const { user } = useMe()
   const location = useLocation()
 
   // --- ЛОГИКА РОЛЕЙ ---
-  const isAdmin = me?.role === 'ADMIN'
-  const isDeanery = me?.role === 'DEANERY'
-  const isTeacher = me?.role === 'TEACHER'
+  const isAdmin = user?.role === 'ADMIN'
+  const isDeanery = user?.role === 'DEANERY'
+  const isTeacher = user?.role === 'TEACHER'
   // Могут управлять контентом только админы и деканат
   const canManage = isAdmin || isDeanery
   // --------------------
@@ -105,7 +106,7 @@ export const Layout = () => {
                   ? getViewDialogueRoute({
                       dialogueId: recentChats.data.dialogues[0].id,
                     })
-                  : '/dialogues' // или любой fallback роут
+                  : '/' // или любой fallback роут
               }
               className={`${css.navLink} ${location.pathname.startsWith('/dialogue') ? css.active : ''}`}
             >
@@ -176,19 +177,19 @@ export const Layout = () => {
                           to="/deanerys"
                           className={`${css.subLink} ${location.pathname.includes('/deanerys') ? css.active : ''}`}
                         >
-                          <FiBriefcase size={14} /> Сотр. деканата
+                          <FiUsers size={14} /> Сотр. деканата
                         </Link>
                         <Link
                           to="/admins"
                           className={`${css.subLink} ${location.pathname.includes('/admins') ? css.active : ''}`}
                         >
-                          <FiBriefcase size={14} /> Администраторы
+                          <FiShield size={14} /> Администраторы
                         </Link>
-                        <Link 
+                        <Link
                           to="/teachers"
                           className={`${css.subLink} ${location.pathname.includes('/teachers') ? css.active : ''}`}
                         >
-                          <FiBriefcase size={14} /> Преподаватели
+                          <FiBookOpen size={14} /> Преподаватели
                         </Link>
                       </>
                     )}
@@ -233,7 +234,7 @@ export const Layout = () => {
                 <FiUser />
               </div>
               <div className={css.userMeta}>
-                <div className={css.name}>{me?.nick || 'Загрузка...'}</div>
+                <div className={css.name}>{user?.nick || 'Загрузка...'}</div>
                 <div className={css.role}>
                   {isAdmin
                     ? 'Администратор'
