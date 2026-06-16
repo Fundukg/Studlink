@@ -2,28 +2,90 @@
 @use '../../styles/_mixins.scss' as *;
 
 .button {
-  padding: 8px 15px;
-  color: $white;
-  background-color: #0a980a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px; // Стандартные отступы для кнопок
   border: none;
-  font-weight: bold;
-  border-radius: $borderRadiusSmall;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 8px; // Более современный радиус
   cursor: pointer;
   user-select: none;
-  margin-right: 5px;
-  margin-bottom: 5px;
+  transition: all 0.2s ease;
+  margin-right: 8px;
+  margin-bottom: 8px;
 
-  &:hover {
-    background-color: #21b821;
-  }
-
-  &:active {
-    background-color: #39d039;
-  }
-
+  &:disabled,
   &.disabled {
     pointer-events: none;
-    background-color: #929292;
-    color: #d9d9d9;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  // --- ВАРИАНТЫ ---
+
+  // Primary (Брендовый зеленый)
+  &.primary {
+    color: $white;
+    background: $primary-gradient; // Используем ваш градиент
+    box-shadow: 0 4px 6px -1px rgba($accent-green, 0.2);
+
+    &:hover {
+      filter: brightness(1.1);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  // Secondary (Нейтральный/Серый)
+  &.secondary {
+    color: $text-dark;
+    background-color: $border-color;
+
+    &:hover {
+      background-color: $border-color, 10%;
+    }
+  }
+
+  // Danger (Красный)
+  &.danger {
+    color: $white;
+    background-color: $red;
+
+    &:hover {
+      background-color: $red;
+    }
+  }
+
+  &.loading {
+    pointer-events: none;
+    filter: grayscale(0.5);
+  }
+}
+
+// --- СПИННЕР ---
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba($white, 0.3);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+// Адаптация спиннера для secondary кнопки
+.secondary .spinner {
+  border: 2px solid rgba($text-dark, 0.2);
+  border-top-color: $text-dark;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }

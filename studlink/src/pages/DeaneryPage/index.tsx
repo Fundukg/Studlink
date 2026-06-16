@@ -12,9 +12,10 @@ import {
   FiShield,
   FiBookOpen, // Иконка для факультета
 } from 'react-icons/fi'
-import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
+import { ActionMenu } from '../../components/ActionMenu'
 import { DeaneryModal } from '../../components/Create-UpdateModal/DeaneryModal'
 import { UniversalModal } from '../../components/UniversalModal'
+import { UniversalTable, type Column } from '../../components/UniversalTable'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
@@ -76,6 +77,77 @@ export const DeaneryPage = withPageWrapper({
     setIsDetailsOpen(true)
   }
 
+  const columns: Column<any>[] = [
+    {
+      header: 'Сотрудник',
+      width: '25%',
+      render: (staff) => (
+        <div
+          className={css.staffInfo}
+          onClick={() => handleShowDetails(staff)}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className={css.avatarSmall}>
+            <FiUser />
+          </div>
+          <div className={css.nameBlock}>
+            <div className={css.nickName}>{staff.nick}</div>
+            <div className={css.fullName}>
+              {staff.lastName} {staff.firstName} {staff.middleName}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Закрепленный факультет',
+      render: (s) => (
+        <span className={css.facultyBadge}>
+          <FiBookOpen size={12} /> {s.facultyName || 'Не привязан'}
+        </span>
+      ),
+    },
+    {
+      header: 'Активность',
+      render: (s) => (
+        <div className={css.activityBadges}>
+          <span className={css.badgeSent} title="Отправлено сообщений">
+            <FiMail size={12} /> {s.stats?.sentMessages || 0}
+          </span>
+        </div>
+      ),
+    },
+    {
+      header: 'Действия',
+      align: 'right',
+      render: (staff) => (
+        <ActionMenu
+          options={[
+            {
+              label: 'Детали',
+              icon: <FiInfo />,
+              onClick: () => handleShowDetails(staff),
+            },
+            {
+              label: 'Редактировать',
+              icon: <FiEdit2 />,
+              onClick: () => {
+                setSelectedStaff(staff)
+                setIsModalOpen(true)
+              },
+            },
+            {
+              label: 'Удалить',
+              icon: <FiTrash2 />,
+              onClick: () => setStaffToDelete(staff),
+              variant: 'danger',
+            },
+          ]}
+        />
+      ),
+    },
+  ]
+
   return (
     <div className={css.container}>
       <div className={css.header}>
@@ -108,97 +180,11 @@ export const DeaneryPage = withPageWrapper({
       </div>
 
       <div className={css.tableWrapper}>
-        <table className={css.table}>
-          <thead>
-            <tr>
-              <th>Сотрудник</th>
-              <th>Закрепленный факультет</th>
-              <th>Активность</th>
-              <th style={{ textAlign: 'right' }}>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredStaff.length > 0 ? (
-              filteredStaff.map((staff) => {
-                const actions: ActionOption[] = [
-                  {
-                    label: 'Детали',
-                    icon: <FiInfo />,
-                    onClick: () => handleShowDetails(staff),
-                  },
-                  {
-                    label: 'Редактировать',
-                    icon: <FiEdit2 />,
-                    onClick: () => {
-                      setSelectedStaff(staff)
-                      setIsModalOpen(true)
-                    },
-                  },
-                  {
-                    label: 'Удалить',
-                    icon: <FiTrash2 />,
-                    onClick: () => setStaffToDelete(staff),
-                    variant: 'danger',
-                  },
-                ]
-
-                return (
-                  <tr key={staff.id}>
-                    <td
-                      className={css.staffCell}
-                      onClick={() => handleShowDetails(staff)}
-                    >
-                      <div className={css.staffInfo}>
-                        <div className={css.avatarSmall}>
-                          <FiUser />
-                        </div>
-                        <div className={css.nameBlock}>
-                          <div className={css.nickName}>{staff.nick}</div>
-                          <div className={css.fullName}>
-                            {staff.lastName} {staff.firstName}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      {/* Отображаем факультет из вложенного профиля */}
-                      <span className={css.facultyBadge}>
-                        <FiBookOpen size={12} />{' '}
-                        {staff.facultyName || 'Не привязан'}
-                      </span>
-                    </td>
-                    <td>
-                      <div className={css.activityBadges}>
-                        <span
-                          className={css.badgeSent}
-                          title="Отправлено сообщений"
-                        >
-                          <FiMail size={12} /> {staff.stats?.sentMessages || 0}
-                        </span>
-                      </div>
-                    </td>
-                    <td className={css.actions}>
-                      <ActionMenu options={actions} />
-                    </td>
-                  </tr>
-                )
-              })
-            ) : (
-              <tr>
-                <td
-                  colSpan={4}
-                  style={{
-                    textAlign: 'center',
-                    padding: '40px',
-                    color: '#718096',
-                  }}
-                >
-                  Сотрудники деканата не найдены
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <UniversalTable
+          data={filteredStaff}
+          columns={columns}
+          emptyMessage="Сотрудники деканата не найдены"
+        />
       </div>
 
       {/* Модалка ДЕТАЛЕЙ */}

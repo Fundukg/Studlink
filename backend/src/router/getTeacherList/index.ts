@@ -25,6 +25,12 @@ export const getTeacherListTrpcRoute = trpc.procedure
             },
           },
         },
+        botUsers: {
+            where: { isActive: true },
+            select: {
+              bot: { select: { platform: true, name: true } },
+            },
+          },
         _count: {
           select: {
             sentMessages: true,
@@ -45,6 +51,7 @@ export const getTeacherListTrpcRoute = trpc.procedure
       groups: user.teacherProfile?.assignments.map((a) => a.group.name) || [],
       groupIds: user.teacherProfile?.assignments.map((a) => a.group.id) || [],
       stats: user._count,
+      bots: user.botUsers.map((b) => b.bot.platform),
       createdAt: user.createdAt,
     }))
 

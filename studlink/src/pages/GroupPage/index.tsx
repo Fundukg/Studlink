@@ -9,9 +9,10 @@ import {
   FiBookOpen,
   FiAlertTriangle,
 } from 'react-icons/fi'
-import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
+import { ActionMenu } from '../../components/ActionMenu'
 import { GroupModal } from '../../components/Create-UpdateModal/GroupModal'
 import { UniversalModal } from '../../components/UniversalModal'
+import { UniversalTable, type Column } from '../../components/UniversalTable'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
@@ -37,7 +38,9 @@ export const GroupPage = withPageWrapper({
 
   // Фильтрация (по названию группы, кафедры или факультета)
   const filteredGroups = useMemo(() => {
-    if (!groupsData?.Group) {return []}
+    if (!groupsData?.Group) {
+      return []
+    }
     const query = searchQuery.toLowerCase()
     return groupsData.Group.filter(
       (g) =>
@@ -72,6 +75,73 @@ export const GroupPage = withPageWrapper({
     setIsDetailsOpen(true)
   }
 
+  const columns: Column<any>[] = [
+    {
+      header: 'Название группы',
+      width: '25%',
+      render: (group) => (
+        <div
+          className={css.studentName}
+          onClick={() => handleShowDetails(group)}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className={css.nameWithIcon}>
+            <FiUsers
+              className={css.entryIcon}
+              style={{ color: '#10b981', marginRight: '8px' }}
+            />
+            {group.name}
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Кафедра / Факультет',
+      render: (group) => (
+        <div className={css.deptInfo}>
+          <div className={css.primaryText}>{group.department.name}</div>
+          <div className={css.secondaryText}>
+            {group.department.faculty.name}
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Студентов',
+      render: (group) => (
+        <span className={css.studentCountBadge}>
+          {group._count?.students || 0} чел.
+        </span>
+      ),
+    },
+    {
+      header: 'Действия',
+      align: 'right',
+      render: (group) => (
+        <ActionMenu
+          options={[
+            {
+              label: 'Детали',
+              icon: <FiInfo />,
+              onClick: () => handleShowDetails(group),
+            },
+            {
+              label: 'Редактировать',
+              icon: <FiEdit2 />,
+              onClick: () => handleEdit(group),
+            },
+            {
+              label: 'Удалить',
+              icon: <FiTrash2 />,
+              onClick: () => setGroupToDelete(group),
+              variant: 'danger',
+            },
+          ]}
+        />
+      ),
+    },
+  ]
+
   return (
     <div className={css.container}>
       <div className={css.header}>
@@ -104,88 +174,11 @@ export const GroupPage = withPageWrapper({
       </div>
 
       <div className={css.tableWrapper}>
-        <table className={css.table}>
-          <thead>
-            <tr>
-              <th>Название группы</th>
-              <th>Кафедра / Факультет</th>
-              <th>Студентов</th>
-              <th style={{ textAlign: 'right' }}>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredGroups.length > 0 ? (
-            filteredGroups.map((group) => {
-              const groupActions: ActionOption[] = [
-                {
-                  label: 'Детали',
-                  icon: <FiInfo />,
-                  onClick: () => handleShowDetails(group),
-                },
-                {
-                  label: 'Редактировать',
-                  icon: <FiEdit2 />,
-                  onClick: () => handleEdit(group),
-                },
-                {
-                  label: 'Удалить',
-                  icon: <FiTrash2 />,
-                  onClick: () => setGroupToDelete(group),
-                  variant: 'danger',
-                },
-              ]
-
-              return (
-                <tr key={group.id}>
-                  <td
-                    className={css.studentName}
-                    onClick={() => handleShowDetails(group)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div className={css.nameWithIcon}>
-                      <FiUsers
-                        className={css.entryIcon}
-                        style={{ color: '#10b981', marginRight: '8px' }}
-                      />
-                      {group.name}
-                    </div>
-                  </td>
-                  <td>
-                    <div className={css.deptInfo}>
-                      <div className={css.primaryText}>
-                        {group.department.name}
-                      </div>
-                      <div className={css.secondaryText}>
-                        {group.department.faculty.name}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={css.studentCountBadge}>
-                      {group._count?.students || 0} чел.
-                    </span>
-                  </td>
-                  <td className={css.actions}>
-                    <ActionMenu options={groupActions} />
-                  </td>
-                </tr>
-              )
-            })) : (
-              <tr>
-                <td
-                  colSpan={6}
-                  style={{
-                    textAlign: 'center',
-                    padding: '40px',
-                    color: '#718096',
-                  }}
-                >
-                  Группы не найдены
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <UniversalTable
+          data={filteredGroups}
+          columns={columns}
+          emptyMessage="Группы не найдены"
+        />
       </div>
 
       {/* Модалка создания/редактирования (Нужно будет создать GroupModal аналогично DepartmentModal) */}

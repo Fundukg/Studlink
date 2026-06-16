@@ -135,19 +135,18 @@
   tr:last-child td {
     border-bottom: none;
   }
-
-  .studentName {
-    font-weight: 600;
-    color: $text-dark;
-
-    .nameWithIcon {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-  }
 }
 
+.studentName {
+  font-weight: 600;
+  color: $text-dark;
+
+  .nameWithIcon {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
 // Бейдж факультета в таблице
 .facultyBadge {
   display: inline-flex;
@@ -320,4 +319,39 @@
   padding: 50px;
   color: $accent-green;
   font-weight: 600;
+}
+
+// Адаптив для заголовка и поиска
+@media (width <= 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .controls {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+
+    .searchWrapper {
+      width: 100%;
+
+      .searchInput {
+        width: 100% !important; // Растягиваем на всю ширину
+      }
+    }
+
+    .addBtn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// Адаптив для карточки деталей в модалке
+@media (width <= 480px) {
+  .studentInfoModal .infoGrid {
+    grid-template-columns: 1fr; // В одну колонку на мобильных
+  }
 }

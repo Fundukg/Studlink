@@ -1,4 +1,10 @@
-import { BrowserRouter, Outlet, Route, Routes } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+} from 'react-router-dom'
 import { DialogueSidebar } from './components/Layout/DialogueSideBar'
 import { Layout } from './components/Layout/SideBar'
 import { ProtectedRoute } from './components/ProtectedRoute'
@@ -26,14 +32,22 @@ import { ViewDialoguePage } from './pages/ViewDialoguePage'
 import { ViewDistributionsPage } from './pages/ViewDistributionsPage'
 import './styles/global.scss'
 
-const MessagesLayout = () => (
-  <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-    <DialogueSidebar />
-    <div style={{ flex: 1, position: 'relative' }}>
-      <Outlet />
+// --- ОБНОВЛЕННЫЙ КОМПОНЕНТ ---
+const MessagesLayout = () => {
+  const location = useLocation()
+  
+  // Читаем URL напрямую: если в ссылке после '/dialogue/' есть ID, значит чат открыт
+  const hasActiveChat = location.pathname.includes('/dialogue/') && location.pathname.split('/dialogue/')[1]?.length > 0
+
+  return (
+    <div className="messages-layout">
+      <DialogueSidebar />
+      <div className={`messages-outlet ${!hasActiveChat ? 'hide-on-mobile' : ''}`}>
+        <Outlet />
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 export const App = () => (
   <TrpcProvider>

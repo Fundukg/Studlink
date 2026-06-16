@@ -3,6 +3,7 @@ import axios from 'axios'
 import { prisma } from '../../lib/prisma'
 import { authService } from '../authService'
 import { botService } from '../botService'
+import { getIO } from '../../lib/socket'
 
 // Переименовали аргумент в userId, так как отправлять можем любому пользователю системы
 export const sendOkMessage = async (userId: string, text: string) => {
@@ -10,7 +11,7 @@ export const sendOkMessage = async (userId: string, text: string) => {
     userId,
     BotPlatform.OK
   )
-  console.log('recipientId', recipientId)
+  // console.log('recipientId', recipientId)
   if (!recipientId) {
     throw new Error('Пользователь не авторизован в боте')
   }
@@ -75,7 +76,9 @@ export const handleOkWebhook = async (data: any) => {
 
   const [command, identifier, password] = messageText.split(' ')
 
-  if (!senderId || !data.message?.text) {return}
+  if (!senderId || !data.message?.text) {
+    return
+  }
 
   // 1. АВТОРИЗАЦИЯ
   if (command === '/auth') {
@@ -112,7 +115,9 @@ export const handleOkWebhook = async (data: any) => {
       const bot = await prisma.bot.findFirst({
         where: { platform: BotPlatform.OK },
       })
-      if (!bot) {throw new Error('Бот не найден')}
+      if (!bot) {
+        throw new Error('Бот не найден')
+      }
 
       await authService.registerBot(user.id, bot.id, senderId)
       await sendOkMessageForNoAuth(
@@ -208,7 +213,7 @@ export const handleOkWebhook = async (data: any) => {
     }
 
     if (recipientId) {
-      await prisma.message.create({
+      const savedMsg = await prisma.message.create({
         data: {
           text: textToSave,
           senderType: SenderType.STUDENT,
@@ -218,6 +223,10 @@ export const handleOkWebhook = async (data: any) => {
           botId: botUser.bot.id,
           platform: BotPlatform.OK,
         },
+      })
+      getIO().emit('new_message', {
+        ...savedMsg,
+        senderName: `${user.firstName} ${user.lastName}`,
       })
       await sendOkMessageForNoAuth(replyChatId, responseConfirm)
     } else {

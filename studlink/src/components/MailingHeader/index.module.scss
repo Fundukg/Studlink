@@ -1,16 +1,11 @@
-// Палитра
-$green-primary: #2e7d32; // Основной зеленый (Forest Green)
-$green-light: #e8f5e9; // Очень светлый зеленый для фона активного таба
-$text-main: #2d3748; // Темно-серый для заголовков
-$text-secondary: #718096; // Серый для подзаголовков
-$border-color: #e2e8f0; // Цвет разделителей
-$white: #ffffff;
+@use '../../styles/_vars.scss' as *;
+@use '../../styles/_mixins.scss' as *;
 
 .header {
-  background: $white;
   border-bottom: 1px solid $border-color;
-  padding: 24px 24px 0 24px; // Нижний паддинг 0, так как табы прижаты к линии
+  padding: 24px 24px 0 24px;
   margin-bottom: 20px;
+  background-color: $bg-main; // Фон хедера сделаем белым для чистоты
 }
 
 .headerContent {
@@ -24,13 +19,13 @@ $white: #ffffff;
   .title {
     font-size: 24px;
     font-weight: 700;
-    color: $text-main;
+    color: $text-dark; // Использование обновленной переменной
     margin: 0 0 4px 0;
   }
 
   .subtitle {
     font-size: 14px;
-    color: $text-secondary;
+    color: $text-gray; // Использование обновленной переменной
     margin: 0;
   }
 }
@@ -46,10 +41,10 @@ $white: #ffffff;
   gap: 10px;
   padding: 12px 20px;
   text-decoration: none;
-  color: $text-secondary;
+  color: $text-gray; // Неактивный текст
   font-weight: 500;
   font-size: 15px;
-  border-radius: 8px 8px 0 0; // Скругляем только верх
+  border-radius: 8px 8px 0 0;
   transition: all 0.2s ease;
   border: 1px solid transparent;
   border-bottom: none;
@@ -59,22 +54,23 @@ $white: #ffffff;
   }
 
   &:hover {
-    color: $green-primary;
-    background-color: $green-light;
+    color: $accent-green; // Цвет при наведении
+    background-color: $light-bg-green; // Используем $light-bg-green из палитры
   }
 }
 
 .activeTab {
-  color: $green-primary;
+  color: $accent-green;
   background-color: $white;
   border-color: $border-color;
   position: relative;
   z-index: 1;
-  margin-bottom: -1px; // Перекрываем границу хедера снизу
-  border-bottom: 2px solid $green-primary; // Зеленая полоска под активным табом
+  margin-bottom: -1px;
+  // Используем accent-green для индикатора
+  border-bottom: 2px solid $accent-green;
 
   .icon {
-    color: $green-primary;
+    color: $accent-green;
   }
 }
 
@@ -89,7 +85,7 @@ $white: #ffffff;
   }
 
   .tabText {
-    display: none; // На мобилках оставляем только иконки для экономии места
+    display: none;
   }
 
   .tab {

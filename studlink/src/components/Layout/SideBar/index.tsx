@@ -18,6 +18,7 @@ import {
   FiShield,
 } from 'react-icons/fi'
 import { Link, Outlet, useLocation } from 'react-router-dom'
+import { useGlobalNotifications } from '../../../hooks/useGlobalNotifications'
 import { useMe } from '../../../lib/ctx'
 import {
   getSignOutRoute,
@@ -34,6 +35,7 @@ import { CustomToaster } from '../../CustomToaster'
 import css from './index.module.scss'
 
 export const Layout = () => {
+  useGlobalNotifications();
   const { user } = useMe()
   const location = useLocation()
 

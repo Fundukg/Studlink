@@ -2,6 +2,7 @@ import { useFormik } from 'formik'
 import { z } from 'zod'
 import { trpc } from '../../../lib/trpc'
 import { Input } from '../../Input'
+import { List } from '../../List'         
 import { UniversalModal } from '../../UniversalModal'
 import css from './index.module.scss'
 
@@ -32,16 +33,17 @@ export const GroupModal = ({ isOpen, onClose, group }: GroupModalProps) => {
 
   const createMutation = trpc.createGroup.useMutation()
   const updateMutation = trpc.updateGroup.useMutation()
-
   const formik = useFormik({
     initialValues: {
       name: group?.name || '',
-      departmentId: group?.departmentId || '',
+      departmentId: group?.department.id || '',
     },
     enableReinitialize: true,
     validate: (values) => {
       const result = groupSchema.safeParse(values)
-      if (result.success) {return {}}
+      if (result.success) {
+        return {}
+      }
       const errors: any = {}
       result.error.errors.forEach((err) => {
         errors[err.path[0] as string] = err.message
@@ -103,35 +105,13 @@ export const GroupModal = ({ isOpen, onClose, group }: GroupModalProps) => {
           placeholder="Например: Б21-501"
           formik={formik}
         />
-
-        <div className={css.inputGroup}>
-          <label className={css.label}>Кафедра</label>
-          <select
-            name="departmentId"
-            className={`${css.selectField} ${
-              formik.errors.departmentId && formik.touched.departmentId
-                ? css.errorInput
-                : ''
-            }`}
-            value={formik.values.departmentId}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-          >
-            <option value="" disabled>
-              Выберите кафедру...
-            </option>
-            {deptData?.Department.map((d: any) => (
-              <option key={d.id} value={d.id}>
-                {d.name} ({d.faculty.name})
-              </option>
-            ))}
-          </select>
-          {formik.errors.departmentId && formik.touched.departmentId && (
-            <div className={css.errorText}>
-              {formik.errors.departmentId as string}
-            </div>
-          )}
-        </div>
+        <List
+          name="departmentId"
+          label="Кафедра"
+          listlabel=" Выберите кафедру..."
+          groups={deptData?.Department || []} // передаем данные напрямую
+          formik={formik}
+        />
 
         <div className={css.infoBox}>
           <small>

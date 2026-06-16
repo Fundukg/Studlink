@@ -134,7 +134,7 @@ export const createDistributionTrpcRoute = distributionProcedure
           input.text,
           input.platform as BotPlatform
         )
-
+        
         if (result.success) {
           totalSuccessCount++
 

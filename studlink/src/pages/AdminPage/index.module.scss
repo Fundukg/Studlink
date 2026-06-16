@@ -366,3 +366,37 @@
   color: $text-gray;
   font-weight: 500;
 }
+// Адаптив для заголовка и поиска
+@media (width <= 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .controls {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+
+    .searchWrapper {
+      width: 100%;
+
+      .searchInput {
+        width: 100% !important; // Растягиваем на всю ширину
+      }
+    }
+
+    .addBtn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// Адаптив для карточки деталей в модалке
+@media (width <= 480px) {
+  .studentInfoModal .infoGrid {
+    grid-template-columns: 1fr; // В одну колонку на мобильных
+  }
+}

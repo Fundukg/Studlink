@@ -1,10 +1,12 @@
 import { format } from 'date-fns'
 import { useState, useRef, useEffect } from 'react'
 import toast from 'react-hot-toast'
-import { useParams } from 'react-router-dom'
+import { FiArrowLeft } from 'react-icons/fi' // ДОБАВЛЕН ИМПОРТ ИКОНКИ
+import { useParams, useNavigate } from 'react-router-dom' // ДОБАВЛЕН useNavigate
 import { PlatformBadge } from '../../components/PlatformBadge'
 import { PlatformSelector } from '../../components/PlatformSelector'
 import { UniversalModal } from '../../components/UniversalModal'
+import { useSocket } from '../../hooks/useSocket'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { type ViewDialogueRouteParams } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
@@ -26,28 +28,57 @@ export const ViewDialoguePage = withPageWrapper({
   const createDirectMessage = trpc.createDirectMessage.useMutation()
   const { dialogueId } = useParams() as ViewDialogueRouteParams
   const trpcUtils = trpc.useContext()
+  const navigate = useNavigate() // ДОБАВЛЕН ХУК НАВИГАЦИИ
 
   const { data: studentQuery } = trpc.getOneStudent.useQuery({
     id: dialogueId,
   })
 
-  // Вспомогательная константа для обращения к профилю (учитывая ошибки TS)
   const profile = studentQuery?.studentProfile
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const isFirstRender = useRef(true)
 
   const [messageText, setMessageText] = useState('')
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false)
 
+  const availablePlatforms =
+    studentQuery?.botUsers.map((bu) => bu.bot.platform) || []
   type PlatformType = 'ALL' | 'TELEGRAM' | 'VK' | 'OK'
   const [platform, setPlatform] = useState<PlatformType>(() => {
     const saved = localStorage.getItem('platform') as PlatformType
     return ['TELEGRAM', 'VK', 'OK', 'ALL'].includes(saved) ? saved : 'ALL'
   })
+  const { socket } = useSocket()
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const handleNewMessage = (data: any) => {
+      if (data.recipientId === dialogueId || data.senderId === dialogueId) {
+        trpcUtils.getDialogue.invalidate({ studentId: dialogueId })
+      }
+    }
+
+    if (socket) {
+      socket.on('new_message', handleNewMessage)
+    }
+
+    return () => {
+      if (socket) {
+        socket.off('new_message', handleNewMessage)
+      }
+    }
+  }, [socket, dialogueId, trpcUtils])
+
+  useEffect(() => {
+    if (dialogue.messages.length > 0) {
+      if (isFirstRender.current) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
+        isFirstRender.current = false
+      } else {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
   }, [dialogue.messages])
 
   useEffect(() => {
@@ -93,6 +124,14 @@ export const ViewDialoguePage = withPageWrapper({
     <div className={css.dialogueContainer}>
       <div className={css.dialogueHeader}>
         <div className={css.userInfo}>
+          {/* ДОБАВЛЕНА КНОПКА "НАЗАД" */}
+          <button
+            className={css.backButton}
+            onClick={() => navigate('/')}
+          >
+            <FiArrowLeft size={22} />
+          </button>
+
           <div
             className={css.avatar}
             onClick={() => setIsStudentModalOpen(true)}
@@ -115,6 +154,7 @@ export const ViewDialoguePage = withPageWrapper({
             value={platform}
             dialogue={true}
             onChange={setPlatform}
+            availablePlatforms={availablePlatforms}
           />
         </div>
       </div>
@@ -122,7 +162,6 @@ export const ViewDialoguePage = withPageWrapper({
       <div className={css.messagesWrapper}>
         <div className={css.messages}>
           {dialogue.messages.map((message) => {
-            // Исправлено: используем sender.role (или как определено в вашей схеме), так как 'type' отсутствует
             const isStaff =
               message.sender.role === 'ADMIN' ||
               message.sender.role === 'DEANERY' ||
@@ -155,7 +194,7 @@ export const ViewDialoguePage = withPageWrapper({
               </div>
             )
           })}
-          <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} style={{ float: 'left', clear: 'both' }} />
         </div>
       </div>
 
@@ -196,6 +235,7 @@ export const ViewDialoguePage = withPageWrapper({
         title="Информация о студенте"
         maxWidth={500}
       >
+        {/* Содержимое модалки оставлено без изменений */}
         <div className={css.studentInfoModal}>
           <div className={css.modalAvatar}>
             {dialogue.recipient.name.charAt(0).toUpperCase()}
@@ -204,7 +244,6 @@ export const ViewDialoguePage = withPageWrapper({
           <div className={css.infoGrid}>
             <div className={css.infoItem}>
               <label>ID Студента</label>
-              {/* Исправлено: доступ к ID через studentProfile или напрямую */}
               <span>{profile?.student_id || '—'}</span>
             </div>
             <div className={css.infoItem}>

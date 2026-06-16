@@ -1,22 +1,40 @@
 @use '../../styles/_vars.scss' as *;
 @use '../../styles/_mixins.scss' as *;
 
-
 .segment {
-    h1.title {  
-        @include h1;
-    }
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 24px; // Отступ снизу, если сегментов несколько
+  padding: 30px;
+  background-color: $bg-main;
+  min-height: 100vh;
 
-    h2.title {  
-        @include h2;
-    }
+  h1.title {
+    @include h1;
+    color: $text-dark;
+    margin: 0;
+  }
 
-    .description {
-        font-size: 18px;
-        margin-top: 5px;
-    }
+  h2.title {
+    @include h2;
+    color: $text-dark;
+    font-size: 24px;
+    margin: 0;
+  }
 
-    .content {
-        margin-top: 12px;
-    }
+  .description {
+    font-size: 15px; // Более аккуратный размер для вторичного текста
+    color: $text-gray;
+    margin: 6px 0 0 0;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  .content {
+    margin-top: 20px; // Воздух между заголовком и основным контентом
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
 }

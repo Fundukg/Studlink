@@ -76,6 +76,56 @@
   }
 }
 
+// Контейнер для отображения строки "Иконка + Инфо"
+.nameWithIcon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+// Круглая подложка для системной иконки пользователя
+.entryIconWrapper {
+  width: 36px;
+  height: 36px;
+  background: $bg-main;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-gray;
+}
+
+.entryIcon {
+  color: $accent-green;
+  font-size: 16px;
+}
+
+// Блок текста с ФИО и зачеткой
+.deptInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .primaryText {
+    font-weight: 700;
+    color: $text-dark;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .secondaryText {
+    font-size: 12px;
+    color: $text-gray;
+    font-weight: 500;
+
+    span {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: $text-dark;
+    }
+  }
+}
+
 .addBtn {
   background: $primary-gradient;
   color: $white;
@@ -135,16 +185,54 @@
   tr:last-child td {
     border-bottom: none;
   }
+}
 
-  .studentId {
-    font-family: 'JetBrains Mono', monospace; // Или системный monospace
+// --- PAGINATION ---
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #f9fafb;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  border-top: 1px solid $border-color;
+
+  span {
+    font-size: 14px;
     color: $text-gray;
-    font-size: 13px;
+    font-weight: 500;
   }
 
-  .studentName {
-    font-weight: 600;
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid $border-color;
+    background: $white;
     color: $text-dark;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: $bg-main;
+      border-color: $accent-green;
+      color: $accent-green;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: #f3f4f6;
+    }
+
+    svg {
+      font-size: 18px;
+    }
   }
 }
 
@@ -230,11 +318,6 @@
     &:hover {
       background: #dc2626;
     }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
   }
 }
 
@@ -247,9 +330,9 @@
     .modalAvatar {
       width: 72px;
       height: 72px;
-      background: $light-bg-green;
+      background: rgba($accent-green, 0.1);
       color: $accent-green;
-      border-radius: 20px; // Сделаем мягкий квадрат как в iOS
+      border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -309,13 +392,6 @@
     }
   }
 
-  .divider {
-    grid-column: span 2;
-    height: 1px;
-    background: $border-color;
-    margin: 12px 0;
-  }
-
   .platformsList {
     display: flex;
     flex-direction: column;
@@ -331,14 +407,7 @@
       border-radius: 10px;
       font-size: 14px;
       border: 1px solid $border-color;
-
       font-weight: 500;
-
-      small {
-        color: $text-gray;
-        margin-left: auto;
-        font-family: monospace;
-      }
     }
   }
 }
@@ -366,12 +435,12 @@
   .statsHint {
     margin-top: 24px;
     padding: 16px;
-    background-color: #fffaf0; // Чуть более теплый желтоватый для предупреждения
+    background-color: #fef2f2;
     border-radius: 12px;
     text-align: left;
-    color: #9a3412;
+    color: #991b1b;
     font-size: 14px;
-    border: 1px solid #ffedd5;
+    border: 1px solid #fee2e2;
 
     ul {
       margin: 10px 0 0;
@@ -384,11 +453,37 @@
     }
   }
 }
+// Адаптив для заголовка и поиска
+@media (width <= 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
 
-.loader {
-  display: flex;
-  justify-content: center;
-  padding: 50px;
-  color: $accent-green;
-  font-weight: 600;
+  .controls {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+
+    .searchWrapper {
+      width: 100%;
+
+      .searchInput {
+        width: 100% !important; // Растягиваем на всю ширину
+      }
+    }
+
+    .addBtn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// Адаптив для карточки деталей в модалке
+@media (width <= 480px) {
+  .studentInfoModal .infoGrid {
+    grid-template-columns: 1fr; // В одну колонку на мобильных
+  }
 }

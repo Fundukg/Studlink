@@ -9,9 +9,10 @@ import {
   FiBriefcase,
   FiAlertTriangle,
 } from 'react-icons/fi'
-import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
+import { ActionMenu } from '../../components/ActionMenu'
 import { DepartmentModal } from '../../components/Create-UpdateModal/DepartmentModal' // Предполагается наличие этого компонента
 import { UniversalModal } from '../../components/UniversalModal'
+import { UniversalTable, type Column } from '../../components/UniversalTable'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
@@ -70,7 +71,61 @@ export const DepartmentPage = withPageWrapper({
     setViewingDept(dept)
     setIsDetailsOpen(true)
   }
-
+  const columns: Column<any>[] = [
+    {
+      header: 'Название кафедры',
+      width: '20%',
+      render: (dept) => (
+        <div
+          className={css.studentName}
+          onClick={() => handleShowDetails(dept)}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className={css.nameWithIcon}>
+            <FiLayers
+              className={css.entryIcon}
+              style={{ color: '#10b981', marginRight: '8px' }}
+            />
+            {dept.name}
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Факультет',
+      render: (dept) => (
+        <div className={css.facultyBadge}>
+          <FiBriefcase size={12} /> {dept.faculty.name}
+        </div>
+      ),
+    },
+    {
+      header: 'Действия',
+      align: 'right',
+      render: (dept) => (
+        <ActionMenu
+          options={[
+            {
+              label: 'Детали',
+              icon: <FiInfo />,
+              onClick: () => handleShowDetails(dept),
+            },
+            {
+              label: 'Редактировать',
+              icon: <FiEdit2 />,
+              onClick: () => handleEdit(dept),
+            },
+            {
+              label: 'Удалить',
+              icon: <FiTrash2 />,
+              onClick: () => setDeptToDelete(dept),
+              variant: 'danger',
+            },
+          ]}
+        />
+      ),
+    },
+  ]
   return (
     <div className={css.container}>
       <div className={css.header}>
@@ -103,77 +158,11 @@ export const DepartmentPage = withPageWrapper({
       </div>
 
       <div className={css.tableWrapper}>
-        <table className={css.table}>
-          <thead>
-            <tr>
-              <th>Название кафедры</th>
-              <th>Факультет</th>
-              <th style={{ textAlign: 'right' }}>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredDepartments.length > 0 ? (
-    filteredDepartments.map((dept) => {
-              const deptActions: ActionOption[] = [
-                {
-                  label: 'Детали',
-                  icon: <FiInfo />,
-                  onClick: () => handleShowDetails(dept),
-                },
-                {
-                  label: 'Редактировать',
-                  icon: <FiEdit2 />,
-                  onClick: () => handleEdit(dept),
-                },
-                {
-                  label: 'Удалить',
-                  icon: <FiTrash2 />,
-                  onClick: () => setDeptToDelete(dept),
-                  variant: 'danger',
-                },
-              ]
-
-              return (
-                <tr key={dept.id}>
-                  <td
-                    className={css.studentName}
-                    onClick={() => handleShowDetails(dept)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div className={css.nameWithIcon}>
-                      <FiLayers
-                        className={css.entryIcon}
-                        style={{ color: '#10b981', marginRight: '8px' }}
-                      />
-                      {dept.name}
-                    </div>
-                  </td>
-                  <td>
-                    <div className={css.facultyBadge}>
-                      <FiBriefcase size={12} /> {dept.faculty.name}
-                    </div>
-                  </td>
-                  <td className={css.actions}>
-                    <ActionMenu options={deptActions} />
-                  </td>
-                </tr>
-              )
-            })) : (
-              <tr>
-                <td
-                  colSpan={6}
-                  style={{
-                    textAlign: 'center',
-                    padding: '40px',
-                    color: '#718096',
-                  }}
-                >
-                  Кафедры не найдены
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <UniversalTable
+          data={filteredDepartments}
+          columns={columns}
+          emptyMessage="Кафедры не найдены"
+        />
       </div>
 
       {/* Модалка создания/редактирования */}

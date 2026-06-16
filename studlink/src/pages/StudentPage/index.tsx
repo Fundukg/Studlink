@@ -9,9 +9,10 @@ import {
   FiSearch,
   FiUser,
 } from 'react-icons/fi'
-import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
+import { ActionMenu } from '../../components/ActionMenu'
 import { StudentModal } from '../../components/Create-UpdateModal/StudentModal'
 import { UniversalModal } from '../../components/UniversalModal'
+import { UniversalTable, type Column } from '../../components/UniversalTable' // Импортируем таблицу
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
@@ -25,6 +26,7 @@ export const StudentPage = withPageWrapper({
   const utils = trpc.useUtils()
 
   const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState<any>(null)
   const [studentToDelete, setStudentToDelete] = useState<any>(null)
@@ -32,53 +34,11 @@ export const StudentPage = withPageWrapper({
   const [selectedStudentForProfile, setSelectedStudentForProfile] =
     useState<any>(null)
 
-  // Вспомогательная функция для склейки ФИО
+  const ITEMS_PER_PAGE = 10
+
   const getFullName = (s: any) =>
     `${s.lastName} ${s.firstName} ${s.middleName || ''}`.trim()
 
-  const handleOpenProfile = (student: any) => {
-    setSelectedStudentForProfile(student)
-    setIsProfileModalOpen(true)
-  }
-
-  const filteredStudents = useMemo(() => {
-    if (!studentsData?.students) {return []}
-    const query = searchQuery.toLowerCase()
-    return studentsData.students.filter(
-      (s) =>
-        getFullName(s).toLowerCase().includes(query) ||
-        s.student_id?.toLowerCase().includes(query)
-    )
-  }, [studentsData, searchQuery])
-
-  const deleteMutation = trpc.deleteStudent.useMutation({
-    onSuccess: () => {
-      utils.getStudent.invalidate()
-      setStudentToDelete(null)
-      toast.success('Студент успешно удален')
-    },
-    onError: (err) => {
-      toast.error(err.message || 'Ошибка при удалении студента')
-    },
-  })
-
-  const { data: deleteStats } = trpc.getStudentDeleteStats.useQuery(
-    { id: studentToDelete?.id },
-    { enabled: !!studentToDelete?.id }
-  )
-
-  const handleEdit = (student: any) => {
-    setSelectedStudent(student)
-    setIsEditModalOpen(true)
-  }
-
-  const confirmDelete = () => {
-    if (studentToDelete?.id) {
-      deleteMutation.mutate({ id: studentToDelete.id })
-    }
-  }
-
-  // Получить иконку платформы по названию
   const getPlatformIcon = (platform: string) => {
     switch (platform) {
       case 'TELEGRAM':
@@ -92,6 +52,130 @@ export const StudentPage = withPageWrapper({
     }
   }
 
+  const filteredStudents = useMemo(() => {
+    if (!studentsData?.students) {
+      return []
+    }
+    const query = searchQuery.toLowerCase()
+    return studentsData.students.filter(
+      (s) =>
+        getFullName(s).toLowerCase().includes(query) ||
+        s.student_id?.toLowerCase().includes(query)
+    )
+  }, [studentsData, searchQuery])
+
+  const totalPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE)
+  const paginatedStudents = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredStudents.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredStudents, currentPage])
+
+  useMemo(() => setCurrentPage(1), [searchQuery])
+
+  const deleteMutation = trpc.deleteStudent.useMutation({
+    onSuccess: () => {
+      utils.getStudent.invalidate()
+      setStudentToDelete(null)
+      toast.success('Студент успешно удален')
+    },
+    onError: (err) => toast.error(err.message || 'Ошибка'),
+  })
+
+  const confirmDelete = () => {
+    if (studentToDelete?.id) {
+      deleteMutation.mutate({ id: studentToDelete.id })
+    }
+  }
+
+  const { data: deleteStats } = trpc.getStudentDeleteStats.useQuery(
+    { id: studentToDelete?.id },
+    { enabled: !!studentToDelete?.id }
+  )
+
+  // 1. ОПРЕДЕЛЯЕМ КОЛОНКИ
+  const columns: Column<any>[] = useMemo(
+    () => [
+      {
+        header: 'Студент',
+        width: '25%',
+        render: (student) => (
+          <div
+            className={css.nameWithIcon}
+            onClick={() => {
+              setSelectedStudentForProfile(student)
+              setIsProfileModalOpen(true)
+            }}
+            style={{ cursor: 'pointer' }}
+          >
+            <FiUser className={css.entryIcon} />
+            <div className={css.deptInfo}>
+              <div className={css.primaryText}>{getFullName(student)}</div>
+              <div className={css.secondaryText}>
+                ID: {student.student_id || '—'}
+              </div>
+            </div>
+          </div>
+        ),
+      },
+      {
+        header: 'Группа',
+        accessorKey: 'group', // Простой вывод свойства
+      },
+      {
+        header: 'Курс',
+        render: (student) => `${student.course || '—'} курс`, // Кастомный вывод текста
+      },
+      {
+        header: 'Боты',
+        render: (student) => (
+          <div className={css.botBadges}>
+            {student.bots.map((p: string) => (
+              <span
+                key={p}
+                className={`${css.botBadge} ${css[p.toLowerCase()]}`}
+              >
+                {getPlatformIcon(p)}
+              </span>
+            ))}
+          </div>
+        ),
+      },
+      {
+        header: 'Действия',
+        align: 'right',
+        render: (student) => (
+          <ActionMenu
+            options={[
+              {
+                label: 'Профиль',
+                icon: <FiUser />,
+                onClick: () => {
+                  setSelectedStudentForProfile(student)
+                  setIsProfileModalOpen(true)
+                },
+              },
+              {
+                label: 'Редактировать',
+                icon: <FiEdit2 />,
+                onClick: () => {
+                  setSelectedStudent(student)
+                  setIsEditModalOpen(true)
+                },
+              },
+              {
+                label: 'Удалить',
+                icon: <FiTrash2 />,
+                onClick: () => setStudentToDelete(student),
+                variant: 'danger',
+              },
+            ]}
+          />
+        ),
+      },
+    ],
+    [] // Пустой массив зависимостей, так как функции работают с локальным скоупом `render`
+  )
+
   return (
     <div className={css.container}>
       <div className={css.header}>
@@ -101,13 +185,11 @@ export const StudentPage = withPageWrapper({
             {filteredStudents.length} чел.
           </span>
         </div>
-
         <div className={css.controls}>
           <div className={css.searchWrapper}>
             <FiSearch className={css.searchIcon} />
             <input
-              type="text"
-              placeholder="Поиск по ФИО или зачетке..."
+              placeholder="Поиск по ФИО или номеру..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={css.searchInput}
@@ -120,102 +202,22 @@ export const StudentPage = withPageWrapper({
               setIsEditModalOpen(true)
             }}
           >
-            <FiUserPlus /> Добавить студента
+            <FiUserPlus /> Добавить
           </button>
         </div>
       </div>
 
-      <div className={css.tableWrapper}>
-        <table className={css.table}>
-          <thead>
-            <tr>
-              <th>Зачетка</th>
-              <th>ФИО</th>
-              <th>Группа</th>
-              <th>Курс</th>
-              <th>Боты</th>
-              <th style={{ textAlign: 'right' }}>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredStudents.length > 0 ? (
-              filteredStudents.map((student) => {
-                const studentActions: ActionOption[] = [
-                  {
-                    label: 'Редактировать',
-                    icon: <FiEdit2 />,
-                    onClick: () => handleEdit(student),
-                  },
-                  {
-                    label: 'Профиль',
-                    icon: <FiUser />,
-                    onClick: () => handleOpenProfile(student),
-                  },
-                  {
-                    label: 'Удалить',
-                    icon: <FiTrash2 />,
-                    onClick: () => setStudentToDelete(student),
-                    variant: 'danger',
-                  },
-                ]
+      {/* 2. ИСПОЛЬЗУЕМ УНИВЕРСАЛЬНУЮ ТАБЛИЦУ */}
+      <UniversalTable
+        data={paginatedStudents}
+        columns={columns}
+        emptyMessage="Студенты не найдены"
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
 
-                return (
-                  <tr key={student.id}>
-                    <td
-                      onClick={() => handleOpenProfile(student)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {student.student_id || '—'}
-                    </td>
-                    <td
-                      onClick={() => handleOpenProfile(student)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {getFullName(student)}
-                    </td>
-                    <td
-                      onClick={() => handleOpenProfile(student)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {student.group || '—'}
-                    </td>
-                    <td
-                      onClick={() => handleOpenProfile(student)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {student.course || '—'} курс
-                    </td>
-                    <td>
-                      <div className={css.botBadges}>
-                        {student.bots.map((platform: string) => (
-                          <span
-                            key={platform}
-                            className={`${css.botBadge} ${css[platform.toLowerCase()]}`}
-                          >
-                            {getPlatformIcon(platform)}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className={css.actions}>
-                      <ActionMenu options={studentActions} />
-                    </td>
-                  </tr>
-                )
-              })
-            ) : (
-              <tr>
-                <td
-                  colSpan={6}
-                  style={{ textAlign: 'center', padding: '40px' }}
-                >
-                  Студенты не найдены
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+  
 
       <StudentModal
         isOpen={isEditModalOpen}
@@ -314,19 +316,14 @@ export const StudentPage = withPageWrapper({
             <b>{studentToDelete && getFullName(studentToDelete)}</b>?
           </p>
           {deleteStats && (
-            <>
-              <div className={css.statsHint}>
-                Студент привязан к {deleteStats.botUsers} ботам.
-              </div>
-              <div className={css.statsHint}>
-                Студент привязан к {deleteStats.sentMessages} отправленным
-                сообщениям.
-              </div>
-              <div className={css.statsHint}>
-                Студент привязан к {deleteStats.receivedMessages} полученным
-                сообщениям.
-              </div>
-            </>
+            <div className={css.statsHint}>
+              Будут безвозвратно удалены:
+              <ul>
+                <li>Связи с ботами: {deleteStats.botUsers}</li>
+                <li>Отправленные сообщения: {deleteStats.sentMessages}</li>
+                <li>Полученные сообщения: {deleteStats.receivedMessages}</li>
+              </ul>
+            </div>
           )}
         </div>
       </UniversalModal>

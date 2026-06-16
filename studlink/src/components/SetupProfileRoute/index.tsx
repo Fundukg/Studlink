@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useProfileCheck } from '../../hooks/useProfileCheck'
+import { getSignInRoute } from '../../lib/routes';
 
 type Props = {
   children: React.ReactNode
@@ -47,6 +48,7 @@ export const SetupProfileRoute = ({ children }: Props) => {
 
   // Если пользователь не найден – просим авторизоваться
   if (!user) {
+    navigate(getSignInRoute(), { replace: true })
     return (
       <div
         style={{

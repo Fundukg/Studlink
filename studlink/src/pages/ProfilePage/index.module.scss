@@ -1,40 +1,66 @@
 @use '../../styles/_vars.scss' as *;
 
-.userDataPageWrapper {
-  max-width: 1000px;
-  margin: 0 auto;
+// --- LOADER & LAYOUT ---
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  font-size: 16px;
+  color: $text-gray;
+  font-weight: 500;
 }
 
+// Контейнер центрируется и имеет максимальную ширину как в примере
+.userDataPageWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  // max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 0;
+}
+
+// --- HEADER ACTIONS ---
 .actionsHeader {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 24px;
+  margin-bottom: 4px;
 }
 
+// Делаем кнопку адаптивной на мобильных
 .menuTriggerButton {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: white;
+  background-color: $white;
   border: 1px solid $border-color;
-  border-radius: 30px;
-  padding: 8px 16px;
+  padding: 10px 16px;
   font-size: 14px;
-  font-weight: 500;
+  border-radius: 10px;
+  font-weight: 600;
   color: $text-dark;
   cursor: pointer;
-  transition: all 0.2s;
+  white-space: nowrap; // Не переносить текст кнопки
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.02);
 
   &:hover {
     background: $bg-main;
     border-color: $accent-green;
+    color: $accent-green;
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 
 .alertWrapper {
-  margin-bottom: 20px;
+  animation: fade-in 0.3s ease;
 }
 
+// --- MAIN LAYOUT GRIDS ---
 .userDataLayout {
   display: flex;
   flex-direction: column;
@@ -42,10 +68,11 @@
 }
 
 .fullWidthForm {
-  background: white;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.05);
+  background: $white;
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid $border-color;
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.03);
 }
 
 .verticalStack {
@@ -54,128 +81,177 @@
   gap: 24px;
 }
 
+// --- INFO CARDS ---
 .infoCardSection {
-  background: white;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.05);
+  background: $white;
+  border-radius: 16px;
+  border: 1px solid $border-color;
+  padding: 20px; // Адаптивный отступ
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.03);
+  transition: transform 0.2s ease;
 
-  .cardHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid $border-color;
+  @media (width >= 768px) {
+    padding: 28px;
   }
 
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(0, 0, 0, 0.06);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid $border-color;
+
   .cardTitle {
+    margin: 0;
     font-size: 18px;
     font-weight: 700;
     color: $text-dark;
-    margin: 0;
   }
 
   .cardIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: rgba($accent-green, 0.1);
     color: $accent-green;
+    border-radius: 12px;
   }
 }
 
+// --- DATA GRID ---
+// Улучшенная сетка данных (адаптивная)
 .infoGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px 24px;
+  grid-template-columns: 1fr; // 1 колонка на мобильных
+  gap: 16px;
+
+  @media (width >= 600px) {
+    grid-template-columns: repeat(2, 1fr); // 2 колонки на планшетах
+  }
+
+  @media (width >= 1024px) {
+    grid-template-columns: repeat(3, 1fr); // 3 колонки на десктопах
+  }
 }
 
-.infoItem,
-.infoItemFull {
+.infoItem {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  background-color: $bg-main; // Заливка карточки
+  padding: 12px 16px;
+  border-radius: 10px;
+  border-left: 3px solid $accent-green; // Зеленая полоса слева как в примере
 }
 
+// Для элементов, занимающих всю ширину (например, списки групп)
 .infoItemFull {
-  grid-column: span 2;
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: $bg-main;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border-left: 3px solid $accent-green;
 }
 
 .infoLabel {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
   color: $text-gray;
-  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+
+  svg {
+    color: $text-gray;
+  }
 }
 
 .infoValue {
-  font-size: 15px;
+  font-size: 14px;
   color: $text-dark;
+  font-weight: 600;
   word-break: word-break;
 
+  // Бейджи для ролей
   &[data-role='student'] {
-    color: #2c7a4d;
-    font-weight: 500;
+    color: #0088cc;
   }
 
   &[data-role='teacher'] {
-    color: #2b6cb0;
-    font-weight: 500;
+    color: #ee8208;
   }
 
   &[data-role='deanery'] {
-    color: #9b2c2c;
-    font-weight: 500;
+    color: #8b5cf6;
   }
 
   &[data-role='admin'] {
-    color: #c53030;
-    font-weight: 500;
+    color: #ef4444;
   }
 }
 
+// --- TEACHER GROUPS BADGES ---
 .groupList {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   margin-top: 4px;
 }
 
 .groupBadge {
-  background: #edf2f7;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 13px;
+  background: $white; // Изменено на белый, т.к. контейнер стал серым
+  border: 1px solid $border-color;
   color: $text-dark;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
 }
 
+// --- BOTTOM FORM (PASSWORD) ---
+// Специфичная адаптивность для нижней формы
 .bottomFormWrapper {
-  background: white;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.05);
+  width: 100%;
+  margin-top: 10px;
+  padding: 30px;
+  background: $white;
+  border-radius: 16px;
+  border: 1px solid $border-color;
+  border-top: 2px dashed $border-color; // Пунктирная линия сверху как в примере
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.03);
 }
 
-.loader {
-  text-align: center;
-  padding: 60px;
-  color: $text-gray;
-}
-
+// --- ANIMATIONS ---
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(-10px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @keyframes slide-down {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-10px);
   }
 
   to {

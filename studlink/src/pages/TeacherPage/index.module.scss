@@ -2,13 +2,12 @@
 
 .container {
   padding: 30px;
-  // max-width: 1400px;
   margin: 0 auto;
   background-color: $bg-main;
   min-height: 100vh;
 }
 
-// Шапка страницы
+// --- ШАПКА СТРАНИЦЫ ---
 .header {
   display: flex;
   justify-content: space-between;
@@ -39,7 +38,7 @@
   }
 }
 
-// Поиск и кнопка добавления
+// --- ПОИСК И КНОПКА ДОБАВЛЕНИЯ ---
 .controls {
   display: flex;
   gap: 15px;
@@ -94,12 +93,13 @@
   }
 }
 
-// Таблица
+// --- ТАБЛИЦА ---
 .tableWrapper {
   background: $white;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgb(0, 0, 0, 0.05);
   border: 1px solid $border-color;
+  // overflow: hidden;
 }
 
 .actions {
@@ -132,7 +132,7 @@
   }
 }
 
-// Инфо о сотруднике (Колонка 1)
+// --- ИНФО О ПРЕПОДАВАТЕЛЕ (Колонка 1) ---
 .staffCell {
   cursor: pointer;
   transition: background 0.2s;
@@ -172,7 +172,83 @@
   }
 }
 
-// Бейджи Ролей
+.groupList {
+  font-size: 14px;
+  color: $text-dark;
+  font-weight: 500;
+}
+
+// --- БЕЙДЖИ ПЛАТФОРМ (БОТОВ) ИЗ СТИЛЕЙ СТУДЕНТОВ ---
+
+// --- СТАТИСТИКА СООБЩЕНИЙ ---
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: $text-gray;
+
+    // Подсветка отправленных сообщений синим (как в .badgeSent у студентов)
+    &:first-child {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    // Подсветка полученных сообщений зеленым
+    &:last-child {
+      background: #ecfdf5;
+      color: #10b981;
+    }
+  }
+}
+
+// Старый класс activityBadges сохранен для совместимости
+
+.botBadge {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 16px;
+  background: $bg-main;
+  border: 1px solid $border-color;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &.telegram {
+    color: #0088cc;
+    background: #e0f2fe;
+    border-color: #bae6fd;
+  }
+
+  &.vk {
+    color: #4c75a3;
+    background: #ebf5ff;
+    border-color: #d1e9ff;
+  }
+
+  &.ok {
+    color: #ee8208;
+    background: #fff7ed;
+    border-color: #ffedd5;
+  }
+}
+
+// --- БЕЙДЖИ РОЛЕЙ ---
 .roleBadge {
   padding: 5px 10px;
   border-radius: 6px;
@@ -196,22 +272,7 @@
   }
 }
 
-// Активность
-.activityBadges {
-  .badgeSent {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: #eff6ff;
-    color: #3b82f6;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-  }
-}
-
-// Модалка Деталей
+// --- МОДАЛКА ДЕТАЛЕЙ ---
 .detailsContent {
   .detailsHeader {
     text-align: center;
@@ -260,13 +321,24 @@
       font-weight: 600;
       color: $text-dark;
     }
+
+    .facultyHighlight {
+      color: $dark-green;
+      font-weight: 700;
+    }
   }
+}
+
+.platformsList {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .passwordBox {
   margin-top: 20px;
   padding: 15px;
-  background: #1e293b; // Темно-синий "код" стиль
+  background: #1e293b;
   border-radius: 12px;
   color: white;
 
@@ -291,7 +363,7 @@
   }
 }
 
-// Удаление
+// --- УДАЛЕНИЕ ---
 .deleteConfirm {
   text-align: center;
   padding: 10px 0;
@@ -365,4 +437,38 @@
   padding: 100px;
   color: $text-gray;
   font-weight: 500;
+}
+// Адаптив для заголовка и поиска
+@media (width <= 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .controls {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+
+    .searchWrapper {
+      width: 100%;
+
+      .searchInput {
+        width: 100% !important; // Растягиваем на всю ширину
+      }
+    }
+
+    .addBtn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// Адаптив для карточки деталей в модалке
+@media (width <= 480px) {
+  .studentInfoModal .infoGrid {
+    grid-template-columns: 1fr; // В одну колонку на мобильных
+  }
 }

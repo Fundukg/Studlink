@@ -11,18 +11,20 @@ import {
   Building,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
 import { Alert } from '../../components/Alert'
 import { ProfileForm } from '../../components/ProfileForm'
 import { Segment } from '../../components/Segment'
 import { useMe } from '../../lib/ctx'
+import { getSignInRoute } from '../../lib/routes'
 import css from './index.module.scss'
 
 type ActiveFormTab = 'userData-view' | 'userData-edit' | 'change-password'
 
 export const ProfilePage = () => {
   const { user: userData, isLoading } = useMe() // теперь получаем user и isLoading
-
+  const navigate = useNavigate()
   const [activeForm, setActiveForm] = useState<ActiveFormTab>('userData-view')
   const [message, setMessage] = useState<{
     type: 'success' | 'error'
@@ -44,6 +46,7 @@ export const ProfilePage = () => {
 
   // Если пользователь не определён — просим авторизоваться
   if (!userData) {
+    navigate(getSignInRoute(), { replace: true })
     return <div className={css.loader}>Пожалуйста, авторизуйтесь...</div>
   }
   const fullName =
@@ -96,7 +99,7 @@ export const ProfilePage = () => {
   }
 
   return (
-    <Segment title="Мой профиль">
+    <Segment title="Мой профиль" size={2}>
       <div className={css.userDataPageWrapper}>
         {/* Меню управления профилем показывается всем */}
         <div className={css.actionsHeader}>

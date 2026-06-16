@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { Input } from '../../../components/Input'
 import { UniversalModal } from '../../../components/UniversalModal'
 import { trpc } from '../../../lib/trpc'
+import { List } from '../../List'
 import css from './index.module.scss'
 
 // Схема валидации
@@ -24,22 +25,22 @@ export const DepartmentModal = ({
 }: DepartmentModalProps) => {
   const utils = trpc.useUtils()
   const isEdit = !!department
-
   // Загружаем список факультетов для Select
   const { data: facultyData } = trpc.getFaculty.useQuery()
-
   const createMutation = trpc.createDepartment.useMutation()
   const updateMutation = trpc.updateDepartment.useMutation()
 
   const formik = useFormik({
     initialValues: {
       name: department?.name || '',
-      facultyId: department?.facultyId || '',
+      facultyId: department?.faculty.id || '',
     },
     enableReinitialize: true,
     validate: (values) => {
       const result = departmentSchema.safeParse(values)
-      if (result.success) {return {}}
+      if (result.success) {
+        return {}
+      }
       const errors: any = {}
       result.error.errors.forEach((err) => {
         errors[err.path[0] as string] = err.message
@@ -101,31 +102,13 @@ export const DepartmentModal = ({
           placeholder="Например: Кафедра высшей математики"
           formik={formik}
         />
-
-        <div className={css.inputGroup}>
-          <label className={css.label}>Факультет</label>
-          <select
-            name="facultyId"
-            className={`${css.selectField} ${formik.errors.facultyId && formik.touched.facultyId ? css.errorInput : ''}`}
-            value={formik.values.facultyId}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-          >
-            <option value="" disabled>
-              Выберите факультет...
-            </option>
-            {facultyData?.Faculty.map((f: any) => (
-              <option key={f.id} value={f.id}>
-                {f.name}
-              </option>
-            ))}
-          </select>
-          {formik.errors.facultyId && formik.touched.facultyId && (
-            <div className={css.errorText}>
-              {formik.errors.facultyId as string}
-            </div>
-          )}
-        </div>
+        <List
+          name="facultyId"
+          label="Факультет"
+          listlabel="Выберите факультет..."
+          groups={facultyData?.Faculty || []} // передаем данные напрямую
+          formik={formik}
+        />
       </form>
     </UniversalModal>
   )

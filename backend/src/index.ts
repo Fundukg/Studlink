@@ -17,6 +17,8 @@ import { applyTrpcToExpressApp } from './lib/trpc'
 import upload, { processStudents } from './pages/api/upload'
 import { trpcRouter } from './router'
 import { createInitialAdmin } from './scripts/initAdmin'
+import { createServer } from 'http'
+import { initSocket } from './lib/socket'
 
 const uploadMiddleware = multer({ dest: '/tmp' })
 
@@ -24,8 +26,7 @@ void (async () => {
   let ctx: AppContext | null = null
   try {
     ctx = createAppContext()
-    // const expressApp = express()
-    // expressApp.use(cors())
+
     const expressApp = express()
     expressApp.use(
       cors({ origin: 'http://localhost:5173', credentials: true })
@@ -67,7 +68,12 @@ void (async () => {
         }
       }
     )
+    const httpServer = createServer(expressApp) // ваш express app
+    initSocket(httpServer)
 
+    httpServer.listen(3000, () => {
+      console.log('Сервер запущен на порту 3000')
+    })
 
     applyPassportToExpressApp(expressApp, ctx)
     await applyTrpcToExpressApp(expressApp, ctx, trpcRouter)

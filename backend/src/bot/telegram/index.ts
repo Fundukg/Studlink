@@ -6,6 +6,7 @@ import { prisma } from '../../lib/prisma'
 import { authService } from '../authService'
 import { botService } from '../botService'
 import type { BotContext } from './types'
+import { getIO } from '../../lib/socket'
 
 let botInstance: Telegraf<BotContext> | null = null
 
@@ -222,7 +223,7 @@ function setupBotHandlers() {
       }
 
       // Сохраняем сообщение Студента в базу данных
-      await prisma.message.create({
+      const savedMsg = await prisma.message.create({
         data: {
           text: finalMessageText.trim(),
           senderType: SenderType.STUDENT,
@@ -233,7 +234,10 @@ function setupBotHandlers() {
           platform: BotPlatform.TELEGRAM,
         },
       })
-
+      getIO().emit('new_message', {
+        ...savedMsg,
+        senderName: `${user.firstName} ${user.lastName}`,
+      })
       // Подтверждаем отправку студенту
       await ctx.reply(responseConfirm)
     } catch (error) {

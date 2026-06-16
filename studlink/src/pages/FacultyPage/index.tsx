@@ -10,9 +10,10 @@ import {
   FiUsers,
   FiAlertTriangle,
 } from 'react-icons/fi'
-import { ActionMenu, type ActionOption } from '../../components/ActionMenu' // Наш новый компонент
+import { ActionMenu } from '../../components/ActionMenu' // Наш новый компонент
 import { FacultyModal } from '../../components/Create-UpdateModal/FacultyModal'
 import { UniversalModal } from '../../components/UniversalModal'
+import { UniversalTable, type Column } from '../../components/UniversalTable'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
@@ -66,6 +67,55 @@ export const FacultyPage = withPageWrapper({
     setIsDetailsOpen(true)
   }
 
+  const columns: Column<any>[] = [
+    {
+      header: 'Название факультета',
+      width: '25%',
+      render: (faculty) => (
+        <div
+          className={css.facultyName}
+          onClick={() => handleShowDetails(faculty)}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className={css.nameWithIcon}>
+            <FiBriefcase className={css.entryIcon} />
+            {faculty.name}
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Кафедр',
+      render: (faculty) => faculty._count?.departments || 0,
+    },
+    {
+      header: 'Действия',
+      align: 'right',
+      render: (faculty) => (
+        <ActionMenu
+          options={[
+            {
+              label: 'Детали',
+              icon: <FiInfo />,
+              onClick: () => handleShowDetails(faculty),
+            },
+            {
+              label: 'Редактировать',
+              icon: <FiEdit2 />,
+              onClick: () => handleEdit(faculty),
+            },
+            {
+              label: 'Удалить',
+              icon: <FiTrash2 />,
+              onClick: () => setFacultyToDelete(faculty),
+              variant: 'danger',
+            },
+          ]}
+        />
+      ),
+    },
+  ]
+
   return (
     <div className={css.container}>
       {/* Хедер остается без изменений */}
@@ -98,72 +148,11 @@ export const FacultyPage = withPageWrapper({
       </div>
 
       <div className={css.tableWrapper}>
-        <table className={css.table}>
-          <thead>
-            <tr>
-              <th>Название факультета</th>
-              <th>Кафедр</th>
-              <th style={{ textAlign: 'right' }}>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredFaculties.length > 0 ? (
-              filteredFaculties.map((faculty) => {
-                // Конфигурация меню для каждой строки
-                const facultyActions: ActionOption[] = [
-                  {
-                    label: 'Детали',
-                    icon: <FiInfo />,
-                    onClick: () => handleShowDetails(faculty),
-                  },
-                  {
-                    label: 'Редактировать',
-                    icon: <FiEdit2 />,
-                    onClick: () => handleEdit(faculty),
-                  },
-                  {
-                    label: 'Удалить',
-                    icon: <FiTrash2 />,
-                    onClick: () => setFacultyToDelete(faculty),
-                    variant: 'danger',
-                  },
-                ]
-
-                return (
-                  <tr key={faculty.id}>
-                    <td
-                      className={css.facultyName}
-                      onClick={() => handleShowDetails(faculty)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <div className={css.nameWithIcon}>
-                        <FiBriefcase className={css.entryIcon} />
-                        {faculty.name}
-                      </div>
-                    </td>
-                    <td>{faculty._count?.departments || 0}</td>
-                    <td className={css.actions}>
-                      <ActionMenu options={facultyActions} />
-                    </td>
-                  </tr>
-                )
-              })
-            ) : (
-              <tr>
-                <td
-                  colSpan={6}
-                  style={{
-                    textAlign: 'center',
-                    padding: '40px',
-                    color: '#718096',
-                  }}
-                >
-                  Факультеты не найдены
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <UniversalTable
+          data={filteredFaculties}
+          columns={columns}
+          emptyMessage="Факультеты не найдены"
+        />
       </div>
 
       {/* Модалка редактирования */}

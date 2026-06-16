@@ -11,10 +11,11 @@ import {
   FiAlertTriangle,
   FiShield,
 } from 'react-icons/fi'
-import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
+import { ActionMenu } from '../../components/ActionMenu'
 import { AdminModal } from '../../components/Create-UpdateModal/AdminModal'
 import { CustomToaster } from '../../components/CustomToaster'
 import { UniversalModal } from '../../components/UniversalModal'
+import { UniversalTable, type Column } from '../../components/UniversalTable'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
@@ -60,6 +61,64 @@ export const AdminPage = withPageWrapper({
     setviewingAdmin(staff)
     setIsDetailsOpen(true)
   }
+
+  const columns: Column<any>[] = [
+    {
+      header: 'Администратор',
+      width: '25%',
+      render: (admin) => (
+        <div
+          className={css.staffInfo}
+          onClick={() => handleShowDetails(admin)}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className={css.avatarSmall}>
+            <FiUser />
+          </div>
+          <div className={css.nameBlock}>
+            <div className={css.nickName}>{admin.nick}</div>
+            <div className={css.fullName}>
+              {admin.lastName} {admin.firstName} {admin.middleName}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Дата регистрации',
+      render: (admin) => new Date(admin.createdAt).toLocaleDateString('ru-RU'),
+    },
+    {
+      header: 'Действия',
+      align: 'right',
+      render: (admin) => (
+        <ActionMenu
+          options={[
+            {
+              label: 'Детали',
+              icon: <FiInfo />,
+              onClick: () => handleShowDetails(admin),
+            },
+            {
+              label: 'Редактировать',
+              icon: <FiEdit2 />,
+              onClick: () => {
+                setSelectedAdmin(admin)
+                setIsModalOpen(true)
+              },
+            },
+            {
+              label: 'Удалить',
+              icon: <FiTrash2 />,
+              onClick: () => setAdminToDelete(admin),
+              variant: 'danger',
+            },
+          ]}
+        />
+      ),
+    },
+  ]
+
   return (
     <div className={css.container}>
       <div className={css.header}>
@@ -91,75 +150,11 @@ export const AdminPage = withPageWrapper({
       </div>
 
       <div className={css.tableWrapper}>
-        <table className={css.table}>
-          <thead>
-            <tr>
-              <th>Администратор</th>
-              <th>Дата регистрации</th>
-              <th style={{ textAlign: 'right' }}>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAdmins.length > 0 ? (
-              filteredAdmins.map((admin) => {
-                const actions: ActionOption[] = [
-                  {
-                    label: 'Детали',
-                    icon: <FiInfo />,
-                    onClick: () => handleShowDetails(admin),
-                  },
-                  {
-                    label: 'Редактировать',
-                    icon: <FiEdit2 />,
-                    onClick: () => {
-                      setSelectedAdmin(admin)
-                      setIsModalOpen(true)
-                    },
-                  },
-                  {
-                    label: 'Удалить',
-                    icon: <FiTrash2 />,
-                    onClick: () => setAdminToDelete(admin),
-                    variant: 'danger',
-                  },
-                ]
-                return (
-                  <tr key={admin.id}>
-                    <td className={css.staffCell}>
-                      <div className={css.staffInfo}>
-                        <div className={css.avatarSmall}>
-                          <FiUser />
-                        </div>
-                        <div className={css.nameBlock}>
-                          <div className={css.nickName}>{admin.nick}</div>
-                          <div className={css.fullName}>
-                            {admin.lastName} {admin.firstName}{' '}
-                            {admin.middleName}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      {new Date(admin.createdAt).toLocaleDateString('ru-RU')}
-                    </td>
-                    <td className={css.actions}>
-                      <ActionMenu options={actions} />
-                    </td>
-                  </tr>
-                )
-              })
-            ) : (
-              <tr>
-                <td
-                  colSpan={6}
-                  style={{ textAlign: 'center', padding: '40px' }}
-                >
-                  Преподаватели не найдены
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <UniversalTable
+          data={filteredAdmins}
+          columns={columns}
+          emptyMessage="Администраторы не найдены"
+        />
       </div>
 
       {/* Модалка создания/редактирования */}

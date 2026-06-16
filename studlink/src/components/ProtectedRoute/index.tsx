@@ -1,7 +1,8 @@
 // components/ProtectedRoute.tsx
 import { useEffect, useRef } from 'react'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useProfileCheck } from '../../hooks/useProfileCheck'
+import { getSignInRoute } from '../../lib/routes'
 
 export const ProtectedRoute = () => {
   const navigate = useNavigate()
@@ -10,15 +11,28 @@ export const ProtectedRoute = () => {
   const redirectInProgress = useRef(false)
 
   useEffect(() => {
-    if (isLoading || !user) {return}
-    if (location.pathname === '/profile-setup') {return}
+    if (isLoading || !user) {
+      return
+    }
+    if (location.pathname === '/profile-setup') {
+      return
+    }
     if (!isProfileFilled && !redirectInProgress.current) {
       redirectInProgress.current = true
       navigate('/profile-setup', { replace: true })
     }
   }, [isLoading, user, isProfileFilled, navigate, location.pathname])
 
-  if (isLoading) {return <div>Загрузка...</div>}
-  if (!user) {return <div>Пожалуйста, авторизуйтесь...</div>}
+  if (isLoading) {
+    return <div>Загрузка...</div>
+  }
+  // Если пользователя нет — ЖЕСТКО прерываем рендер и отправляем на авторизацию
+  if (!user) {
+    // getSignInRoute() вернет ваш путь вроде '/sign-in'
+    // state сохранит страницу, с которой выкинуло пользователя, чтобы вернуть его туда после логина
+    return (
+      <Navigate to={getSignInRoute()} state={{ from: location }} replace />
+    )
+  }
   return <Outlet />
 }

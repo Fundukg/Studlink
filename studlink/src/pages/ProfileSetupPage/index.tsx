@@ -4,31 +4,31 @@ import { useNavigate } from 'react-router-dom'
 import { Alert } from '../../components/Alert'
 import { ProfileForm } from '../../components/ProfileForm'
 import { useMe } from '../../lib/ctx'
+import { getSignInRoute } from '../../lib/routes'
 import css from './index.module.scss'
 
 export const ProfileSetupPage = () => {
   const navigate = useNavigate()
-  const { user, isLoading } = useMe()  // теперь хук возвращает { user, isLoading }
+  const { user, isLoading } = useMe()
 
   const [message, setMessage] = useState<{
     type: 'success' | 'error'
     text: string
   } | null>(null)
 
-  // Если профиль загрузился и пользователь админ – уходим (на всякий случай)
+  // Если профиль загрузился и пользователь админ – уходим на главную
   useEffect(() => {
     if (!isLoading && user?.role === 'ADMIN') {
       navigate('/', { replace: true })
     }
   }, [isLoading, user, navigate])
 
-  // Пока загружается – индикатор
   if (isLoading) {
-    return <div className={css.loader}>Загрузка...</div>
+    return <div className={css.loader}>Загрузка настройки профиля...</div>
   }
 
-  // Если по какой-то причине пользователь не определён – заглушка
   if (!user) {
+    navigate(getSignInRoute(), { replace: true })
     return <div className={css.loader}>Пожалуйста, авторизуйтесь...</div>
   }
 
@@ -39,10 +39,12 @@ export const ProfileSetupPage = () => {
 
   return (
     <div className={css.setupContainer}>
-      <h1 className={css.title}>Первоначальная настройка профиля</h1>
-      <p className={css.subtitle}>
-        Заполните личные данные и установите пароль для входа
-      </p>
+      <div className={css.headerText}>
+        <h1 className={css.title}>Первоначальная настройка</h1>
+        <p className={css.subtitle}>
+          Пожалуйста, проверьте личные данные и установите пароль для входа
+        </p>
+      </div>
 
       {message && (
         <div className={css.alertWrapper}>
@@ -52,10 +54,10 @@ export const ProfileSetupPage = () => {
         </div>
       )}
 
+      {/* Единая карточка с объединенной формой */}
       <div className={css.formCard}>
-        <h2 className={css.cardTitle}>📝 Личные данные</h2>
         <ProfileForm
-          mode="edit"
+          mode="setup" // ВАЖНО: Добавьте обработку этого режима в самом ProfileForm
           initialValues={{
             nick: user.nick || '',
             lastName: user.lastName || '',
@@ -66,11 +68,6 @@ export const ProfileSetupPage = () => {
           }}
           onSuccess={handleSuccess}
         />
-      </div>
-
-      <div className={css.formCard}>
-        <h2 className={css.cardTitle}>🔒 Безопасность</h2>
-        <ProfileForm mode="password" onSuccess={handleSuccess} />
       </div>
     </div>
   )

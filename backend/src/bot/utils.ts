@@ -13,7 +13,6 @@ export const sendToAnyPlatform = async (
   platform: BotPlatform
 ): Promise<{ success: boolean; error: string }> => {
   const tasks: { name: string; fn: () => Promise<any> }[] = []
-
   // 1. Формируем список задач в зависимости от платформы
   if (platform === BotPlatform.TELEGRAM || platform === BotPlatform.ALL) {
     tasks.push({ name: 'TG', fn: () => sendTg(studentId, text) })

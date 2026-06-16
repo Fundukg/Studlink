@@ -3,6 +3,7 @@ import 'dotenv/config'
 import { BotPlatform, SenderType, UserRole } from '@prisma/client'
 import { VK } from 'vk-io'
 import { prisma } from '../../lib/prisma'
+import { getIO } from '../../lib/socket'
 import { authService } from '../authService'
 import { botService } from '../botService'
 
@@ -204,7 +205,7 @@ function setupVkHandlers() {
       }
 
       // Сохранение сообщения в БД по новой структуре (без targetType)
-      await prisma.message.create({
+      const savedMsg = await prisma.message.create({
         data: {
           text: finalMessageText.trim(),
           senderType: SenderType.STUDENT,
@@ -216,6 +217,10 @@ function setupVkHandlers() {
         },
       })
 
+      getIO().emit('new_message', {
+        ...savedMsg,
+        senderName: `${user.firstName} ${user.lastName}`,
+      })
       await ctx.send(responseConfirm)
     } catch (error) {
       console.error('Ошибка при сохранении сообщения в ВК:', error)

@@ -11,9 +11,10 @@ import {
   FiAlertTriangle,
   FiKey,
 } from 'react-icons/fi'
-import { ActionMenu, type ActionOption } from '../../components/ActionMenu'
+import { ActionMenu } from '../../components/ActionMenu'
 import { BotModal } from '../../components/Create-UpdateModal/BotModal' // Нужно будет создать аналогично GroupModal
 import { UniversalModal } from '../../components/UniversalModal'
+import { UniversalTable, type Column } from '../../components/UniversalTable'
 import { withPageWrapper } from '../../lib/pageWarpper'
 import { trpc } from '../../lib/trpc'
 import css from './index.module.scss'
@@ -75,6 +76,77 @@ export const BotPage = withPageWrapper({
     setIsDetailsOpen(true)
   }
 
+  const columns: Column<any>[] = [
+    {
+      header: 'Бот',
+      width: '300px',
+      render: (bot) => (
+        <div
+          className={css.studentName}
+          onClick={() => handleShowDetails(bot)}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className={css.nameWithIcon}>
+            <FiCpu
+              className={css.entryIcon}
+              style={{ color: '#10b981', marginRight: '8px' }}
+            />
+            <div className={css.deptInfo}>
+              <div className={css.primaryText}>{bot.name}</div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Статистика',
+      render: (bot) => (
+        <div className={css.statsRow}>
+          <span className={css.statBadge}>
+            <FiUsers size={12} /> {bot._count.users}
+          </span>
+          <span className={`${css.statBadge} ${css.blue}`}>
+            <FiMessageSquare size={12} /> {bot._count.messages}
+          </span>
+        </div>
+      ),
+    },
+    {
+      header: 'Токен',
+      render: () => (
+        <div className={css.tokenCell}>
+          <FiKey size={14} /> <span>••••••••••••</span>
+        </div>
+      ),
+    },
+    {
+      header: 'Действия',
+      align: 'right',
+      render: (bot) => (
+        <ActionMenu
+          options={[
+            {
+              label: 'Детали',
+              icon: <FiInfo />,
+              onClick: () => handleShowDetails(bot),
+            },
+            {
+              label: 'Редактировать',
+              icon: <FiEdit2 />,
+              onClick: () => handleEdit(bot),
+            },
+            {
+              label: 'Удалить',
+              icon: <FiTrash2 />,
+              onClick: () => setBotToDelete(bot),
+              variant: 'danger',
+            },
+          ]}
+        />
+      ),
+    },
+  ]
+
   return (
     <div className={css.container}>
       <div className={css.header}>
@@ -107,79 +179,11 @@ export const BotPage = withPageWrapper({
       </div>
 
       <div className={css.tableWrapper}>
-        <table className={css.table}>
-          <thead>
-            <tr>
-              <th>Бот</th>
-              <th>Статистика</th>
-              <th>Токен (скрыт)</th>
-              <th style={{ textAlign: 'right' }}>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBots.map((bot) => {
-              const botActions: ActionOption[] = [
-                {
-                  label: 'Детали',
-                  icon: <FiInfo />,
-                  onClick: () => handleShowDetails(bot),
-                },
-                {
-                  label: 'Редактировать',
-                  icon: <FiEdit2 />,
-                  onClick: () => handleEdit(bot),
-                },
-                {
-                  label: 'Удалить',
-                  icon: <FiTrash2 />,
-                  onClick: () => setBotToDelete(bot),
-                  variant: 'danger',
-                },
-              ]
-
-              return (
-                <tr key={bot.id}>
-                  <td
-                    className={css.studentName}
-                    onClick={() => handleShowDetails(bot)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div className={css.nameWithIcon}>
-                      <FiCpu
-                        className={css.entryIcon}
-                        style={{ color: '#10b981', marginRight: '8px' }}
-                      />
-                      <div className={css.deptInfo}>
-                        <div className={css.primaryText}>{bot.name}</div>
-                        {/* <div className={css.secondaryText}>
-                          @{bot.username || 'no_username'}
-                        </div> */}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className={css.statsRow}>
-                      <span className={css.statBadge}>
-                        <FiUsers size={12} /> {bot._count.users}
-                      </span>
-                      <span className={`${css.statBadge} ${css.blue}`}>
-                        <FiMessageSquare size={12} /> {bot._count.messages}
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className={css.tokenCell}>
-                      <FiKey size={14} /> <span>••••••••••••</span>
-                    </div>
-                  </td>
-                  <td className={css.actions}>
-                    <ActionMenu options={botActions} />
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+        <UniversalTable
+          data={filteredBots}
+          columns={columns}
+          emptyMessage="Боты не найдены"
+        />
       </div>
 
       <BotModal

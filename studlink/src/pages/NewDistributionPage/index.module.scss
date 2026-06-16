@@ -1,8 +1,14 @@
+@use '../../styles/_vars.scss' as *;
+
 .container {
-  max-width: 1400px;
-  margin: 0 auto;
   padding: 24px;
-  background-color: #fcfdfc;
+  background-color: $bg-main;
+
+  .alertContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
 }
 
 .content {

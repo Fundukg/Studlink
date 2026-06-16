@@ -31,7 +31,9 @@ export default function ImportStudentPage() {
   }
 
   const handleUpload = async () => {
-    if (!file) {return}
+    if (!file) {
+      return
+    }
 
     const formData = new FormData()
     formData.append('file', file)
@@ -52,7 +54,9 @@ export default function ImportStudentPage() {
       })
 
       if (!res.ok) {
-        if (res.status === 404) {throw new Error('Маршрут загрузки не найден')}
+        if (res.status === 404) {
+          throw new Error('Маршрут загрузки не найден')
+        }
         const errorData = await res
           .json()
           .catch(() => ({ message: 'Ошибка сервера' }))
@@ -81,89 +85,91 @@ export default function ImportStudentPage() {
 
   return (
     <div className={styles.importContainer}>
-      <h1>Массовый импорт студентов</h1>
+      <div className={styles.importContainer__main}>
+        <h1>Массовый импорт студентов</h1>
 
-      {/* Добавляем памятку для пользователя */}
-      <div className={styles.instructionBox}>
-        <h3>Формат CSV файла:</h3>
-        <p>
-          Файл должен содержать заголовки:{' '}
-          <code>
-            lastName, firstName, middleName, studentCard, groupName
-          </code>
-        </p>
-        <small>middleName - опционально</small>
-      </div>
-
-      <div
-        className={`${styles.dropZone} ${isDragging ? styles.active : ''}`}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <div className={styles.icon}>📁</div>
-        <p>
-          {file ? file.name : 'Перетащите CSV файл или нажмите для выбора'}
-        </p>
-        <span>Только .csv файлы</span>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-          accept=".csv"
-          hidden
-        />
-      </div>
-
-      {file && (
-        <div className={styles.fileInfo}>
-          <div>
-            <strong>Выбранный файл:</strong> {file.name} (
-            {(file.size / 1024).toFixed(2)} KB)
-          </div>
-          <button
-            onClick={handleUpload}
-            disabled={loading}
-            className={styles.uploadBtn}
-          >
-            {loading ? 'Загрузка...' : 'Начать импорт'}
-          </button>
+        {/* Добавляем памятку для пользователя */}
+        <div className={styles.instructionBox}>
+          <h3>Формат CSV файла:</h3>
+          <p>
+            Файл должен содержать заголовки:{' '}
+            <code>
+              lastName, firstName, middleName, studentCard, groupName
+            </code>
+          </p>
+          <small>middleName - опционально</small>
         </div>
-      )}
 
-      {report && (
-        <div className={styles.errorTableContainer}>
-          <div className={styles.reportSummary}>
-            <h3 style={{ color: '#38a169' }}>
-              Успешно импортировано: {report.imported}
-            </h3>
-            {report.failed > 0 && (
-              <h3 className={styles.errorHeader}>Ошибок: {report.failed}</h3>
+        <div
+          className={`${styles.dropZone} ${isDragging ? styles.active : ''}`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <div className={styles.icon}>📁</div>
+          <p>
+            {file ? file.name : 'Перетащите CSV файл или нажмите для выбора'}
+          </p>
+          <span>Только .csv файлы</span>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            accept=".csv"
+            hidden
+          />
+        </div>
+
+        {file && (
+          <div className={styles.fileInfo}>
+            <div>
+              <strong>Выбранный файл:</strong> {file.name} (
+              {(file.size / 1024).toFixed(2)} KB)
+            </div>
+            <button
+              onClick={handleUpload}
+              disabled={loading}
+              className={styles.uploadBtn}
+            >
+              {loading ? 'Загрузка...' : 'Начать импорт'}
+            </button>
+          </div>
+        )}
+
+        {report && (
+          <div className={styles.errorTableContainer}>
+            <div className={styles.reportSummary}>
+              <h3 style={{ color: '#38a169' }}>
+                Успешно импортировано: {report.imported}
+              </h3>
+              {report.failed > 0 && (
+                <h3 className={styles.errorHeader}>Ошибок: {report.failed}</h3>
+              )}
+            </div>
+
+            {report.errors?.length > 0 && (
+              <table className={styles.studentsTable}>
+                <thead>
+                  <tr>
+                    <th>Строка</th>
+                    <th>Описание ошибки</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.errors.map((err: any, i: number) => (
+                    <tr key={i}>
+                      <td>{err.row}</td>
+                      <td style={{ color: '#e53e3e' }}>{err.message}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
-
-          {report.errors?.length > 0 && (
-            <table className={styles.studentsTable}>
-              <thead>
-                <tr>
-                  <th>Строка</th>
-                  <th>Описание ошибки</th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.errors.map((err: any, i: number) => (
-                  <tr key={i}>
-                    <td>{err.row}</td>
-                    <td style={{ color: '#e53e3e' }}>{err.message}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

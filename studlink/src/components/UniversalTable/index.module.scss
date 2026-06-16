@@ -1,0 +1,146 @@
+@use '../../styles/_vars.scss' as *;
+@use '../../styles/_mixins.scss' as *;
+
+.tableWrapper {
+  background-color: $white;
+  border-radius: $borderRadiusSmall;
+  box-shadow: 0 1px 3px rgb(0, 0, 0, 0.1);
+  border: 1px solid $border-color;
+  width: 100%;
+  font-family: $defaultFontFamily;
+  font-size: $defaultFontSize;
+  line-height: $defaultLineHeight;
+  //   overflow: hidden // отсюда, чтобы тень от sticky-колонки не обрезалась
+}
+
+// Новый контейнер для прокрутки таблицы
+.tableScrollContainer {
+  width: 100%;
+  overflow-x: auto;
+
+  // Кастомный скроллбар (опционально)
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: $borderRadiusSmall;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse; // При sticky лучше работает collapse, если фоны заданы жестко
+  text-align: left;
+  min-width: 600px; // Минимальная ширина, чтобы заставить таблицу скроллиться на телефонах
+
+  thead {
+    background-color: $bg-main;
+    border-bottom: 2px solid $border-color;
+
+    th {
+      padding: 16px;
+      color: $text-gray;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+
+      // Фиксация первой колонки в шапке
+      &:first-child {
+        position: sticky;
+        left: 0;
+        background-color: $bg-main; // Обязательно фон, чтобы скрыть текст под ним
+        z-index: 2; // z-index должен быть выше, чем у tbody
+        border-right: 1px solid $border-color; // Визуальный разделитель
+
+        // Легкая тень для отделения зафиксированной колонки
+        box-shadow: 2px 0 5px -2px rgb(0, 0, 0, 0.05);
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $border-color;
+      background-color: $white; // Устанавливаем базовый фон для строки
+      transition: background-color 0.2s ease-in-out;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        padding: 16px;
+        color: $text-dark;
+        vertical-align: middle;
+
+        // Фиксация первой колонки в теле таблицы
+        &:first-child {
+          position: sticky;
+          left: 0;
+          background-color: $white; // Жестко заданный фон, чтобы скрыть уезжающий текст
+          z-index: 1;
+          border-right: 1px solid $border-color; // Визуальный разделитель
+
+          box-shadow: 2px 0 5px -2px rgb(0, 0, 0, 0.05);
+        }
+      }
+    }
+  }
+}
+
+// === Стили пагинации ===
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 16px;
+  background-color: $white;
+  border-top: 1px solid $border-color;
+  gap: 16px;
+
+  span {
+    color: $text-muted;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: $borderRadiusSmall;
+    border: 1px solid $border-color;
+    background-color: $white;
+    color: $text-dark;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: $accent-green;
+      color: $accent-green;
+      background-color: $light-bg-green;
+    }
+
+    &:active:not(:disabled) {
+      background-color: $item-active;
+    }
+
+    &:disabled {
+      color: #cbd5e1;
+      background-color: $bg-main;
+      cursor: not-allowed;
+      border-color: $border-color;
+    }
+  }
+}

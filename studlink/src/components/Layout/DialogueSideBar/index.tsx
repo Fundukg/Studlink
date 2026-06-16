@@ -1,13 +1,13 @@
 import { zCreateDirectMessageTrpcInput } from '@parkstick/backend/src/router/createDirectMessage/input'
 import { format, isToday } from 'date-fns'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FiSearch, FiEdit, FiCheck } from 'react-icons/fi'
-import { Link, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { useSocket } from '../../../hooks/useSocket'
 import { useForm } from '../../../lib/form'
 import { getViewDialogueRoute } from '../../../lib/routes'
 import { trpc } from '../../../lib/trpc'
 import { Alert } from '../../Alert'
-import { ButtonSend } from '../../Button'
 import { List } from '../../List'
 import { PlatformBadge } from '../../PlatformBadge'
 import { PlatformSelector, type PlatformType } from '../../PlatformSelector'
@@ -16,15 +16,38 @@ import { UniversalModal } from '../../UniversalModal'
 import css from './index.module.scss'
 
 export const DialogueSidebar = () => {
-  const { id: activeId } = useParams()
+  // const { id: activeId } = useParams()
   const [searchQuery, setSearchQuery] = useState('')
   const [isNewMessageOpen, setIsNewMessageOpen] = useState(false)
 
-  const { data: studentsData } = trpc.getStudent.useQuery()
-  const createMessage = trpc.createDirectMessage.useMutation()
-  const { data: dialoguesData, isLoading } = trpc.getDialogues.useQuery()
+  const utils = trpc.useUtils()
+  const { socket } = useSocket() // Подключаем сокет
+  
+  // 2. Вытаскиваем ID напрямую из URL
+  const activeId = location.pathname.includes('/dialogue/') 
+    ? location.pathname.split('/dialogue/')[1] 
+    : null
 
-  const { formik, buttonProps, alertProps } = useForm({
+  useEffect(() => {
+    const handleNewMessage = () => {
+      // Когда пришло любое новое сообщение, обновляем весь список диалогов
+      // Это обновит время и текст превью в сайдобаре
+      utils.getDialogues.invalidate()
+    }
+
+    if (socket) {
+      socket.on('new_message', handleNewMessage)
+    }
+
+    return () => {
+      if (socket) {
+        socket.off('new_message', handleNewMessage)
+      }
+    }
+  }, [socket, utils])
+
+  // 1. Сначала объявляем форму, чтобы получить доступ к formik
+  const { formik, alertProps } = useForm({
     initialValues: {
       userId: '',
       text: '',
@@ -38,6 +61,38 @@ export const DialogueSidebar = () => {
     },
     successMessage: 'Сообщение отправлено!',
     showValidationAlert: true,
+  })
+
+  // 2. Теперь можем безопасно использовать formik
+  const selectedUserId = formik.values.userId
+
+  const { data: studentsData } = trpc.getStudent.useQuery()
+  const { data: dialoguesData, isLoading } = trpc.getDialogues.useQuery()
+
+  const { data: studentQuery } = trpc.getOneStudent.useQuery(
+    { id: selectedUserId },
+    { enabled: !!selectedUserId }
+  )
+
+  const availablePlatforms =
+    studentQuery?.botUsers.map((bu) => bu.bot.platform) || []
+
+  // Эффект для сброса платформы, если выбранный студент её не поддерживает
+  useEffect(() => {
+    if (selectedUserId && availablePlatforms.length > 0) {
+      if (
+        formik.values.platform !== 'ALL' &&
+        !availablePlatforms.includes(formik.values.platform)
+      ) {
+        handlePlatformChange('ALL')
+      }
+    }
+  }, [selectedUserId, availablePlatforms])
+
+  const createMessage = trpc.createDirectMessage.useMutation({
+    onSuccess: () => {
+      utils.getDialogues.invalidate()
+    },
   })
 
   const handlePlatformChange = (p: PlatformType) => {
@@ -55,12 +110,11 @@ export const DialogueSidebar = () => {
     d.student.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // Определяем, есть ли вообще диалоги
   const hasDialogues =
     dialoguesData?.dialogues && dialoguesData.dialogues.length > 0
 
   return (
-    <aside className={css.secondarySidebar}>
+    <aside className={`${css.secondarySidebar} ${activeId ? css.hiddenOnMobile : ''}`}>
       <div className={css.sidebarHeader}>
         <div className={css.topRow}>
           <h2>Диалоги</h2>
@@ -71,8 +125,6 @@ export const DialogueSidebar = () => {
             <FiEdit size={18} />
           </button>
         </div>
-
-        {/* Поле поиска отображаем всегда, если диалоги есть; иначе скрываем, но можно оставить – поиск всё равно не найдёт ничего */}
         {hasDialogues && (
           <div className={css.searchWrapper}>
             <FiSearch className={css.searchIcon} />
@@ -90,13 +142,9 @@ export const DialogueSidebar = () => {
         {isLoading ? (
           <div className={css.loading}>Загрузка...</div>
         ) : !hasDialogues ? (
-          // Пустое состояние: диалогов нет вообще
           <div className={css.emptyState}>
             <div className={css.emptyIcon}>💬</div>
             <p className={css.emptyTitle}>Сообщений пока нет</p>
-            <p className={css.emptyHint}>
-              Напишите первое сообщение студенту, чтобы начать диалог
-            </p>
             <button
               className={css.startButton}
               onClick={() => setIsNewMessageOpen(true)}
@@ -105,10 +153,8 @@ export const DialogueSidebar = () => {
             </button>
           </div>
         ) : filteredDialogues?.length === 0 ? (
-          // Поиск не дал результатов
           <div className={css.noResults}>Ничего не найдено</div>
         ) : (
-          // Список диалогов
           filteredDialogues?.map((chat) => (
             <Link
               key={chat.id}
@@ -149,26 +195,22 @@ export const DialogueSidebar = () => {
         title="Новое сообщение"
         maxWidth={550}
         footer={
-          <div style={{ width: '100%' }}>
-            <Alert {...alertProps} />
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '10px',
-                marginTop: '10px',
-              }}
+          <div className={css.modalFooter}>
+            <button
+              type="button"
+              className={css.cancelBtn}
+              onClick={() => setIsNewMessageOpen(false)}
             >
-              <button
-                className={css.cancelBtn}
-                onClick={() => setIsNewMessageOpen(false)}
-              >
-                Отмена
-              </button>
-              <ButtonSend form="new-message-form" {...buttonProps}>
-                Отправить
-              </ButtonSend>
-            </div>
+              Отмена
+            </button>
+            <button
+              type="submit"
+              form="new-message-form"
+              className={css.submitBtn}
+              disabled={formik.isSubmitting}
+            >
+              {formik.isSubmitting ? 'Отправка...' : 'Отправить'}
+            </button>
           </div>
         }
       >
@@ -177,13 +219,19 @@ export const DialogueSidebar = () => {
           onSubmit={formik.handleSubmit}
           className={css.form}
         >
+          <div className={css.alertPlaceholder}>
+            <Alert {...alertProps} />
+          </div>
+
           <div className={css.field}>
             <PlatformSelector
               value={formik.values.platform}
               dialogue={true}
               onChange={handlePlatformChange}
+              availablePlatforms={availablePlatforms}
             />
           </div>
+
           <div className={css.field}>
             <List
               name="userId"
@@ -193,6 +241,7 @@ export const DialogueSidebar = () => {
               label="Получатель"
             />
           </div>
+
           <div className={css.field}>
             <Textarea name="text" formik={formik} label="Текст сообщения" />
           </div>

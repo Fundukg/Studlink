@@ -190,13 +190,11 @@
       font-size: 1.1rem;
     }
 
-    // Платформенный бейдж в углу аватара
     .platformPosition {
       position: absolute;
       bottom: -2px;
       right: -2px;
       z-index: 2;
-      // Здесь ожидается, что компонент PlatformBadge уже имеет свои размеры/стили
     }
   }
 
@@ -245,6 +243,94 @@
         color: $accent-green;
         flex-shrink: 0;
       }
+    }
+  }
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  padding-top: 15px;
+  border-top: 1px solid $border-color;
+  margin-top: 10px;
+
+  .submitBtn {
+    background: $primary-gradient;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 140px;
+    box-shadow: 0 4px 6px rgba($dark-green, 0.15);
+
+    &:hover:not(:disabled) {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba($dark-green, 0.25);
+    }
+
+    &:disabled {
+      background: $text-muted;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+  }
+
+  .cancelBtn {
+    background: $white;
+    border: 1px solid $border-color;
+    padding: 10px 24px;
+    border-radius: 10px;
+    color: $text-muted;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #f9fafb;
+      color: $text-dark;
+    }
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .fieldLabel {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: $text-dark;
+      margin-bottom: 8px;
+    }
+
+    .alertPlaceholder {
+      min-height: 50px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+  }
+}
+
+// ==========================================
+// ДОБАВЛЕНА АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ
+// ==========================================
+@media (width <= 768px) {
+  .secondarySidebar {
+    width: 100%;
+    border-right: none; // Убираем рамку справа на мобилке
+
+    // Если открыт какой-то конкретный чат, скрываем список диалогов полностью
+    &.hiddenOnMobile {
+      display: none;
     }
   }
 }
