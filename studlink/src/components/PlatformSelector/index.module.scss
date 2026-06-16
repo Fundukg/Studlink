@@ -1,11 +1,11 @@
-// Подключаем ваши переменные (убедитесь, что путь верный)
+@use 'sass:color'; // Добавьте эту строку в самое начало файла
 @use '../../styles/vars' as *;
 
 .container {
   display: inline-flex;
   gap: 0.5rem;
   padding: 0.25rem;
-  background-color: $item-hover; // Используем $item-hover из вашей палитры
+  background-color: $item-hover;
   border-radius: 0.5rem;
 }
 
@@ -35,20 +35,20 @@
     justify-content: center;
   }
 
-  // Используем цвета из вашей новой палитры для активных состояний
+  // Используем модуль color вместо глобальной функции
   &[data-platform='TELEGRAM'].active {
     color: $color-tg;
-    background: $color-tg; // Светлый оттенок TG
+    background: color.adjust($color-tg, $lightness: 40%);
   }
 
   &[data-platform='VK'].active {
     color: $color-vk;
-    background: $color-vk;
+    background: color.adjust($color-vk, $lightness: 40%);
   }
 
   &[data-platform='OK'].active {
     color: $color-ok;
-    background: $color-ok;
+    background: color.adjust($color-ok, $lightness: 40%);
   }
 
   &[data-platform='ALL'].active {
