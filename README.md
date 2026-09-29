@@ -192,7 +192,3 @@ studlink/
 └── vite.config.ts        # Конфигурация Vite
 
 ```
-
-```
-
-```
